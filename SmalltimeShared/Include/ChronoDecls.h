@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _CHRONOCONSTANTS_
-#define _CHRONOCONSTANTS_
+#ifndef _CHRONODECLS_
+#define _CHRONODECLS_
 
 #include "CoreDecls.h"
 #include <array>

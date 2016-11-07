@@ -113,5 +113,8 @@
     <ClInclude Include="Source\Core\Tz\RuleGroup.h">
       <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
+    <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h">
+      <Filter>Header Files\Core\Chronology</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 #include "..\Include\IsoChronology.h"
-#include "..\Include\chronoconstants.h"
+#include "..\Include\ChronoDecls.h"
 #include "..\Include\CalMath.h"
 #include "..\Include\TimeMath.h"
 

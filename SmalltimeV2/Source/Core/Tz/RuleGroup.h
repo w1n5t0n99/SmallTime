@@ -17,7 +17,7 @@ namespace smalltime
 
 			const Rule* determineNearestRule(const BasicDateTime<>& dt, const Zone& zone, Choose choose);
 		private:
-			RD calculateFastTransition(const Rule* rule, int transitionYear);
+			RD calculateFastTransition(const Rule* rule, int transitionYear, bool withTime = false);
 			RD calculateExactTransition(const Rule* rule, const Zone* zone, int transitionYear, TimeType tmType);
 
 			const Rule* m_rules;

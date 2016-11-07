@@ -31,7 +31,7 @@
   <ItemGroup>
     <ClInclude Include="..\SmalltimeShared\Include\BasicDateTime.h" />
     <ClInclude Include="..\SmalltimeShared\Include\CalMath.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\chronoconstants.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h" />
     <ClInclude Include="..\SmalltimeShared\Include\CoreDecls.h" />
     <ClInclude Include="..\SmalltimeShared\Include\IsoChronology.h" />
     <ClInclude Include="..\SmalltimeShared\Include\MathUtils.h" />
