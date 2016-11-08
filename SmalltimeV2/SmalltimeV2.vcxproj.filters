@@ -69,7 +69,7 @@
     <ClCompile Include="Source\Core\Tz\TzdbAccessor.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Tz\RuleGroup.cpp">
+    <ClCompile Include="Source\Core\Tz\RuleUtil.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,11 +110,11 @@
     <ClInclude Include="Source\Core\Tz\Tzdb.h">
       <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Tz\RuleGroup.h">
-      <Filter>Header Files\Core\Tz</Filter>
-    </ClInclude>
     <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h">
       <Filter>Header Files\Core\Chronology</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Tz\RuleUtil.h">
+      <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

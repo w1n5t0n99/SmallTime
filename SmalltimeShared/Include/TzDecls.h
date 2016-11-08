@@ -79,6 +79,13 @@ namespace smalltime
 			int size;
 		};
 
+		struct RuleGroup
+		{
+			const Rule* ruleArr;
+			int first;
+			int size;
+		};
+
 	}
 }
 

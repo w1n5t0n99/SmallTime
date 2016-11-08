@@ -1,4 +1,5 @@
-#include "RuleGroup.h"
+
+#include "RuleUtil.h"
 #include <TimeMath.h>
 
 namespace smalltime
@@ -9,7 +10,7 @@ namespace smalltime
 		//=======================================================
 		// Calculate rule transition to the day only
 		//=======================================================
-		RD RuleGroup::calculateFastTransition(const Rule* rule, int transitionYear, bool withTime)
+		RD RuleUtil::calculateFastTransition(const Rule* rule, int transitionYear, bool withTime)
 		{
 			HMS hms = { 0, 0, 0, 0 };
 			if(withTime)
@@ -23,18 +24,7 @@ namespace smalltime
 				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, TimeType_Wall).getRd();
 		}
 
-		//============================================================
-		// Calculate rule transition with exact time and time type
-		//=============================================================
-		RD RuleGroup::calculateExactTransition(const Rule* rule, const Zone* zone, int transitionYear, TimeType tmType)
-		{
-			if (rule->atType == tmType)
-				return calculateFastTransition(rule, transitionYear, true);
-
-
-
-
-		}
+	
 
 	}
 }

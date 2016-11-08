@@ -23,7 +23,7 @@
     <ClCompile Include="..\SmalltimeShared\Source\IsoChronology.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\MathUtils.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\TimeMath.cpp" />
-    <ClCompile Include="Source\Core\Tz\RuleGroup.cpp" />
+    <ClCompile Include="Source\Core\Tz\RuleUtil.cpp" />
     <ClCompile Include="Source\Core\Tz\TzdbAccessor.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Utils\StlPerfCounter.cpp" />
@@ -39,7 +39,7 @@
     <ClInclude Include="..\SmalltimeShared\Include\TzDecls.h" />
     <ClInclude Include="Source\Core\DateTime\LocalDateTime.h" />
     <ClInclude Include="Source\Core\Exceptions.h" />
-    <ClInclude Include="Source\Core\Tz\RuleGroup.h" />
+    <ClInclude Include="Source\Core\Tz\RuleUtil.h" />
     <ClInclude Include="Source\Core\Tz\Tzdb.h" />
     <ClInclude Include="Source\Core\Tz\TzdbAccessor.h" />
     <ClInclude Include="Source\Utils\StlPerfCounter.h" />
