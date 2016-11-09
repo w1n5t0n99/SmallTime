@@ -13,28 +13,34 @@ namespace smalltime
 		//=============================================================
 		const Rule* RuleUtil::findPreviousRule(const Rule* rule, int year)
 		{
+			const Rule* prevRule = nullptr;
 			auto checkTransition = calculateFastTransition(rule, year);
 			assert(checkTransition > 0.0);
 
 			int checkYear = year;
-			m_prevRules.clear();
-			//find rule transitions for current year
-			for (int i = m_group.first; i < m_group.size; ++i)
-			{
-				auto ruleTransition = calculateFastTransition(&m_group.ruleArr[i], checkYear);
-				m_prevRules.push_back(std::make_pair(&m_group.ruleArr[i], ruleTransition));
-			}
+			calculateAllFastTransitions(checkYear);
+			prevRule = findClosestRuleBefore(checkTransition);
+			if (prevRule != nullptr)
+				return prevRule;
 
-			//check if we can find a previosu rule in current year
+			checkYear = findClosestYearWithActiveRules(--checkYear);
+			calculateAllFastTransitions(checkYear);
+			return findClosestRuleBefore(checkTransition);
 
 		}
 
 		//===================================================================
 		// Calculate the fast transitions for all the rules for given year
 		//===================================================================
-		void RuleUtil::calculateAllFastTransitions(const Rule* rule, int transitionYear, bool withTime)
+		void RuleUtil::calculateAllFastTransitions(int transitionYear)
 		{
+			m_prevRules.clear();
 
+			for (int i = m_group.first; i < m_group.size; ++i)
+			{
+				auto ruleTransition = calculateFastTransition(&m_group.ruleArr[i], transitionYear);
+				m_prevRules.push_back(std::make_pair(&m_group.ruleArr[i], ruleTransition));
+			}
 		}
 
 		//==========================================================
@@ -58,17 +64,47 @@ namespace smalltime
 			return closest.first;
 		}
 
+		//==============================================================
+		// Find year closest to given year with atleast 1 active rule
+		//==============================================================
+		int RuleUtil::findClosestYearWithActiveRules(int year)
+		{
+			std::vector<int> closestYears = {};
+			closestYears.reserve(m_group.size + 1);
+			closestYears.push_back(0);
+
+			for (int i = m_group.first; i < m_group.size; ++i)
+			{
+				if (year > m_group.ruleArr[i].toYear)
+					closestYears.push_back(m_group.ruleArr[i].toYear);
+				else if (year < m_group.ruleArr[i].fromYear)
+					closestYears.push_back(0);
+				else
+					closestYears.push_back(year);					
+			}
+
+			int retY = closestYears[0];
+			for (auto y : closestYears)
+			{
+				if (y > retY)
+					retY = y;
+			}
+
+			return retY;
+
+		}
+
 		//=======================================================
 		// Calculate rule transition to the day only
 		//=======================================================
-		RD RuleUtil::calculateFastTransition(const Rule* rule, int transitionYear, bool withTime)
+		RD RuleUtil::calculateFastTransition(const Rule* rule, int transitionYear)
 		{
 			if (transitionYear < rule->fromYear || transitionYear > rule->toYear)
 				return 0.0;
 
 			HMS hms = { 0, 0, 0, 0 };
-			if(withTime)
-				hms = math::hmsFromRd(rule->atTime);
+			//if(withTime)
+			//	hms = math::hmsFromRd(rule->atTime);
 
 			if (rule->dayType == DayType_Dom)
 				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], TimeType_Wall).getRd();
