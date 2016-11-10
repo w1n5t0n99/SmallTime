@@ -7,6 +7,51 @@ namespace smalltime
 {
 	namespace tz
 	{
+		// Rule id with largest amount of objects
+		static int MAX_RULE_GROUP = 22;
+		thread_local static std::vector<const Rule*> VRULES_BUFFER(MAX_RULE_GROUP, nullptr);
+		thread_local static std::vector<RD> VDATES_BUFFER(MAX_RULE_GROUP, 0.0);
+		thread_local static std::vector<int> VYEARS_BUFFER(MAX_RULE_GROUP, 0);
+
+		//=========================================================
+		// Return rule transition in wall time for given year
+		//=========================================================
+		BasicDateTime<> RuleUtil::calcWallTransition(const Rule* rule, int year)
+		{
+			auto rd = calcFastWithTimeTransition(rule, year);
+			if (rd == 0.0)
+				return BasicDateTime<>(rd, TimeType_Wall);
+
+			if (rule->atType == TimeType_Wall)
+			{
+				return BasicDateTime<>(rd, TimeType_Wall);
+			}
+			else if (rule->atType == TimeType_Std)
+			{
+				RD save = 0.0;
+				auto pr = findPreviousRule(rule, year);
+
+				if (pr)
+					save = pr->offset;
+
+				rd += save;
+				return BasicDateTime<>(rd, TimeType_Wall);
+
+			}
+			else
+			{
+				RD save = 0.0;
+				auto pr = findPreviousRule(rule, year);
+
+				if (pr)
+					save = pr->offset;
+
+				rd -= m_zone->zoneOffset;
+				rd += save;
+				return BasicDateTime<>(rd, TimeType_Wall);
+			}
+
+		}
 
 		//=============================================================
 		// Find the closest rule before the given rule in given year
@@ -14,97 +59,118 @@ namespace smalltime
 		const Rule* RuleUtil::findPreviousRule(const Rule* rule, int year)
 		{
 			const Rule* prevRule = nullptr;
-			auto checkTransition = calculateFastTransition(rule, year);
+			auto checkTransition = calcFastTransition(rule, year);
 			assert(checkTransition > 0.0);
 
 			int checkYear = year;
-			calculateAllFastTransitions(checkYear);
-			prevRule = findClosestRuleBefore(checkTransition);
+			setFastTransitions(checkYear);
+			prevRule = calcClosestRuleBefore(checkTransition);
 			if (prevRule != nullptr)
 				return prevRule;
 
-			checkYear = findClosestYearWithActiveRules(--checkYear);
-			calculateAllFastTransitions(checkYear);
-			return findClosestRuleBefore(checkTransition);
+			checkYear = setClosestActiveYears(--checkYear);
+			setFastTransitions(checkYear);
+			return calcClosestRuleBefore(checkTransition);
 
 		}
 
 		//===================================================================
 		// Calculate the fast transitions for all the rules for given year
 		//===================================================================
-		void RuleUtil::calculateAllFastTransitions(int transitionYear)
+		void RuleUtil::setFastTransitions(int transitionYear)
 		{
-			m_prevRules.clear();
+			std::fill(VRULES_BUFFER.begin(), VRULES_BUFFER.end(), nullptr);
+			std::fill(VDATES_BUFFER.begin(), VDATES_BUFFER.end(), 0.0);
 
 			for (int i = m_group.first; i < m_group.size; ++i)
 			{
-				auto ruleTransition = calculateFastTransition(&m_group.ruleArr[i], transitionYear);
-				m_prevRules.push_back(std::make_pair(&m_group.ruleArr[i], ruleTransition));
+				auto ruleTransition = calcFastTransition(&m_group.ruleArr[i], transitionYear);
+				VRULES_BUFFER.push_back(&m_group.ruleArr[i]);
+				VDATES_BUFFER.push_back(ruleTransition);
 			}
 		}
 
 		//==========================================================
 		// Find the closest rule before given date but not 0
 		//===========================================================
-		const Rule* RuleUtil::findClosestRuleBefore(RD rd)
+		const Rule* RuleUtil::calcClosestRuleBefore(RD rd)
 		{
-			if (m_prevRules.empty())
-				return nullptr;
 			
-			auto& closest = m_prevRules[0];
+			auto& closest = VRULES_BUFFER[0];
+			auto& closestDt = VDATES_BUFFER[0];
+			RD diff = 0.0;
 
-			for (auto& r : m_prevRules)
+			for (int i=0; i <VRULES_BUFFER.size(); ++i)
 			{
-				RD diff = rd - r.second;
+				diff = rd - VDATES_BUFFER[i];
 				// rule transition is not null and before rd
-				if (r.second > 0.0 && diff > 0.0 && r.second > closest.second)
-					closest = r;
+				if (VDATES_BUFFER[i] > 0.0 && diff > 0.0 && VDATES_BUFFER[i] > closestDt)
+				{
+					closest = VRULES_BUFFER[i];
+					closestDt = VDATES_BUFFER[i];
+				}
 			}
 
-			return closest.first;
+			return closest;
 		}
 
 		//==============================================================
 		// Find year closest to given year with atleast 1 active rule
 		//==============================================================
-		int RuleUtil::findClosestYearWithActiveRules(int year)
+		int RuleUtil::setClosestActiveYears(int year)
 		{
-			std::vector<int> closestYears = {};
-			closestYears.reserve(m_group.size + 1);
-			closestYears.push_back(0);
+			std::fill(VYEARS_BUFFER.begin(), VYEARS_BUFFER.end(), 0);
 
-			for (int i = m_group.first; i < m_group.size; ++i)
+			for (int i = 0; i < m_group.size; ++i)
 			{
-				if (year > m_group.ruleArr[i].toYear)
-					closestYears.push_back(m_group.ruleArr[i].toYear);
-				else if (year < m_group.ruleArr[i].fromYear)
-					closestYears.push_back(0);
+				auto& rule = m_group.ruleArr[m_group.first + i];
+
+				if (rule.fromYear > year)
+					VYEARS_BUFFER.push_back(rule.fromYear);
+				else if (rule.toYear < year)
+					VYEARS_BUFFER.push_back(rule.toYear);
 				else
-					closestYears.push_back(year);					
+					VYEARS_BUFFER.push_back(year);
 			}
 
-			int retY = closestYears[0];
-			for (auto y : closestYears)
+			int closestYear = VYEARS_BUFFER[0];
+
+			for (auto y : VYEARS_BUFFER)
 			{
-				if (y > retY)
-					retY = y;
+				if (y <= year && y > closestYear)
+					closestYear = y;
 			}
 
-			return retY;
-
+			return closestYear;
 		}
 
 		//=======================================================
 		// Calculate rule transition to the day only
 		//=======================================================
-		RD RuleUtil::calculateFastTransition(const Rule* rule, int transitionYear)
+		RD RuleUtil::calcFastTransition(const Rule* rule, int transitionYear)
 		{
 			if (transitionYear < rule->fromYear || transitionYear > rule->toYear)
 				return 0.0;
 
 			HMS hms = { 0, 0, 0, 0 };
-			//if(withTime)
-			//	hms = math::hmsFromRd(rule->atTime);
+
+			if (rule->dayType == DayType_Dom)
+				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], TimeType_Wall).getRd();
+			else if (rule->dayType == DayType_SunGE)
+				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, TimeType_Wall).getRd();
+			else
+				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, TimeType_Wall).getRd();
+		}
+
+		//=======================================================
+		// Calculate rule transition to the day and time
+		//=======================================================
+		RD RuleUtil::calcFastWithTimeTransition(const Rule* rule, int transitionYear)
+		{
+			if (transitionYear < rule->fromYear || transitionYear > rule->toYear)
+				return 0.0;
+
+			HMS hms = math::hmsFromRd(rule->atTime);
 
 			if (rule->dayType == DayType_Dom)
 				return BasicDateTime<>(transitionYear, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], TimeType_Wall).getRd();

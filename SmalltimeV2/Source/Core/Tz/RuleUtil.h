@@ -15,22 +15,26 @@ namespace smalltime
 		class RuleUtil
 		{
 		public:
-			RuleUtil(RuleGroup group, const Zone* zone) : m_group(group), m_zone(zone), m_prevRules() {};
+			RuleUtil(RuleGroup group, const Zone* zone) : m_group(group), m_zone(zone) {}
+
+			BasicDateTime<> calcWallTransition(const Rule* rule, int year);
 
 			const Rule* findPreviousRule(const Rule* rule, int year);
 
 		private:
-			RD calculateFastTransition(const Rule* rule, int transitionYear);
-			void calculateAllFastTransitions(int transitionYear);
+			RD calcFastTransition(const Rule* rule, int transitionYear);
+			RD calcFastWithTimeTransition(const Rule* rule, int transitionYear);
 
-			const Rule* findClosestRuleBefore(RD rd);
-			int findClosestYearWithActiveRules(int year);
+			void setFastTransitions(int transitionYear);
+			int setClosestActiveYears(int year);
+
+			const Rule* calcClosestRuleBefore(RD rd);
 
 			RuleGroup m_group;
 			const Zone* m_zone;
-			std::vector<std::pair<const Rule*, RD> > m_prevRules;
 
 		};
+
 	}
 }
 
