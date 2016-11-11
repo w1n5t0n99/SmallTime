@@ -5,8 +5,6 @@
 #include <CoreDecls.h>
 #include <TzDecls.h>
 #include <BasicDateTime.h>
-#include <vector>
-
 
 namespace smalltime
 {

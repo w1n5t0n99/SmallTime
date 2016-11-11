@@ -2,16 +2,17 @@
 #include "RuleUtil.h"
 #include <TimeMath.h>
 #include <assert.h>
+#include <array>
 
 namespace smalltime
 {
 	namespace tz
 	{
 		// Rule id with largest amount of objects
-		static int MAX_RULE_GROUP = 22;
-		thread_local static std::vector<const Rule*> VRULES_BUFFER(MAX_RULE_GROUP, nullptr);
-		thread_local static std::vector<RD> VDATES_BUFFER(MAX_RULE_GROUP, 0.0);
-		thread_local static std::vector<int> VYEARS_BUFFER(MAX_RULE_GROUP, 0);
+		static const int MAX_RULE_GROUP = 22;
+		thread_local static std::array<const Rule*, MAX_RULE_GROUP> VRULES_BUFFER;
+		thread_local static std::array<RD, MAX_RULE_GROUP> VDATES_BUFFER;
+		thread_local static std::array<int, MAX_RULE_GROUP> VYEARS_BUFFER;
 
 		//=========================================================
 		// Return rule transition in wall time for given year
@@ -82,12 +83,15 @@ namespace smalltime
 			std::fill(VRULES_BUFFER.begin(), VRULES_BUFFER.end(), nullptr);
 			std::fill(VDATES_BUFFER.begin(), VDATES_BUFFER.end(), 0.0);
 
-			for (int i = m_group.first; i < m_group.size; ++i)
+			int bufferIndex = 0;
+			for (int i = m_group.first; i < m_group.first + m_group.size; ++i)
 			{
 				auto ruleTransition = calcFastTransition(&m_group.ruleArr[i], transitionYear);
-				VRULES_BUFFER.push_back(&m_group.ruleArr[i]);
-				VDATES_BUFFER.push_back(ruleTransition);
+				VRULES_BUFFER[bufferIndex] = &m_group.ruleArr[i];
+				VDATES_BUFFER[bufferIndex] = ruleTransition;
+				++bufferIndex;
 			}
+
 		}
 
 		//==========================================================
@@ -121,16 +125,19 @@ namespace smalltime
 		{
 			std::fill(VYEARS_BUFFER.begin(), VYEARS_BUFFER.end(), 0);
 
-			for (int i = 0; i < m_group.size; ++i)
+			int bufferIndex = 0;
+			for (int i = m_group.first; i < m_group.first + m_group.size; ++i)
 			{
-				auto& rule = m_group.ruleArr[m_group.first + i];
+				auto& rule = m_group.ruleArr[i];
 
 				if (rule.fromYear > year)
-					VYEARS_BUFFER.push_back(rule.fromYear);
+					VYEARS_BUFFER[bufferIndex] = rule.fromYear;
 				else if (rule.toYear < year)
-					VYEARS_BUFFER.push_back(rule.toYear);
+					VYEARS_BUFFER[bufferIndex] = rule.toYear;
 				else
-					VYEARS_BUFFER.push_back(year);
+					VYEARS_BUFFER[bufferIndex] = year;
+
+				++bufferIndex;
 			}
 
 			int closestYear = VYEARS_BUFFER[0];

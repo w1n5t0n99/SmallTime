@@ -22,9 +22,6 @@
     <Filter Include="Source Files\Core\Chronology">
       <UniqueIdentifier>{40615d8f-2b94-4289-8817-ab31cb745065}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Core\Math">
-      <UniqueIdentifier>{650e1e3c-31cb-441b-89dd-1b160e8fa290}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core\Math">
       <UniqueIdentifier>{caa1c6b8-53cd-477a-a5a0-28e639376e61}</UniqueIdentifier>
     </Filter>
@@ -45,6 +42,9 @@
     </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{7754475b-f10c-44ed-807a-0fdc080d2e0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Math">
+      <UniqueIdentifier>{650e1e3c-31cb-441b-89dd-1b160e8fa290}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -15,12 +15,14 @@ int main()
 	counter.StartCounter();
 
 	auto ruleHandle = tz::getRuleHandle();
-	auto rules = tz::findRules("US");
+	auto rules = tz::findRules("AT");
 
 	auto zoneHandle = tz::getZoneHandle();
-	auto zones = tz::findZones("America/New_York");
+	auto zones = tz::findZones("Australia/Hobart");
 
-	std::cout << "Zones ID: " << rules.ruleId << " Zones first: " << rules.first << " Zones size: " << rules.size << std::endl;
+	std::cout << "Rules ID: " << rules.ruleId << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
+	std::cout << "Zones ID: " << zones.zoneId << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
+
 
 	tz::RuleGroup rg = { ruleHandle, rules.first, rules.size };
 	tz::RuleUtil ru(rg, &zoneHandle[zones.first + zones.size - 1]);
@@ -39,7 +41,7 @@ int main()
 
 		*/
 
-	auto dt = ru.calcWallTransition(&ruleHandle[12], 2016);
+	auto dt = ru.calcWallTransition(&ruleHandle[rules.first + rules.size - 1], 2016);
 
 	printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
 
