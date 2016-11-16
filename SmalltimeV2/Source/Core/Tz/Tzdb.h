@@ -11,7 +11,18 @@ namespace smalltime
 namespace tz
 {
 
-static constexpr std::array<Zone,1969> ZONE_ARRAY = {
+static const RD KMaxZoneOffset = 0.634514;
+static const RD KMinZoneOffset = -0.663889;
+static const RD KMaxRuleOffset = 0.0833333;
+static const int KMaxZoneSize = 19;
+static const int KMaxRuleSize = 86;
+
+thread_local static std::array<RD, KMaxZoneSize> KZoneRdBuffer;
+thread_local static std::array<RD, KMaxRuleSize> KPrimaryRuleRdBuffer;
+thread_local static std::array<RD, KMaxRuleSize> KSecondaryRuleRdBuffer;
+thread_local static std::array<int, KMaxRuleSize> KRuleIntBuffer;
+
+static constexpr std::array<Zone,1969> KZoneArray = {
 Zone {2390113447, 0, 0, 3651695, TimeType_Wall, -0.20833333333333334, 4995428977627639856},
 Zone {3042547327, 0, 0, 3651695, TimeType_Wall, -0.29166666666666669, 5571889729931063344},
 Zone {3452986792, 0, 0, 3651695, TimeType_Wall, -0.41666666666666669, 5211601759741423664},
@@ -1984,7 +1995,7 @@ Zone {3677025277, 0, 0, 3651695, TimeType_Wall, 0, 6148613265513525296},
 
 };
 
-static constexpr std::array<Rule,1908> RULE_ARRAY = {
+static constexpr std::array<Rule,1908> KRuleArray = {
 Rule {3049486873, 1918, 1919, 3, 0, DayType_LastSun, 0.083333333333333329, TimeType_Wall, 0.041666666666666664, 1144008752},
 Rule {3049486873, 1918, 1919, 10, 0, DayType_LastSun, 0.083333333333333329, TimeType_Wall, 0, 1395666992},
 Rule {3049486873, 1942, 1942, 2, 9, DayType_Dom, 0.083333333333333329, TimeType_Wall, 0.041666666666666664, 1462775856},
@@ -3896,7 +3907,7 @@ Rule {3150758127, 1996, 2006, 10, 0, DayType_LastSun, 0.041666666666666664, Time
 
 };
 
-static constexpr std::array<Zones,435> ZONE_LOOKUP_ARRAY = {
+static constexpr std::array<Zones,435> KZoneLookupArray = {
 Zones {7373200, 1329, 3},
 Zones {28613462, 1379, 2},
 Zones {29078386, 1080, 2},
@@ -4335,7 +4346,7 @@ Zones {4283563251, 1198, 2},
 
 };
 
-static constexpr std::array<Rules,151> RULE_LOOKUP_ARRAY = {
+static constexpr std::array<Rules,151> KRuleLookupArray = {
 Rules {2910977, 1602, 18},
 Rules {123081683, 257, 9},
 Rules {126769775, 827, 31},

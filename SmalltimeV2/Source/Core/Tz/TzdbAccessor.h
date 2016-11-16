@@ -13,14 +13,33 @@ namespace smalltime
 namespace tz
 {
 
-	const Rule* getRuleHandle();
-	const Zone* getZoneHandle();
-	
-	Rules findRules(const std::string& ruleName);
-	Rules findRules(uint32_t ruleId);
+	const Rule* GetRuleHandle();
+	const Zone* GetZoneHandle();
 
-	Zones findZones(const std::string& zoneName);
-	Zones findZones(uint32_t zoneId);
+	enum class RDBufferType
+	{
+		KPrimaryRule,
+		KSecondaryRule,
+		KZone
+	};
+
+	enum class IntBufferType
+	{
+		KRule,
+		KZone
+	};
+
+	RD* GetRDBuffer(const RDBufferType buffer_type);
+	void FillRDBuffer(const RDBufferType buffer_type, const RD data);
+
+	int* GetIntBuffer(const IntBufferType buffer_type);
+	void FillIntBuffer(const IntBufferType buffer_type, const int data);
+	
+	Rules FindRules(const std::string& ruleName);
+	Rules FindRules(uint32_t ruleId);
+
+	Zones FindZones(const std::string& zoneName);
+	Zones FindZones(uint32_t zoneId);
 
 }
 }

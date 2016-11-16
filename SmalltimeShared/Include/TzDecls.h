@@ -79,15 +79,6 @@ namespace smalltime
 			int size;
 		};
 
-		struct TzdbMeta
-		{
-			RD largestZoneOffset;
-			RD smallestZoneOffset;
-			RD largestRuleOffset;
-			int largestRuleGroup;
-			int largestZoneGroup;
-		};
-
 		struct RuleGroup
 		{
 			const Rule* ruleArr;

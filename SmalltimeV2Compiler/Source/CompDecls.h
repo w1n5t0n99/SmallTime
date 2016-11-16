@@ -2,6 +2,7 @@
 #ifndef _COMPDECLS_
 #define _COMPDECLS_
 
+#include <CoreDecls.h>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,15 @@ namespace smalltime
 		{
 			std::string refZoneName;
 			std::string targetZoneName;
+		};
+
+		struct MetaData
+		{
+			RD max_zone_offset;
+			RD min_zone_offset;
+			RD max_rule_offset;
+			int max_zone_size;
+			int max_rule_size;
 		};
 
 	}

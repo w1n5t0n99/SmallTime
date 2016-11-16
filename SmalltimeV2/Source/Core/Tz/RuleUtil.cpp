@@ -1,6 +1,8 @@
 
 #include "RuleUtil.h"
+#include "TzdbAccessor.h"
 #include <TimeMath.h>
+
 #include <assert.h>
 #include <array>
 
@@ -8,8 +10,129 @@ namespace smalltime
 {
 	namespace tz
 	{
+
+		//=================================================
+		// Init rule data for given transition year
+		//================================================
+		void RuleUtil::InitTransitionYear(int year)
+		{
+			if (current_year_ == year)
+				return;
+
+			current_year_ = year;
+
+			FillIntBuffer(IntBufferType::KRule, 0);
+			auto year_buffer = GetIntBuffer(IntBufferType::KRule);
+
+			BuildClosestYearData(year_buffer, year);
+			int check_year = FindClosestActiveYear(year_buffer, year);
+
+			FillRDBuffer(RDBufferType::KPrimaryRule, 0.0);
+			auto transition_buffer = GetRDBuffer(RDBufferType::KPrimaryRule);
+			BuildTransitionData(transition_buffer, check_year);
+
+			FillRDBuffer(RDBufferType::KSecondaryRule, 0.0);
+			transition_buffer = GetRDBuffer(RDBufferType::KSecondaryRule);
+
+			FillIntBuffer(IntBufferType::KRule, 0);
+			BuildClosestYearData(year_buffer, check_year - 1);
+			check_year = FindClosestActiveYear(year_buffer, check_year - 1);
+			BuildTransitionData(transition_buffer, check_year - 1);
+
+		}
+
+		//==============================================
+		// Find the previous rule in effect if any
+		//===============================================
+		const Rule* RuleUtil::FindPreviousRule(const Rule* const rule, int year)
+		{
+			/*const Rule* prevRule = nullptr;
+			auto checkTransition = calcFastTransition(rule, year);
+			assert(checkTransition > 0.0);
+
+			int checkYear = year;
+			setFastTransitions(checkYear);
+			prevRule = calcClosestRuleBefore(checkTransition);
+			if (prevRule != nullptr)
+				return prevRule;
+
+			checkYear = setClosestActiveYears(--checkYear);
+			setFastTransitions(checkYear);
+			return calcClosestRuleBefore(checkTransition);*/
+
+			const Rule* prev_rule = nullptr;
+			auto cur_rule_transition = CalcTransitionFast(rule, year);
+
+			// the rule transition couldn't be calculated
+			if (cur_rule_transition.getRd() <= 0.0)
+				return prev_rule;
+
+			auto year_buffer = GetIntBuffer(IntBufferType::KRule);
+			BuildClosestYearData(year_buffer, year);
+
+			int check_year = FindClosestActiveYear(year_buffer, year);
+
+
+		}
+
+		//================================================
+		// Fill buffer with rule transition data
+		//================================================
+		void RuleUtil::BuildTransitionData(RD* buffer, int year)
+		{
+			int index = 0;
+			for (int i = rules_.first; i < rules_.size; ++i)
+			{
+				buffer[index] = CalcTransitionFast(&rule_arr_[i], year).getRd();
+				++index;
+			}
+
+		}
+
+		//================================================================
+		// Fill buffer with each rules closest active year to given year
+		//================================================================
+		void RuleUtil::BuildClosestYearData(int* buffer, int year)
+		{
+			int index = 0;
+			for (int i = rules_.first; i < rules_.size; ++i)
+			{
+				int closestYear = 0;
+				if (rule_arr_[i].toYear < year)
+					closestYear = rule_arr_[i].toYear;
+				else if (rule_arr_[i].fromYear > year)
+					closestYear = rule_arr_[i].fromYear;
+				else
+					closestYear = year;
+
+				buffer[index] = closestYear;
+				++index;
+			}
+		}
+
+		//===================================================
+		// Calculate rule transiton without time 
+		//===================================================
+		BasicDateTime<> RuleUtil::CalcTransitionFast(const Rule* const rule, int year)
+		{
+			if (year < rule->fromYear || year > rule->toYear)
+				return BasicDateTime<>(0.0, TimeType_Wall);
+
+			HMS hms = { 0, 0, 0, 0 };
+
+			if (rule->dayType == DayType_Dom)
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], TimeType_Wall);
+			else if (rule->dayType == DayType_SunGE)
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, TimeType_Wall);
+			else
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, TimeType_Wall);
+		}
+
+		//================================================================================================
+		//================================================================================================
 		// Rule id with largest amount of objects
 		static const int MAX_RULE_GROUP = 22;
+
 		thread_local static std::array<const Rule*, MAX_RULE_GROUP> VRULES_BUFFER;
 		thread_local static std::array<RD, MAX_RULE_GROUP> VDATES_BUFFER;
 		thread_local static std::array<int, MAX_RULE_GROUP> VYEARS_BUFFER;

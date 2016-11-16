@@ -108,25 +108,41 @@ namespace smalltime
 			buildZoneLookup(vZones, vLinks, vLookupZones);
 			buildRuleLookup(vRules, vLookupRules);
 
-			outFile << "\nstatic constexpr std::array<Zone," << vZones.size() << "> ZONE_ARRAY = {\n";
+			// Add Meta data
+			MetaData meta;
+			BuildMetaData(vZones, vRules, vLookupZones, vLookupRules, meta);
+
+			outFile << "\nstatic const RD KMaxZoneOffset = " << meta.max_zone_offset << ";";
+			outFile << "\nstatic const RD KMinZoneOffset = " << meta.min_zone_offset << ";";
+			outFile << "\nstatic const RD KMaxRuleOffset = " << meta.max_rule_offset << ";";
+			outFile << "\nstatic const int KMaxZoneSize = " << meta.max_zone_size << ";";
+			outFile << "\nstatic const int KMaxRuleSize = " << meta.max_rule_size << ";";
+
+			outFile << "\n\nthread_local static std::array<RD, KMaxZoneSize> KZoneRdBuffer;";
+			outFile << "\nthread_local static std::array<RD, KMaxRuleSize> KPrimaryRuleRdBuffer;";
+			outFile << "\nthread_local static std::array<RD, KMaxRuleSize> KSecondaryRuleRdBuffer;";
+			outFile << "\nthread_local static std::array<int, KMaxRuleSize> KRuleIntBuffer;";
+
+
+			outFile << "\n\nstatic constexpr std::array<Zone," << vZones.size() << "> KZoneArray = {\n";
 			// Add zones
 			for (const auto& zone : vZones)
 				insertZone(zone, outFile);
 
 			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Rule," << vRules.size() << "> RULE_ARRAY = {\n";
+			outFile << "\nstatic constexpr std::array<Rule," << vRules.size() << "> KRuleArray = {\n";
 			// Add rules
 			for (const auto& rule : vRules)
 				insertRule(rule, outFile);
 
 			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Zones," << vLookupZones.size() << "> ZONE_LOOKUP_ARRAY = {\n";
+			outFile << "\nstatic constexpr std::array<Zones," << vLookupZones.size() << "> KZoneLookupArray = {\n";
 			// Add zones
 			for (const auto& zones : vLookupZones)
 				insertZoneSearch(zones, outFile);
 			
 			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Rules," << vLookupRules.size() << "> RULE_LOOKUP_ARRAY = {\n";
+			outFile << "\nstatic constexpr std::array<Rules," << vLookupRules.size() << "> KRuleLookupArray = {\n";
 			// Add rules
 			for (const auto& rules : vLookupRules)
 				insertRuleSearch(rules, outFile);
@@ -230,7 +246,9 @@ namespace smalltime
 				vLookupZones.push_back(z);
 			}
 			else
+			{
 				return false;
+			}
 
 			// add links
 			std::vector<tz::Zones> vLookupLinks = {};
@@ -293,6 +311,46 @@ namespace smalltime
 			}
 
 			return false;
+		}
+
+		//===========================================================
+		// Build the meta data from process rules and zones
+		//===========================================================
+		bool SrcBuilder::BuildMetaData(const std::vector<tz::Zone>& vZone, const std::vector<tz::Rule>& vRule, const std::vector<tz::Zones>& vLookupZones, const std::vector<tz::Rules>& vLookupRules, MetaData& mdata)
+		{
+			mdata.max_zone_offset = 0.0; mdata.min_zone_offset = 0.0; mdata.max_rule_offset = 0.0;
+			// find min and max zone offset
+			for (const auto& zone : vZone)
+			{
+				if (zone.zoneOffset < mdata.min_zone_offset)
+					mdata.min_zone_offset = zone.zoneOffset;
+				else if (zone.zoneOffset > mdata.max_zone_offset)
+					mdata.max_zone_offset = zone.zoneOffset;
+			}
+
+			// find the max rule offset, min is always 0.0
+			for (const auto& rule : vRule)
+			{
+				if (rule.offset > mdata.max_rule_offset)
+					mdata.max_rule_offset = rule.offset;
+			}
+
+			mdata.max_zone_size = 1; mdata.max_rule_size = 1;
+			// find the max zone size
+			for (const auto& zones : vLookupZones)
+			{
+				if (zones.size > mdata.max_zone_size)
+					mdata.max_zone_size = zones.size;
+			}
+
+			// find the max rule size
+			for (const auto& rules : vLookupRules)
+			{
+				if (rules.size > mdata.max_rule_size)
+					mdata.max_rule_size = rules.size;
+			}
+
+			return true;
 		}
 
 	}

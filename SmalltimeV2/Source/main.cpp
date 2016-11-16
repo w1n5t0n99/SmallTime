@@ -14,11 +14,11 @@ int main()
 	StlPerfCounter counter("Counter");
 	counter.StartCounter();
 
-	auto ruleHandle = tz::getRuleHandle();
-	auto rules = tz::findRules("AT");
+	auto ruleHandle = tz::GetRuleHandle();
+	auto rules = tz::FindRules("AT");
 
-	auto zoneHandle = tz::getZoneHandle();
-	auto zones = tz::findZones("Australia/Hobart");
+	auto zoneHandle = tz::GetZoneHandle();
+	auto zones = tz::FindZones("Australia/Hobart");
 
 	std::cout << "Rules ID: " << rules.ruleId << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
 	std::cout << "Zones ID: " << zones.zoneId << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
