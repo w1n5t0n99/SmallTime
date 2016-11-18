@@ -40,50 +40,60 @@ namespace smalltime
 		}
 
 		//===========================================
-		// Get pointer allocated buffer
+		// Get pointer allocated array
 		//===========================================
-		RD* GetRDBuffer(const RDBufferType buffer_type)
+		RD* GetTransitionPool(const TransitionPool buffer_type)
 		{
-			if (buffer_type == RDBufferType::KPrimaryRule)
+			if (buffer_type == TransitionPool::KPrimaryRule)
 				return KPrimaryRuleRdBuffer.data();
-			else if (buffer_type == RDBufferType::KSecondaryRule)
+			else if (buffer_type == TransitionPool::KSecondaryRule)
 				return KSecondaryRuleRdBuffer.data();
 			else
 				return KZoneRdBuffer.data();
 		}
 
 		//========================================
-		// Simple fill buffer array with data
+		// Simple fill array with data
 		//==========================================
-		void FillRDBuffer(const RDBufferType buffer_type, const RD data)
+		void FillTransitionPool(const TransitionPool buffer_type, const RD data)
 		{
-			if (buffer_type == RDBufferType::KPrimaryRule)
+			if (buffer_type == TransitionPool::KPrimaryRule)
 				std::fill(KPrimaryRuleRdBuffer.begin(), KPrimaryRuleRdBuffer.end(), data);
-			else if (buffer_type == RDBufferType::KSecondaryRule)
+			else if (buffer_type == TransitionPool::KSecondaryRule)
 				std::fill(KSecondaryRuleRdBuffer.begin(), KSecondaryRuleRdBuffer.end(), data);
 			else
 				std::fill(KZoneRdBuffer.begin(), KZoneRdBuffer.end(), data);
 
 		}
 
-		//===========================================
-		// Get pointer allocated buffer
-		//===========================================
-		int* GetIntBuffer(const IntBufferType buffer_type)
+		//========================================
+		// Simple clear of array with 0.0
+		//==========================================
+		void ClearTransitionPool(const TransitionPool buffer_type)
 		{
-			if (buffer_type == IntBufferType::KRule)
-				return KRuleIntBuffer.data();
+			if (buffer_type == TransitionPool::KPrimaryRule)
+				std::fill(KPrimaryRuleRdBuffer.begin(), KPrimaryRuleRdBuffer.end(), 0.0);
+			else if (buffer_type == TransitionPool::KSecondaryRule)
+				std::fill(KSecondaryRuleRdBuffer.begin(), KSecondaryRuleRdBuffer.end(), 0.0);
 			else
-				return nullptr;
+				std::fill(KZoneRdBuffer.begin(), KZoneRdBuffer.end(), 0.0);
+
 		}
 
-		//========================================
-		// Simple fill buffer array with data
-		//==========================================
-		void FillIntBuffer(const IntBufferType buffer_type, const int data)
+		//===========================================
+		// Return max size
+		//===========================================
+		int GetMaxRuleSize()
 		{
-			if (buffer_type == IntBufferType::KRule)
-				std::fill(KRuleIntBuffer.begin(), KRuleIntBuffer.end(), data);
+			return KMaxRuleSize;
+		}
+
+		//===========================================
+		// Return max size
+		//===========================================
+		int GetMaxZoneSize()
+		{
+			return KMaxZoneSize;
 		}
 
 		//================================================

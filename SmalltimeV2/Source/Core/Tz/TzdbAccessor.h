@@ -16,24 +16,20 @@ namespace tz
 	const Rule* GetRuleHandle();
 	const Zone* GetZoneHandle();
 
-	enum class RDBufferType
+	enum class TransitionPool
 	{
 		KPrimaryRule,
 		KSecondaryRule,
-		KZone
+		KPrimaryZone,
+		KSecondaryZone
 	};
 
-	enum class IntBufferType
-	{
-		KRule,
-		KZone
-	};
+	RD* GetTransitionPool(const TransitionPool buffer_type);
+	void FillTransitionPool(const TransitionPool buffer_type, const RD data);
+	void ClearTransitionPool(const TransitionPool buffer_type);
 
-	RD* GetRDBuffer(const RDBufferType buffer_type);
-	void FillRDBuffer(const RDBufferType buffer_type, const RD data);
-
-	int* GetIntBuffer(const IntBufferType buffer_type);
-	void FillIntBuffer(const IntBufferType buffer_type, const int data);
+	int GetMaxRuleSize();
+	int GetMaxZoneSize();
 	
 	Rules FindRules(const std::string& ruleName);
 	Rules FindRules(uint32_t ruleId);
