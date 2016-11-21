@@ -5,6 +5,7 @@
 #include "Core\DateTime\LocalDateTime.h"
 #include <BasicDateTime.h>
 #include <MathUtils.h>
+#include <TimeMath.h>
 #include "Utils\StlPerfCounter.h"
 #include "Core\Tz\TzdbAccessor.h"
 #include "Core\Tz\RuleUtil.h"
@@ -44,9 +45,26 @@ int main()
 
 		*/
 
-	auto dt = ru.CalcTransitionWall(&rule_handle[rules.first + rules.size - 1], 2016);
+	//int next_closest_year = ru.FindNextActiveYear(2005);
+	//std::cout << "Next active year = " << next_closest_year << std::endl;
 
-	printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
+	//auto dt = ru.CalcTransitionWall(&rule_handle[rules.first + rules.size - 1], 2016);
+
+	//printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
+
+	BasicDateTime<> dt(2016, 4, 3, 2, 59, 59, 999, tz::TimeType::TimeType_Wall);
+	auto ar = ru.FindActiveRule(dt, Choose::Error);
+
+	if (ar)
+	{
+		auto offset = math::hmsFromRd(ar->offset);
+		printf("Active rule found from -  %d  to - %d  in: %d  save - %d:%d:%d:%d\n", ar->fromYear, ar->toYear, ar->month, offset[0], offset[1], offset[2], offset[3]);
+
+	}
+	else
+	{
+		printf("Active rule not found!!\n");
+	}
 
 	counter.EndCounter();
 

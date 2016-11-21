@@ -52,11 +52,12 @@ namespace smalltime
 		//====================================================
 		// Find the active rule if any
 		//====================================================
-		const Rule* const RuleUtil::FindActiveRule(BasicDateTime<> cur_dt)
+		const Rule* const RuleUtil::FindActiveRule(BasicDateTime<> cur_dt, Choose choose)
 		{
 			InitTransitionData(cur_dt.getYear());
 
 			const Rule* closest_rule = nullptr;
+			BasicDateTime<> closest_rule_dt(0.0, TimeType::TimeType_Wall);
 			RD closest_transition = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
@@ -65,11 +66,12 @@ namespace smalltime
 				// rule transition is not null 
 				if (*(primary_ptr_ + i) > 0.0)
 				{
-					diff = cur_dt.getRd() - primary_ptr_[i];
-					const tz::Rule* r = &rule_arr_[rules_.first + i];
-					diff = cur_dt.getRd() - CalcTransitionFull(r, primary_year_, cur_dt.getType()).getRd();
+					auto r = &rule_arr_[rules_.first + i];
 
-					if (diff >= 0.0 && diff < closest_transition)
+					closest_rule_dt = CalcTransitionFull(r, primary_year_, cur_dt.getType());
+					diff = cur_dt.getRd() - closest_rule_dt.getRd();
+
+					if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
 					{
 						closest_transition = diff;
 						closest_rule = r;
@@ -88,9 +90,11 @@ namespace smalltime
 					{
 						diff = cur_dt.getRd() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
-						diff = cur_dt.getRd() - CalcTransitionFull(r, previous_year_, cur_dt.getType()).getRd();
 
-						if (diff >= 0.0 && diff < closest_transition)
+						closest_rule_dt = CalcTransitionFull(r, previous_year_, cur_dt.getType());
+						diff = cur_dt.getRd() - closest_rule_dt.getRd();
+
+						if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
 						{
 							closest_transition = diff;
 							closest_rule = r;
@@ -99,17 +103,23 @@ namespace smalltime
 				}
 			}
 			
+			/*
+			if (closest_rule != nullptr)
+				return FindCorrectedForAmbigRule(cur_dt, closest_rule_dt, choose);
+			else
+				return closest_rule;
+				*/
+
 			return closest_rule;
 		}
 
 		//==============================================
 		// Find the previous rule in effect if any
 		//===============================================
-		const Rule* const RuleUtil::FindPreviousRule(BasicDateTime<> cur_rule)
+		std::pair<const Rule* const, int> RuleUtil::FindPreviousRule(BasicDateTime<> cur_rule)
 		{
 			const Rule* prev_rule = nullptr;
-
-//			auto transition_pool = GetTransitionPool(TransitionPool::KPrimaryRule);
+			int prev_rule_year = 0;
 			RD closest_transition = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
@@ -122,6 +132,7 @@ namespace smalltime
 				{
 					closest_transition = rule_rd;
 					prev_rule = &rule_arr_[rules_.first + i];
+					prev_rule_year = primary_year_;
 				}
 			}
 			// if a previous rule wasn't found check secondary pool
@@ -138,11 +149,73 @@ namespace smalltime
 					{
 						closest_transition = rule_rd;
 						prev_rule = &rule_arr_[rules_.first + i];
+						prev_rule_year = previous_year_;
 					}
 				}
 			}
 
-			return prev_rule;
+			return std::make_pair(prev_rule, prev_rule_year);
+		}
+
+		//================================================
+		// Find the next rule in effect if any
+		//================================================
+		std::pair<const Rule* const, int> RuleUtil::FindNextRule(BasicDateTime<> cur_rule)
+		{
+			const Rule* next_rule = nullptr;
+			int next_rule_year = 0;
+			RD closest_transition = 0.0;
+			RD diff = 0.0;
+			// check the primary pool for an active rule 
+			for (int i = 0; i < rules_.size; ++i)
+			{
+				auto rule_rd = *(primary_ptr_ + i);
+				diff = cur_rule.getRd() - rule_rd;
+				// rule transition is not null and after the cur rule
+				if (rule_rd > 0.0 && diff < 0.0 && (rule_rd < closest_transition || closest_transition == 0.0))
+				{
+					closest_transition = rule_rd;
+					next_rule = &rule_arr_[rules_.first + i];
+					next_rule_year = primary_year_;
+				}
+			}
+			// if a next rule wasn't found check secondary pool
+			if (next_rule == nullptr)
+			{
+				diff = 0.0;
+				closest_transition = 0.0;
+				for (int i = 0; i < rules_.size; ++i)
+				{
+					auto rule_rd = *(primary_ptr_ + i);
+					diff = cur_rule.getRd() - next_ptr_[i];
+					// rule transition is not null and after cur rule
+					if (rule_rd > 0.0 && diff < 0.0 && (rule_rd < closest_transition || closest_transition == 0.0))
+					{
+						closest_transition = rule_rd;
+						next_rule = &rule_arr_[rules_.first + i];
+						next_rule_year = next_year_;
+					}
+				}
+			}
+
+			return std::make_pair(next_rule, next_rule_year);
+		}
+
+		//=========================================================================
+		// Check if cur dt is ambigous and choose correct rule or throw exception
+		//=========================================================================
+		const Rule* const RuleUtil::FindCorrectedForAmbigRule(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, Choose choose)
+		{
+			// check for  ambigousness with the next active rule
+			auto prev_rule = FindPreviousRule(cur_rule_dt);
+			if (prev_rule.first)
+			{
+				auto prev_rule_offset = prev_rule.first->offset;
+
+
+			}
+
+			return nullptr;
 		}
 
 		//============================================================
@@ -220,7 +293,8 @@ namespace smalltime
 				else
 					cur_year = year;
 
-				if (cur_year < closest_year && cur_year > 0)
+				// Set the closest year
+				if (closest_year == 0 || cur_year < closest_year)
 					closest_year = cur_year;
 
 			}
@@ -271,8 +345,8 @@ namespace smalltime
 				RD save = 0.0;
 				auto pr = FindPreviousRule(rule_transition);
 
-				if (pr)
-					save = pr->offset;
+				if (pr.first)
+					save = pr.first->offset;
 
 				RD wall_rule_transition = rule_transition.getRd() + save;
 				return BasicDateTime<>(wall_rule_transition, TimeType_Wall);
@@ -283,8 +357,8 @@ namespace smalltime
 				RD save = 0.0;
 				auto pr = FindPreviousRule(rule_transition);
 
-				if (pr)
-					save = pr->offset;
+				if (pr.first)
+					save = pr.first->offset;
 
 				RD wall_rule_transition = rule_transition.getRd() - zone_->zoneOffset;
 				wall_rule_transition += save;

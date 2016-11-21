@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <sstream>
+#include <BasicDateTime.h>
 
 namespace smalltime
 {
@@ -13,27 +15,71 @@ namespace smalltime
 		//============================================
 		// Ctor
 		//============================================
-		InvalidFieldException(const std::string& message) : std::runtime_error(message), m_msg(message)
+		InvalidFieldException(const std::string& message) : std::runtime_error(message), msg_(message)
 		{
 
 		}
-
-		//======================================
-		// Dtor
-		//======================================
-		virtual ~InvalidFieldException() {};
 
 		//=========================================
 		// return error message
 		//==========================================
 		virtual const char* what() const
 		{
-			return m_msg.c_str();
+			return msg_.c_str();
 		}
 
 	private:
-		std::string m_msg;
+		std::string msg_;
 	};
+
+	class TimeZoneAmbigMultiException : public std::runtime_error
+	{
+	public:
+		//===========================================
+		// Ctor
+		//============================================
+		TimeZoneAmbigMultiException(BasicDateTime<> earliest_rule_dt, BasicDateTime<> latest_rule_dt) : std::runtime_error("Ambigous Multiple TimeZones"), msg_("Ambigous Multiple TimeZones")
+		{
+
+		}
+
+		//=========================================
+		// return error message
+		//==========================================
+		virtual const char* what() const
+		{
+			return msg_.c_str();
+		}
+
+	private:
+		std::string msg_;
+
+	};
+
+	class TimeZoneAmbigNoneException : public std::runtime_error
+	{
+	public:
+		//===========================================
+		// Ctor
+		//============================================
+		TimeZoneAmbigNoneException(BasicDateTime<> earliest_rule_dt, BasicDateTime<> latest_rule_dt) : std::runtime_error("Ambigous Gap In TimeZones"), msg_("Ambigous Gap In TimeZones")
+		{
+
+		}
+
+		//=========================================
+		// return error message
+		//==========================================
+		virtual const char* what() const
+		{
+			return msg_.c_str();
+		}
+
+	private:
+		std::string msg_;
+
+	};
+
 }
 
 #endif

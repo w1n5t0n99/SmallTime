@@ -15,9 +15,11 @@ namespace smalltime
 		public:
 			RuleUtil(uint32_t rule_id, const Zone* const zone);
 
-			const Rule* const FindActiveRule(BasicDateTime<> cur_dt);
-			const Rule* const FindPreviousRule(BasicDateTime<> cur_rule);
-			const Rule* const FindNextRule(BasicDateTime<> cur_rule);
+			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
+
+			std::pair<const Rule* const, int> FindPreviousRule(BasicDateTime<> cur_rule);
+			std::pair<const Rule* const, int> FindNextRule(BasicDateTime<> cur_rule);
+			const Rule* const FindCorrectedForAmbigRule(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, Choose choose);
 
 			int FindClosestActiveYear(int year);
 			int FindPreviousActiveYear(int year);
