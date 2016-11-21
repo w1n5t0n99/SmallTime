@@ -44,12 +44,10 @@ namespace smalltime
 		//===========================================
 		RD* GetTransitionPool(const TransitionPool buffer_type)
 		{
-			if (buffer_type == TransitionPool::KPrimaryRule)
-				return KPrimaryRuleRdBuffer.data();
-			else if (buffer_type == TransitionPool::KSecondaryRule)
-				return KSecondaryRuleRdBuffer.data();
+			if (buffer_type == TransitionPool::KRule)
+				return KRulePool.data();
 			else
-				return KZoneRdBuffer.data();
+				return KZonePool.data();
 		}
 
 		//========================================
@@ -57,12 +55,22 @@ namespace smalltime
 		//==========================================
 		void FillTransitionPool(const TransitionPool buffer_type, const RD data)
 		{
-			if (buffer_type == TransitionPool::KPrimaryRule)
-				std::fill(KPrimaryRuleRdBuffer.begin(), KPrimaryRuleRdBuffer.end(), data);
-			else if (buffer_type == TransitionPool::KSecondaryRule)
-				std::fill(KSecondaryRuleRdBuffer.begin(), KSecondaryRuleRdBuffer.end(), data);
+			if (buffer_type == TransitionPool::KRule)
+				std::fill(KRulePool.begin(), KRulePool.end(), data);
 			else
-				std::fill(KZoneRdBuffer.begin(), KZoneRdBuffer.end(), data);
+				std::fill(KZonePool.begin(), KZonePool.end(), data);
+
+		}
+
+		//========================================
+		// Simple fill array with data
+		//==========================================
+		void FillTransitionPool(const TransitionPool buffer_type, int size, const RD data)
+		{
+			if (buffer_type == TransitionPool::KRule)
+				std::fill(KRulePool.begin(), KRulePool.begin() + size, data);
+			else
+				std::fill(KZonePool.begin(), KZonePool.begin() + size, data);
 
 		}
 
@@ -71,12 +79,22 @@ namespace smalltime
 		//==========================================
 		void ClearTransitionPool(const TransitionPool buffer_type)
 		{
-			if (buffer_type == TransitionPool::KPrimaryRule)
-				std::fill(KPrimaryRuleRdBuffer.begin(), KPrimaryRuleRdBuffer.end(), 0.0);
-			else if (buffer_type == TransitionPool::KSecondaryRule)
-				std::fill(KSecondaryRuleRdBuffer.begin(), KSecondaryRuleRdBuffer.end(), 0.0);
+			if (buffer_type == TransitionPool::KRule)
+				std::fill(KRulePool.begin(), KRulePool.end(), 0.0);
 			else
-				std::fill(KZoneRdBuffer.begin(), KZoneRdBuffer.end(), 0.0);
+				std::fill(KZonePool.begin(), KZonePool.end(), 0.0);
+
+		}
+
+		//========================================
+		// Simple clear of array with 0.0
+		//==========================================
+		void ClearTransitionPool(const TransitionPool buffer_type, int size)
+		{
+			if (buffer_type == TransitionPool::KRule)
+				std::fill(KRulePool.begin(), KRulePool.begin() + size, 0.0);
+			else
+				std::fill(KZonePool.begin(), KZonePool.begin() + size , 0.0);
 
 		}
 

@@ -17,7 +17,11 @@ namespace smalltime
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt);
 			const Rule* const FindPreviousRule(BasicDateTime<> cur_rule);
+			const Rule* const FindNextRule(BasicDateTime<> cur_rule);
+
 			int FindClosestActiveYear(int year);
+			int FindPreviousActiveYear(int year);
+			int FindNextActiveYear(int year);
 
 			void InitTransitionData(int year);
 			void BuildTransitionData(RD* buffer, int year);
@@ -32,10 +36,8 @@ namespace smalltime
 			const Rule* rule_arr_;
 			const Rules rules_;
 			const Zone* const zone_;
-			int current_year_;
-			int primary_pool_year_;
-			int secondary_pool_year_;
-
+			int current_year_, primary_year_, previous_year_, next_year_;
+			RD* primary_ptr_, *previous_ptr_, *next_ptr_;
 		};
 
 	}

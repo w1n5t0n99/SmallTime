@@ -18,15 +18,16 @@ namespace tz
 
 	enum class TransitionPool
 	{
-		KPrimaryRule,
-		KSecondaryRule,
-		KPrimaryZone,
-		KSecondaryZone
+		KRule,
+		KZone,
 	};
 
 	RD* GetTransitionPool(const TransitionPool buffer_type);
 	void FillTransitionPool(const TransitionPool buffer_type, const RD data);
+	void FillTransitionPool(const TransitionPool buffer_type, int size, const RD data);
+
 	void ClearTransitionPool(const TransitionPool buffer_type);
+	void ClearTransitionPool(const TransitionPool buffer_type, int size);
 
 	int GetMaxRuleSize();
 	int GetMaxZoneSize();

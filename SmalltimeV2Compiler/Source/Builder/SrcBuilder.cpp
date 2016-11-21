@@ -118,11 +118,8 @@ namespace smalltime
 			outFile << "\nstatic const int KMaxZoneSize = " << meta.max_zone_size << ";";
 			outFile << "\nstatic const int KMaxRuleSize = " << meta.max_rule_size << ";";
 
-			outFile << "\n\nthread_local static std::array<RD, KMaxZoneSize> KZoneRdBuffer;";
-			outFile << "\nthread_local static std::array<RD, KMaxRuleSize> KPrimaryRuleRdBuffer;";
-			outFile << "\nthread_local static std::array<RD, KMaxRuleSize> KSecondaryRuleRdBuffer;";
-			outFile << "\nthread_local static std::array<int, KMaxRuleSize> KRuleIntBuffer;";
-
+			outFile << "\n\nthread_local static std::array<RD, KMaxZoneSize * 3> KZonePool;";
+			outFile << "\nthread_local static std::array<RD, KMaxRuleSize * 3> KRulePool;";
 
 			outFile << "\n\nstatic constexpr std::array<Zone," << vZones.size() << "> KZoneArray = {\n";
 			// Add zones

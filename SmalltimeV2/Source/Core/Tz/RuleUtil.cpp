@@ -14,8 +14,8 @@ namespace smalltime
 		// Ctor
 		//======================================
 		RuleUtil::RuleUtil(uint32_t rule_id, const Zone* const zone) : zone_(zone),
-			rules_(FindRules(rule_id)), rule_arr_(GetRuleHandle()), current_year_(0), primary_pool_year_(0),
-			secondary_pool_year_(0)
+			rules_(FindRules(rule_id)), rule_arr_(GetRuleHandle()), current_year_(0), primary_year_(0),
+			previous_year_(0), next_year_(0), primary_ptr_(nullptr), previous_ptr_(nullptr), next_ptr_(nullptr)
 		{
 
 		}
@@ -28,23 +28,25 @@ namespace smalltime
 			if (current_year_ == year)
 				return;
 
-			ClearTransitionPool(TransitionPool::KPrimaryRule);
-			ClearTransitionPool(TransitionPool::KSecondaryRule);
-
 			current_year_ = year;
-			int check_year = FindClosestActiveYear(year);
 
-			auto transition_buffer = GetTransitionPool(TransitionPool::KPrimaryRule);
-			BuildTransitionData(transition_buffer, check_year);
-			primary_pool_year_ = check_year;
+			// set the pointers for the data pool
+			ClearTransitionPool(TransitionPool::KRule, rules_.size * 3);
+			primary_ptr_ = GetTransitionPool(TransitionPool::KRule);
+			previous_ptr_ = primary_ptr_ + rules_.size;
+			next_ptr_ = previous_ptr_ + rules_.size;
+			// set the active years
+			primary_year_ = FindClosestActiveYear(year);
+			previous_year_ = FindPreviousActiveYear(primary_year_);
+			next_year_ = FindNextActiveYear(primary_year_);
+			// build transition data for primary year
+			BuildTransitionData(primary_ptr_, primary_year_);
+			// build transition data for previous closest year
+			BuildTransitionData(previous_ptr_, previous_year_);
+			// build transition data for next closest year
+			BuildTransitionData(next_ptr_, next_year_);
 
-			check_year = FindClosestActiveYear(check_year - 1);
-
-			transition_buffer = GetTransitionPool(TransitionPool::KSecondaryRule);
-			BuildTransitionData(transition_buffer, check_year);
-			secondary_pool_year_ = check_year;
-
-
+			//std::cout << "prim year: " << primary_year_ << " prev year: " << previous_year_ << " next year: " << next_year_ << std::endl;
 		}
 
 		//====================================================
@@ -55,18 +57,17 @@ namespace smalltime
 			InitTransitionData(cur_dt.getYear());
 
 			const Rule* closest_rule = nullptr;
-			auto transition_pool = GetTransitionPool(TransitionPool::KPrimaryRule);
 			RD closest_transition = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < GetMaxRuleSize(); ++i)
+			for (int i = 0; i < rules_.size; ++i)
 			{
 				// rule transition is not null 
-				if (transition_pool[i] > 0.0)
+				if (*(primary_ptr_ + i) > 0.0)
 				{
-					diff = cur_dt.getRd() - transition_pool[i];
+					diff = cur_dt.getRd() - primary_ptr_[i];
 					const tz::Rule* r = &rule_arr_[rules_.first + i];
-					diff = cur_dt.getRd() - CalcTransitionFull(r, primary_pool_year_, cur_dt.getType()).getRd();
+					diff = cur_dt.getRd() - CalcTransitionFull(r, primary_year_, cur_dt.getType()).getRd();
 
 					if (diff >= 0.0 && diff < closest_transition)
 					{
@@ -75,20 +76,19 @@ namespace smalltime
 					}
 				}
 			}
-			// if none found in primary pool check secondary
+			// if none found in primary pool check previous
 			if (closest_rule == nullptr)
 			{
-				transition_pool = GetTransitionPool(TransitionPool::KSecondaryRule);
 				diff = 0.0;
 				closest_transition = 0.0;
-				for (int i = 0; i < GetMaxRuleSize(); ++i)
+				for (int i = 0; i < rules_.size; ++i)
 				{
 					// rule transition is not null 
-					if (transition_pool[i] > 0.0)
+					if (*(primary_ptr_ + i) > 0.0)
 					{
-						diff = cur_dt.getRd() - transition_pool[i];
+						diff = cur_dt.getRd() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
-						diff = cur_dt.getRd() - CalcTransitionFull(r, primary_pool_year_, cur_dt.getType()).getRd();
+						diff = cur_dt.getRd() - CalcTransitionFull(r, previous_year_, cur_dt.getType()).getRd();
 
 						if (diff >= 0.0 && diff < closest_transition)
 						{
@@ -109,33 +109,34 @@ namespace smalltime
 		{
 			const Rule* prev_rule = nullptr;
 
-			auto transition_pool = GetTransitionPool(TransitionPool::KPrimaryRule);
+//			auto transition_pool = GetTransitionPool(TransitionPool::KPrimaryRule);
 			RD closest_transition = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < GetMaxRuleSize(); ++i)
+			for (int i = 0; i < rules_.size; ++i)
 			{
-				diff = cur_rule.getRd() - transition_pool[i];
+				auto rule_rd = *(primary_ptr_ + i);
+				diff = cur_rule.getRd() - rule_rd;
 				// rule transition is not null and before rd
-				if (transition_pool[i] > 0.0 && diff > 0.0 && transition_pool[i] > closest_transition)
+				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_transition)
 				{
-					closest_transition = transition_pool[i];
+					closest_transition = rule_rd;
 					prev_rule = &rule_arr_[rules_.first + i];
 				}
 			}
 			// if a previous rule wasn't found check secondary pool
 			if (prev_rule == nullptr)
 			{
-				transition_pool = GetTransitionPool(TransitionPool::KSecondaryRule);
 				diff = 0.0;
 				closest_transition = 0.0;
-				for (int i = 0; i < GetMaxRuleSize(); ++i)
+				for (int i = 0; i < rules_.size; ++i)
 				{
-					diff = cur_rule.getRd() - transition_pool[i];
+					auto rule_rd = *(primary_ptr_ + i);
+					diff = cur_rule.getRd() - previous_ptr_[i];
 					// rule transition is not null and before rd
-					if (transition_pool[i] > 0.0 && diff > 0.0 && transition_pool[i] > closest_transition)
+					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_transition)
 					{
-						closest_transition = transition_pool[i];
+						closest_transition = rule_rd;
 						prev_rule = &rule_arr_[rules_.first + i];
 					}
 				}
@@ -152,15 +153,76 @@ namespace smalltime
 			int closest_year = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				if (rule_arr_[i].fromYear <= year && rule_arr_[i].toYear >= year)
-				{
-					closest_year = year;
-				}
-				else if (rule_arr_[i].toYear < year)
-				{
-					if (rule_arr_[i].toYear > closest_year)
-						closest_year = rule_arr_[i].toYear;
-				}
+				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
+				int cur_range = year - rule_arr_[i].fromYear;
+				int cur_year = 0;
+
+				if (cur_range > rule_range)
+					cur_year = rule_arr_[i].toYear;
+				else if (cur_range < 0)
+					cur_year = 0;
+				else
+					cur_year = year;
+
+				if (cur_year > closest_year)
+					closest_year = cur_year;
+				
+			}
+
+			return closest_year;
+		}
+
+		//===================================================================
+		// Find the closest  previous year with an active rule or return 0
+		//===================================================================
+		int RuleUtil::FindPreviousActiveYear(int year)
+		{
+			year -= 1;
+			int closest_year = 0;
+			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
+			{
+				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
+				int cur_range = year - rule_arr_[i].fromYear;
+				int cur_year = 0;
+
+				if (cur_range > rule_range)
+					cur_year = rule_arr_[i].toYear;
+				else if (cur_range < 0)
+					cur_year = 0;
+				else
+					cur_year = year;
+
+				if (cur_year > closest_year)
+					closest_year = cur_year;
+
+			}
+
+			return closest_year;
+		}
+
+		//============================================================
+		// Find the next closest year with an active rule or return 0
+		//=============================================================
+		int RuleUtil::FindNextActiveYear(int year)
+		{
+			year += 1;
+			int closest_year = 0;
+			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
+			{
+				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
+				int cur_range = year - rule_arr_[i].fromYear;
+				int cur_year = 0;
+
+				if (cur_range > rule_range)
+					cur_year = 0;
+				else if (cur_range < 0)
+					cur_year = rule_arr_[i].fromYear;
+				else
+					cur_year = year;
+
+				if (cur_year < closest_year && cur_year > 0)
+					closest_year = cur_year;
+
 			}
 
 			return closest_year;
