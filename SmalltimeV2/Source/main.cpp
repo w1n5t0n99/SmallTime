@@ -52,8 +52,8 @@ int main()
 
 	//printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
 
-	BasicDateTime<> dt(2016, 11, 22, 9, 15, 0, 0, tz::TimeType::TimeType_Wall);
-//	BasicDateTime<> dt(2016, 4, 3, 3, 0, 0, 0, tz::TimeType::TimeType_Wall);
+//	BasicDateTime<> dt(2016, 11, 22, 9, 15, 0, 0, tz::TimeType::TimeType_Wall);
+	BasicDateTime<> dt(2016, 4, 3, 1, 59, 59, 999, tz::TimeType::TimeType_Wall);
 	auto ar = ru.FindActiveRule(dt, Choose::Error);
 
 	if (ar)

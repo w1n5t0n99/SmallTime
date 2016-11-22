@@ -5,6 +5,7 @@
 #include <iostream>
 #include <assert.h>
 #include <array>
+#include "../Exceptions.h"
 
 namespace smalltime
 {
@@ -103,14 +104,12 @@ namespace smalltime
 				}
 			}
 			
-			/*
-			if (closest_rule != nullptr)
-				return FindCorrectedForAmbigRule(cur_dt, closest_rule_dt, choose);
+			
+			if (closest_rule)
+				return CorrectForAmbigWallOrUtc(cur_dt, closest_rule_dt, closest_rule, choose);
 			else
 				return closest_rule;
-				*/
 
-			return closest_rule;
 		}
 
 		//==============================================
@@ -206,16 +205,46 @@ namespace smalltime
 		//=========================================================================
 		const Rule* const RuleUtil::CorrectForAmbigWallOrUtc(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, const Rule* const cur_rule, Choose choose)
 		{
-			// check for  ambigousness with the next active rule
+			// check for  ambiguousness with the previous active rule
 			auto prev_rule = FindPreviousRule(cur_rule_dt);
 			if (prev_rule.first)
 			{
 				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
+				auto cur_rule_inst = cur_rule_dt.getRd() + offset_diff;
 
-
+				if (cur_dt.getRd() >= cur_rule_dt.getRd() && cur_dt.getRd() < cur_rule_inst)
+				{
+					// Ambigiuous local time gap
+					if (choose == Choose::Earliest)
+						return prev_rule.first;
+					else if (choose == Choose::Latest)
+						return cur_rule;
+					else
+						throw TimeZoneAmbigNoneException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+				}
 			}
 
-			return nullptr;
+			// check for ambiguousness with next active rule
+			auto next_rule = FindNextRule(cur_rule_dt);
+			if (next_rule.first)
+			{
+				auto next_rule_dt = CalcTransitionWallOrUtc(next_rule.first, next_rule.second, cur_rule_dt.getType());
+				auto offset_diff = next_rule.first->offset - cur_rule->offset;
+				auto next_rule_inst = next_rule_dt.getRd() + offset_diff;
+
+				if (cur_dt.getRd() >= next_rule_inst && cur_dt.getRd() < next_rule_dt.getRd())
+				{
+					// Ambiguous multiple local times
+					if (choose == Choose::Earliest)
+						return cur_rule;
+					else if (choose == Choose::Latest)
+						return next_rule.first;
+					else
+						throw TimeZoneAmbigMultiException(cur_dt, next_rule_dt);
+				}
+			}
+
+			return cur_rule;
 		}
 
 		//============================================================
