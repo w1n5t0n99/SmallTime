@@ -68,7 +68,7 @@ namespace smalltime
 				{
 					auto r = &rule_arr_[rules_.first + i];
 
-					closest_rule_dt = CalcTransitionFull(r, primary_year_, cur_dt.getType());
+					closest_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.getType());
 					diff = cur_dt.getRd() - closest_rule_dt.getRd();
 
 					if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
@@ -91,7 +91,7 @@ namespace smalltime
 						diff = cur_dt.getRd() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
 
-						closest_rule_dt = CalcTransitionFull(r, previous_year_, cur_dt.getType());
+						closest_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.getType());
 						diff = cur_dt.getRd() - closest_rule_dt.getRd();
 
 						if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
@@ -204,13 +204,13 @@ namespace smalltime
 		//=========================================================================
 		// Check if cur dt is ambigous and choose correct rule or throw exception
 		//=========================================================================
-		const Rule* const RuleUtil::FindCorrectedForAmbigRule(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, Choose choose)
+		const Rule* const RuleUtil::CorrectForAmbigWallOrUtc(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, const Rule* const cur_rule, Choose choose)
 		{
 			// check for  ambigousness with the next active rule
 			auto prev_rule = FindPreviousRule(cur_rule_dt);
 			if (prev_rule.first)
 			{
-				auto prev_rule_offset = prev_rule.first->offset;
+				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
 
 
 			}
@@ -319,10 +319,14 @@ namespace smalltime
 		//=======================================================
 		// Calculate wall transition in given time type
 		//=========================================================
-		BasicDateTime<> RuleUtil::CalcTransitionFull(const Rule* const rule, int year, TimeType time_type)
+		BasicDateTime<> RuleUtil::CalcTransitionWallOrUtc(const Rule* const rule, int year, TimeType time_type)
 		{
-			//if (time_type == TimeType::TimeType_Wall)
+			if (time_type == TimeType::TimeType_Wall)
 				return CalcTransitionWall(rule, year);
+			else if (time_type == TimeType::TimeType_Utc)
+				return CalcTransitionUtc(rule, year);
+			else
+				return BasicDateTime<>(0.0, TimeType_Std);
 		}
 
 		//==================================================
@@ -334,7 +338,7 @@ namespace smalltime
 			if (rule_transition.getRd() == 0.0)
 				return rule_transition;
 
-			InitTransitionData(year);
+			//InitTransitionData(year);
 
 			if (rule->atType == TimeType_Wall)
 			{
@@ -360,29 +364,62 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD wall_rule_transition = rule_transition.getRd() - zone_->zoneOffset;
-				wall_rule_transition += save;
+				RD wall_rule_transition = rule_transition.getRd() + zone_->zoneOffset + save;
 				return BasicDateTime<>(wall_rule_transition, TimeType_Wall);
 			}
 		}
 
-		//===================================================
-		// Calculate rule transiton without time 
-		//===================================================
-		BasicDateTime<> RuleUtil::CalcTransitionFast(const Rule* const rule, int year)
+		//======================================================
+		// Calculate rule transition in utc time
+		//======================================================
+		BasicDateTime<> RuleUtil::CalcTransitionUtc(const Rule* const rule, int year)
+		{
+			auto rule_transition = CalcTransitionFast(rule, year, TimeType_Utc);
+			if (rule_transition.getRd() == 0.0)
+				return rule_transition;
+
+			//InitTransitionData(year);
+			if (rule->atType == TimeType_Utc)
+			{
+				return rule_transition;
+			}
+			else if (rule->atType == TimeType_Std)
+			{
+				RD utc_rule_transition = rule_transition.getRd() - zone_->zoneOffset;
+				return BasicDateTime<>(utc_rule_transition, TimeType_Utc);
+
+			}
+			else
+			{
+				RD save = 0.0;
+				auto pr = FindPreviousRule(rule_transition);
+
+				if (pr.first)
+					save = pr.first->offset;
+
+				RD utc_rule_transition = rule_transition.getRd() - zone_->zoneOffset - save;
+				return BasicDateTime<>(utc_rule_transition, TimeType_Utc);
+			}
+
+		}
+
+		//===========================================================
+		// Calculate rule transiton without time type checking
+		//===========================================================
+		BasicDateTime<> RuleUtil::CalcTransitionFast(const Rule* const rule, int year, TimeType time_type)
 		{
 			if (year < rule->fromYear || year > rule->toYear)
-				return BasicDateTime<>(0.0, TimeType_Wall);
+				return BasicDateTime<>(0.0, time_type);
 
 			//HMS hms = { 0, 0, 0, 0 };
 			HMS hms = math::hmsFromRd(rule->atTime);
 
 			if (rule->dayType == DayType_Dom)
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], TimeType_Wall);
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], time_type);
 			else if (rule->dayType == DayType_SunGE)
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, TimeType_Wall);
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, time_type);
 			else
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, TimeType_Wall);
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, time_type);
 		}
 	}
 }
