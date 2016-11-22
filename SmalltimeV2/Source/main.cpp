@@ -53,7 +53,7 @@ int main()
 	//printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
 
 //	BasicDateTime<> dt(2016, 11, 22, 9, 15, 0, 0, tz::TimeType::TimeType_Wall);
-	BasicDateTime<> dt(2016, 4, 3, 1, 59, 59, 999, tz::TimeType::TimeType_Wall);
+	BasicDateTime<> dt(2016, 10, 2, 2, 59, 59, 999, tz::TimeType::TimeType_Wall);
 	auto ar = ru.FindActiveRule(dt, Choose::Error);
 
 	if (ar)
@@ -63,7 +63,7 @@ int main()
 		printf("Active rule found from -  %d  to - %d  in: %d  save - %d:%d:%d:%d\n", ar->fromYear, ar->toYear, ar->month, roffset[0], roffset[1], roffset[2], roffset[3]);
 		printf("Zone offset - %d:%d:%d:%d\n\n", zoffset[0], zoffset[1], zoffset[2], zoffset[3]);
 
-		BasicDateTime<> dtw(2016, 11, 22, 9, 15, 0, 0, tz::TimeType::TimeType_Wall);
+		BasicDateTime<> dtw = ru.CalcTransitionWall(ar, 2016);
 		printf("DateTime wall time - %d/%d/%d %d:%d:%d:%d\n", dtw.getYear(), dtw.getMonth(), dtw.getDay(), dtw.getHour(), dtw.getMinute(), dtw.getSecond(), dtw.getMillisecond());
 		auto rdu = dtw.getRd() - zoneHandle[zones.first + zones.size - 1].zoneOffset - ar->offset;
 		BasicDateTime<> dtu(rdu, tz::TimeType_Utc);

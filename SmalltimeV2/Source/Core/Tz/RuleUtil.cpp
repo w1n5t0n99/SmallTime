@@ -59,7 +59,7 @@ namespace smalltime
 
 			const Rule* closest_rule = nullptr;
 			BasicDateTime<> closest_rule_dt(0.0, TimeType::TimeType_Wall);
-			RD closest_transition = 0.0;
+			RD closest_transition = -1.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
@@ -69,11 +69,12 @@ namespace smalltime
 				{
 					auto r = &rule_arr_[rules_.first + i];
 
-					closest_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.getType());
-					diff = cur_dt.getRd() - closest_rule_dt.getRd();
+					auto cur_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.getType());
+					diff = cur_dt.getRd() - cur_rule_dt.getRd();
 
-					if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
+					if (diff >= 0.0 && (diff < closest_transition || closest_transition < 0.0))
 					{
+						closest_rule_dt = cur_rule_dt;
 						closest_transition = diff;
 						closest_rule = r;
 					}
@@ -83,7 +84,7 @@ namespace smalltime
 			if (closest_rule == nullptr)
 			{
 				diff = 0.0;
-				closest_transition = 0.0;
+				closest_transition = -1.0;
 				for (int i = 0; i < rules_.size; ++i)
 				{
 					// rule transition is not null 
@@ -92,11 +93,12 @@ namespace smalltime
 						diff = cur_dt.getRd() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
 
-						closest_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.getType());
-						diff = cur_dt.getRd() - closest_rule_dt.getRd();
+						auto cur_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.getType());
+						diff = cur_dt.getRd() - cur_rule_dt.getRd();
 
-						if (diff >= 0.0 && (diff < closest_transition || closest_transition == 0.0))
+						if (diff >= 0.0 && (diff < closest_transition || closest_transition < 0.0))
 						{
+							closest_rule_dt = cur_rule_dt;
 							closest_transition = diff;
 							closest_rule = r;
 						}
