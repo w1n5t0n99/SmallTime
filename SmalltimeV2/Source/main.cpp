@@ -7,8 +7,14 @@
 #include <MathUtils.h>
 #include <TimeMath.h>
 #include "Utils\StlPerfCounter.h"
-#include "Core\Tz\TzdbAccessor.h"
-#include "Core\Tz\RuleUtil.h"
+
+#include "Core\Tz\rule_group.h"
+#include "Core\\Tz\tzdb_header_connector.h"
+#include <itzdbconnector.h>
+#include <memory>
+#include <FloatUtil.h>
+#include <inttypes.h>
+
 using namespace smalltime;
 
 int main()
@@ -16,46 +22,48 @@ int main()
 	StlPerfCounter counter("Counter");
 	counter.StartCounter();
 
-	auto rule_handle = tz::GetRuleHandle();
-	auto rule_id = math::getUniqueID("AT");
-	auto rules = tz::FindRules("AT");
+	std::shared_ptr<tz::TzdbHeaderConnector> tzdb_connector = std::make_shared<tz::TzdbHeaderConnector>();
 
-	auto zoneHandle = tz::GetZoneHandle();
-	auto zones = tz::FindZones("Australia/Hobart");
+	auto rule_handle = tzdb_connector->GetRuleHandle();
+	auto rule_id = math::getUniqueID("AT");
+	auto rules = tzdb_connector->FindRules("AT");
+
+	auto zoneHandle = tzdb_connector->GetZoneHandle();
+	auto zones = tzdb_connector->FindZones("Australia/Hobart");
 
 	std::cout << "Rules ID: " << rules.ruleId << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
 	std::cout << "Zones ID: " << zones.zoneId << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
 
-	tz::RuleUtil ru(rule_id, &zoneHandle[zones.first + zones.size - 1]);
+	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
 
-	//auto dt1 = ru.CalcTransitionWall(&rule_handle[rules.first + rules.size - 1], 2016);
-	//counter.StartCounter();
+
+	BasicDateTime<> dt0(2016, 4, 3, 2, 0, 0, 0, tz::TimeType::TimeType_Wall);
+	BasicDateTime<> dt(2016, 4, 2, 16, 59, 59, 999, tz::TimeType::TimeType_Utc);
+
+	
+	try
+	{
+		auto ar = ru.FindActiveRule(dt, Choose::Error);
+		//std::cout << "Rule offset - " << ar->offset << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	
+	
+	try
+	{
+		auto ar = ru.FindActiveRule(dt0, Choose::Error);
+		//std::cout << "Rule offset - " << ar->offset << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
 
 	/*
-	int ri = 0;
-	auto pr = ru.findPreviousRule(&ruleHandle[ri], 1918);
-	
-	if (pr)
-	{
-		std::cout << "Current rule From: " << ruleHandle[ri].fromYear << " To: " << ruleHandle[ri].toYear << " In: " << ruleHandle[ri].month << std::endl;
-		std::cout << "Prev rule found! From: " << pr->fromYear << " To: " << pr->toYear << " In: " << pr->month << std::endl;
-	}
-	else
-		std::cout << "Prev rule not found!" << std::endl;
-
-		*/
-
-	//int next_closest_year = ru.FindNextActiveYear(2005);
-	//std::cout << "Next active year = " << next_closest_year << std::endl;
-
-	//auto dt = ru.CalcTransitionWall(&rule_handle[rules.first + rules.size - 1], 2016);
-
-	//printf("Rule transition at %d/%d/%d %d:%d:%d:%d\n", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond(), dt.getMillisecond());
-
-//	BasicDateTime<> dt(2016, 11, 22, 9, 15, 0, 0, tz::TimeType::TimeType_Wall);
-	BasicDateTime<> dt(2016, 10, 2, 2, 59, 59, 999, tz::TimeType::TimeType_Wall);
-	auto ar = ru.FindActiveRule(dt, Choose::Error);
-
 	if (ar)
 	{
 		auto roffset = math::hmsFromRd(ar->offset);
@@ -63,11 +71,21 @@ int main()
 		printf("Active rule found from -  %d  to - %d  in: %d  save - %d:%d:%d:%d\n", ar->fromYear, ar->toYear, ar->month, roffset[0], roffset[1], roffset[2], roffset[3]);
 		printf("Zone offset - %d:%d:%d:%d\n\n", zoffset[0], zoffset[1], zoffset[2], zoffset[3]);
 
-		BasicDateTime<> dtw = ru.CalcTransitionWall(ar, 2016);
-		printf("DateTime wall time - %d/%d/%d %d:%d:%d:%d\n", dtw.getYear(), dtw.getMonth(), dtw.getDay(), dtw.getHour(), dtw.getMinute(), dtw.getSecond(), dtw.getMillisecond());
-		auto rdu = dtw.getRd() - zoneHandle[zones.first + zones.size - 1].zoneOffset - ar->offset;
-		BasicDateTime<> dtu(rdu, tz::TimeType_Utc);
-		printf("DateTime utc time - %d/%d/%d %d:%d:%d:%d\n", dtu.getYear(), dtu.getMonth(), dtu.getDay(), dtu.getHour(), dtu.getMinute(), dtu.getSecond(), dtu.getMillisecond());
+		BasicDateTime<> cd(7362238.666666666627862, tz::TimeType_Wall);
+		BasicDateTime<> cr(7362238.666666666744277, tz::TimeType_Wall);
+
+		printf("CD ############## - %d/%d/%d %d:%d:%d:%d\n", cd.getYear(), cd.getMonth(), cd.getDay(), cd.getHour(), cd.getMinute(), cd.getSecond(), cd.getMillisecond());
+		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.getYear(), cr.getMonth(), cr.getDay(), cr.getHour(), cr.getMinute(), cr.getSecond(), cr.getMillisecond());
+
+
+		Double_t fcd(7362238.666666666627862);
+		Double_t fcr(7362238.666666666744277);
+
+		printf("CD ################## -  %" PRIu64 " \n", fcd.i);
+		printf("CR ################## -  %" PRIu64 "\n", fcr.i);
+		printf("ULP ################## -  %" PRIu64 "\n", fcd.i - fcr.i);
+
+		
 
 
 	}
@@ -75,6 +93,7 @@ int main()
 	{
 		printf("Active rule not found!!\n");
 	}
+	*/
 
 	counter.EndCounter();
 

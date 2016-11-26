@@ -69,7 +69,10 @@
     <ClCompile Include="Source\Core\Tz\TzdbAccessor.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Tz\RuleUtil.cpp">
+    <ClCompile Include="Source\Core\Tz\tzdb_header_connector.cpp">
+      <Filter>Source Files\Core\Tz</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Tz\rule_group.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,8 +116,17 @@
     <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h">
       <Filter>Header Files\Core\Chronology</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Tz\RuleUtil.h">
+    <ClInclude Include="..\SmalltimeShared\Include\itzdbconnector.h">
       <Filter>Header Files\Core\Tz</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Tz\tzdb_header_connector.h">
+      <Filter>Header Files\Core\Tz</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Tz\rule_group.h">
+      <Filter>Header Files\Core\Tz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SmalltimeShared\Include\FloatUtil.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

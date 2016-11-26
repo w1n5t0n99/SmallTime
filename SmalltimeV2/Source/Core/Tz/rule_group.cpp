@@ -1,6 +1,6 @@
 
-#include "RuleUtil.h"
-#include "TzdbAccessor.h"
+#include "rule_group.h"
+#include <FloatUtil.h>
 #include <TimeMath.h>
 #include <iostream>
 #include <assert.h>
@@ -14,9 +14,10 @@ namespace smalltime
 		//=======================================
 		// Ctor
 		//======================================
-		RuleUtil::RuleUtil(uint32_t rule_id, const Zone* const zone) : zone_(zone),
-			rules_(FindRules(rule_id)), rule_arr_(GetRuleHandle()), current_year_(0), primary_year_(0),
-			previous_year_(0), next_year_(0), primary_ptr_(nullptr), previous_ptr_(nullptr), next_ptr_(nullptr)
+		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<ITzdbConnector> tzdb_connector) : zone_(zone),
+			rules_(tzdb_connector->FindRules(rule_id)), rule_arr_(tzdb_connector->GetRuleHandle()), current_year_(0), primary_year_(0),
+			previous_year_(0), next_year_(0), primary_ptr_(nullptr), previous_ptr_(nullptr), next_ptr_(nullptr), 
+			tzdb_connector_(tzdb_connector)
 		{
 
 		}
@@ -24,7 +25,7 @@ namespace smalltime
 		//=================================================
 		// Init rule data for given transition year
 		//================================================
-		void RuleUtil::InitTransitionData(int year)
+		void RuleGroup::InitTransitionData(int year)
 		{
 			if (current_year_ == year)
 				return;
@@ -32,8 +33,8 @@ namespace smalltime
 			current_year_ = year;
 
 			// set the pointers for the data pool
-			ClearTransitionPool(TransitionPool::KRule, rules_.size * 3);
-			primary_ptr_ = GetTransitionPool(TransitionPool::KRule);
+			tzdb_connector_->ClearTransitionPool(TransitionPool::KRule, rules_.size * 3);
+			primary_ptr_ = tzdb_connector_->GetTransitionPool(TransitionPool::KRule);
 			previous_ptr_ = primary_ptr_ + rules_.size;
 			next_ptr_ = previous_ptr_ + rules_.size;
 			// set the active years
@@ -46,20 +47,18 @@ namespace smalltime
 			BuildTransitionData(previous_ptr_, previous_year_);
 			// build transition data for next closest year
 			BuildTransitionData(next_ptr_, next_year_);
-
-			//std::cout << "prim year: " << primary_year_ << " prev year: " << previous_year_ << " next year: " << next_year_ << std::endl;
 		}
 
 		//====================================================
 		// Find the active rule if any
 		//====================================================
-		const Rule* const RuleUtil::FindActiveRule(BasicDateTime<> cur_dt, Choose choose)
+		const Rule* const RuleGroup::FindActiveRule(BasicDateTime<> cur_dt, Choose choose)
 		{
 			InitTransitionData(cur_dt.getYear());
 
 			const Rule* closest_rule = nullptr;
 			BasicDateTime<> closest_rule_dt(0.0, TimeType::TimeType_Wall);
-			RD closest_transition = -1.0;
+			RD closest_diff = DMAX;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
@@ -71,11 +70,10 @@ namespace smalltime
 
 					auto cur_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.getType());
 					diff = cur_dt.getRd() - cur_rule_dt.getRd();
-
-					if (diff >= 0.0 && (diff < closest_transition || closest_transition < 0.0))
+					if ((diff >= 0.0  || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11)) && diff < closest_diff )
 					{
 						closest_rule_dt = cur_rule_dt;
-						closest_transition = diff;
+						closest_diff = diff;
 						closest_rule = r;
 					}
 				}
@@ -84,11 +82,10 @@ namespace smalltime
 			if (closest_rule == nullptr)
 			{
 				diff = 0.0;
-				closest_transition = -1.0;
 				for (int i = 0; i < rules_.size; ++i)
 				{
 					// rule transition is not null 
-					if (*(primary_ptr_ + i) > 0.0)
+					if (*(previous_ptr_ + i) > 0.0)
 					{
 						diff = cur_dt.getRd() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
@@ -96,17 +93,16 @@ namespace smalltime
 						auto cur_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.getType());
 						diff = cur_dt.getRd() - cur_rule_dt.getRd();
 
-						if (diff >= 0.0 && (diff < closest_transition || closest_transition < 0.0))
+						if ((diff >= 0.0 || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11)) && diff < closest_diff)
 						{
 							closest_rule_dt = cur_rule_dt;
-							closest_transition = diff;
+							closest_diff = diff;
 							closest_rule = r;
 						}
 					}
 				}
 			}
-			
-			
+
 			if (closest_rule)
 				return CorrectForAmbigWallOrUtc(cur_dt, closest_rule_dt, closest_rule, choose);
 			else
@@ -117,11 +113,11 @@ namespace smalltime
 		//==============================================
 		// Find the previous rule in effect if any
 		//===============================================
-		std::pair<const Rule* const, int> RuleUtil::FindPreviousRule(BasicDateTime<> cur_rule)
+		std::pair<const Rule* const, int> RuleGroup::FindPreviousRule(BasicDateTime<> cur_rule)
 		{
 			const Rule* prev_rule = nullptr;
 			int prev_rule_year = 0;
-			RD closest_transition = 0.0;
+			RD closest_diff = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
@@ -129,9 +125,9 @@ namespace smalltime
 				auto rule_rd = *(primary_ptr_ + i);
 				diff = cur_rule.getRd() - rule_rd;
 				// rule transition is not null and before rd
-				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_transition)
+				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
 				{
-					closest_transition = rule_rd;
+					closest_diff = rule_rd;
 					prev_rule = &rule_arr_[rules_.first + i];
 					prev_rule_year = primary_year_;
 				}
@@ -140,15 +136,16 @@ namespace smalltime
 			if (prev_rule == nullptr)
 			{
 				diff = 0.0;
-				closest_transition = 0.0;
+				closest_diff = 0.0;
 				for (int i = 0; i < rules_.size; ++i)
 				{
-					auto rule_rd = *(primary_ptr_ + i);
-					diff = cur_rule.getRd() - previous_ptr_[i];
+					auto rule_rd = *(previous_ptr_ + i);
+					diff = cur_rule.getRd() - rule_rd;
 					// rule transition is not null and before rd
-					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_transition)
+					// rule transition will not be no way close enough to be within ulp margin of error
+					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
 					{
-						closest_transition = rule_rd;
+						closest_diff = rule_rd;
 						prev_rule = &rule_arr_[rules_.first + i];
 						prev_rule_year = previous_year_;
 					}
@@ -161,11 +158,11 @@ namespace smalltime
 		//================================================
 		// Find the next rule in effect if any
 		//================================================
-		std::pair<const Rule* const, int> RuleUtil::FindNextRule(BasicDateTime<> cur_rule)
+		std::pair<const Rule* const, int> RuleGroup::FindNextRule(BasicDateTime<> cur_rule)
 		{
 			const Rule* next_rule = nullptr;
 			int next_rule_year = 0;
-			RD closest_transition = 0.0;
+			RD closest_diff = DMAX;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
@@ -173,9 +170,10 @@ namespace smalltime
 				auto rule_rd = *(primary_ptr_ + i);
 				diff = cur_rule.getRd() - rule_rd;
 				// rule transition is not null and after the cur rule
-				if (rule_rd > 0.0 && diff < 0.0 && (rule_rd < closest_transition || closest_transition == 0.0))
+				// rule transition will not be no way close enough to be within ulp margin of error
+				if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff)
 				{
-					closest_transition = rule_rd;
+					closest_diff = rule_rd;
 					next_rule = &rule_arr_[rules_.first + i];
 					next_rule_year = primary_year_;
 				}
@@ -184,15 +182,15 @@ namespace smalltime
 			if (next_rule == nullptr)
 			{
 				diff = 0.0;
-				closest_transition = 0.0;
+				closest_diff = 0.0;
 				for (int i = 0; i < rules_.size; ++i)
 				{
-					auto rule_rd = *(primary_ptr_ + i);
-					diff = cur_rule.getRd() - next_ptr_[i];
+					auto rule_rd = *(next_ptr_ + i);
+					diff = cur_rule.getRd() - rule_rd;
 					// rule transition is not null and after cur rule
-					if (rule_rd > 0.0 && diff < 0.0 && (rule_rd < closest_transition || closest_transition == 0.0))
+					if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff )
 					{
-						closest_transition = rule_rd;
+						closest_diff = rule_rd;
 						next_rule = &rule_arr_[rules_.first + i];
 						next_rule_year = next_year_;
 					}
@@ -202,27 +200,41 @@ namespace smalltime
 			return std::make_pair(next_rule, next_rule_year);
 		}
 
-		//=========================================================================
-		// Check if cur dt is ambigous and choose correct rule or throw exception
-		//=========================================================================
-		const Rule* const RuleUtil::CorrectForAmbigWallOrUtc(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, const Rule* const cur_rule, Choose choose)
+		//==========================================================================
+		// check if the cur date time is within an ambiguous range in wall time
+		//==========================================================================
+		const Rule* const RuleGroup::CorrectForAmbigWallOrUtc(const BasicDateTime<>& cur_dt, const BasicDateTime<>& cur_rule_dt, const Rule* const cur_rule, Choose choose)
 		{
-			// check for  ambiguousness with the previous active rule
+			// Check with previous offset for ambiguousness
 			auto prev_rule = FindPreviousRule(cur_rule_dt);
 			if (prev_rule.first)
 			{
 				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
-				auto cur_rule_inst = cur_rule_dt.getRd() + offset_diff;
 
-				if (cur_dt.getRd() >= cur_rule_dt.getRd() && cur_dt.getRd() < cur_rule_inst)
+				RD cur_rule_inst = 0.0;
+				if(cur_dt.getType() == TimeType_Wall)
+					cur_rule_inst = cur_rule_dt.getRd() + offset_diff;
+				else if(cur_dt.getType() == TimeType_Utc)
+					cur_rule_inst = cur_rule_dt.getRd() - offset_diff;
+
+				if ((cur_dt.getRd() >= cur_rule_dt.getRd() || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11))&& cur_dt.getRd() < cur_rule_inst)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::Earliest)
+					{
 						return prev_rule.first;
+					}
 					else if (choose == Choose::Latest)
+					{
 						return cur_rule;
+					}
 					else
-						throw TimeZoneAmbigNoneException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+					{
+						if (cur_dt.getType() == TimeType_Wall)
+							throw TimeZoneAmbigNoneException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+						else if (cur_dt.getType() == TimeType_Utc)
+							throw TimeZoneAmbigMultiException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+					}
 				}
 			}
 
@@ -230,11 +242,12 @@ namespace smalltime
 			auto next_rule = FindNextRule(cur_rule_dt);
 			if (next_rule.first)
 			{
+				// Thier cannot be a gap in UTC so no need to check!
 				auto next_rule_dt = CalcTransitionWallOrUtc(next_rule.first, next_rule.second, cur_rule_dt.getType());
 				auto offset_diff = next_rule.first->offset - cur_rule->offset;
 				auto next_rule_inst = next_rule_dt.getRd() + offset_diff;
 
-				if (cur_dt.getRd() >= next_rule_inst && cur_dt.getRd() < next_rule_dt.getRd())
+				if ((cur_dt.getRd() >= next_rule_inst || AlmostEqualUlps(cur_dt.getRd(), next_rule_inst, 11)) && cur_dt.getRd() < next_rule_dt.getRd())
 				{
 					// Ambiguous multiple local times
 					if (choose == Choose::Earliest)
@@ -245,14 +258,14 @@ namespace smalltime
 						throw TimeZoneAmbigMultiException(cur_dt, next_rule_dt);
 				}
 			}
-
+			
 			return cur_rule;
 		}
 
 		//============================================================
 		// Find the closest year with an active rule or return 0
 		//=============================================================
-		int RuleUtil::FindClosestActiveYear(int year)
+		int RuleGroup::FindClosestActiveYear(int year)
 		{
 			int closest_year = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
@@ -279,7 +292,7 @@ namespace smalltime
 		//===================================================================
 		// Find the closest  previous year with an active rule or return 0
 		//===================================================================
-		int RuleUtil::FindPreviousActiveYear(int year)
+		int RuleGroup::FindPreviousActiveYear(int year)
 		{
 			year -= 1;
 			int closest_year = 0;
@@ -307,7 +320,7 @@ namespace smalltime
 		//============================================================
 		// Find the next closest year with an active rule or return 0
 		//=============================================================
-		int RuleUtil::FindNextActiveYear(int year)
+		int RuleGroup::FindNextActiveYear(int year)
 		{
 			year += 1;
 			int closest_year = 0;
@@ -336,7 +349,7 @@ namespace smalltime
 		//================================================
 		// Fill buffer with rule transition data
 		//================================================
-		void RuleUtil::BuildTransitionData(RD* buffer, int year)
+		void RuleGroup::BuildTransitionData(RD* buffer, int year)
 		{
 			int index = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
@@ -350,7 +363,7 @@ namespace smalltime
 		//=======================================================
 		// Calculate wall transition in given time type
 		//=========================================================
-		BasicDateTime<> RuleUtil::CalcTransitionWallOrUtc(const Rule* const rule, int year, TimeType time_type)
+		BasicDateTime<> RuleGroup::CalcTransitionWallOrUtc(const Rule* const rule, int year, TimeType time_type)
 		{
 			if (time_type == TimeType::TimeType_Wall)
 				return CalcTransitionWall(rule, year);
@@ -363,7 +376,7 @@ namespace smalltime
 		//==================================================
 		// Calculates rule transtion in wall time
 		//==================================================
-		BasicDateTime<> RuleUtil::CalcTransitionWall(const Rule* const rule, int year)
+		BasicDateTime<> RuleGroup::CalcTransitionWall(const Rule* const rule, int year)
 		{
 			auto rule_transition = CalcTransitionFast(rule, year);
 			if (rule_transition.getRd() == 0.0)
@@ -403,7 +416,7 @@ namespace smalltime
 		//======================================================
 		// Calculate rule transition in utc time
 		//======================================================
-		BasicDateTime<> RuleUtil::CalcTransitionUtc(const Rule* const rule, int year)
+		BasicDateTime<> RuleGroup::CalcTransitionUtc(const Rule* const rule, int year)
 		{
 			auto rule_transition = CalcTransitionFast(rule, year, TimeType_Utc);
 			if (rule_transition.getRd() == 0.0)
@@ -437,7 +450,7 @@ namespace smalltime
 		//===========================================================
 		// Calculate rule transiton without time type checking
 		//===========================================================
-		BasicDateTime<> RuleUtil::CalcTransitionFast(const Rule* const rule, int year, TimeType time_type)
+		BasicDateTime<> RuleGroup::CalcTransitionFast(const Rule* const rule, int year, TimeType time_type)
 		{
 			if (year < rule->fromYear || year > rule->toYear)
 				return BasicDateTime<>(0.0, time_type);

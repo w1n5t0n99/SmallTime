@@ -1,26 +1,28 @@
 #pragma once
-#ifndef _RULEUTIL_
-#define _RULEUTIL_
+#ifndef _RULEGROUP_
+#define _RULEGROUP_
 
 #include <CoreDecls.h>
 #include <TzDecls.h>
 #include <BasicDateTime.h>
+#include <itzdbconnector.h>
+#include <memory>
 
 namespace smalltime
 {
 	namespace tz
 	{
-		class RuleUtil
+		class RuleGroup
 		{
 		public:
-			RuleUtil(uint32_t rule_id, const Zone* const zone);
+			RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<ITzdbConnector> tzdb_connector);
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
 
 			std::pair<const Rule* const, int> FindPreviousRule(BasicDateTime<> cur_rule);
 			std::pair<const Rule* const, int> FindNextRule(BasicDateTime<> cur_rule);
 
-			const Rule* const CorrectForAmbigWallOrUtc(BasicDateTime<> cur_dt, BasicDateTime<> cur_rule_dt, const Rule* const cur_rule, Choose choose);
+			const Rule* const CorrectForAmbigWallOrUtc(const BasicDateTime<>& cur_dt, const BasicDateTime<>& cur_rule_dt, const Rule* const cur_rule, Choose choose);
 
 			int FindClosestActiveYear(int year);
 			int FindPreviousActiveYear(int year);
@@ -40,6 +42,7 @@ namespace smalltime
 			const Zone* const zone_;
 			int current_year_, primary_year_, previous_year_, next_year_;
 			RD* primary_ptr_, *previous_ptr_, *next_ptr_;
+			std::shared_ptr<ITzdbConnector> tzdb_connector_;
 		};
 
 	}

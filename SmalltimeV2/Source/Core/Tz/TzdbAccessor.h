@@ -12,15 +12,9 @@ namespace smalltime
 {
 namespace tz
 {
-
+	/*
 	const Rule* GetRuleHandle();
 	const Zone* GetZoneHandle();
-
-	enum class TransitionPool
-	{
-		KRule,
-		KZone,
-	};
 
 	RD* GetTransitionPool(const TransitionPool buffer_type);
 	void FillTransitionPool(const TransitionPool buffer_type, const RD data);
@@ -37,7 +31,7 @@ namespace tz
 
 	Zones FindZones(const std::string& zoneName);
 	Zones FindZones(uint32_t zoneId);
-
+	*/
 }
 }
 #endif

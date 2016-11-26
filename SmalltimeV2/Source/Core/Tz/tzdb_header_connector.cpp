@@ -1,12 +1,11 @@
-#include "TzdbAccessor.h"
+#include "tzdb_header_connector.h"
 #include "Tzdb.h"
 #include <MathUtils.h>
-/*
+
 namespace smalltime
 {
 	namespace tz
 	{
-		
 		//=========================================================
 		// Lookup comparer
 		//=========================================================
@@ -22,11 +21,11 @@ namespace smalltime
 		{
 			return lhs.ruleId < rhs.ruleId;
 		};
-		
+
 		//===============================================
 		// Get pointer to first element of tzdb array
 		//================================================
-		const Rule* GetRuleHandle()
+		const Rule* TzdbHeaderConnector::GetRuleHandle()
 		{
 			return KRuleArray.data();
 		}
@@ -34,7 +33,7 @@ namespace smalltime
 		//===============================================
 		// Get pointer to first element of tzdb array
 		//================================================
-		const Zone* GetZoneHandle()
+		const Zone* TzdbHeaderConnector::GetZoneHandle()
 		{
 			return KZoneArray.data();
 		}
@@ -42,7 +41,7 @@ namespace smalltime
 		//===========================================
 		// Get pointer allocated array
 		//===========================================
-		RD* GetTransitionPool(const TransitionPool buffer_type)
+		RD* TzdbHeaderConnector::GetTransitionPool(const TransitionPool buffer_type)
 		{
 			if (buffer_type == TransitionPool::KRule)
 				return KRulePool.data();
@@ -53,7 +52,7 @@ namespace smalltime
 		//========================================
 		// Simple fill array with data
 		//==========================================
-		void FillTransitionPool(const TransitionPool buffer_type, const RD data)
+		void TzdbHeaderConnector::FillTransitionPool(const TransitionPool buffer_type, const RD data)
 		{
 			if (buffer_type == TransitionPool::KRule)
 				std::fill(KRulePool.begin(), KRulePool.end(), data);
@@ -65,7 +64,7 @@ namespace smalltime
 		//========================================
 		// Simple fill array with data
 		//==========================================
-		void FillTransitionPool(const TransitionPool buffer_type, int size, const RD data)
+		void TzdbHeaderConnector::FillTransitionPool(const TransitionPool buffer_type, int size, const RD data)
 		{
 			if (buffer_type == TransitionPool::KRule)
 				std::fill(KRulePool.begin(), KRulePool.begin() + size, data);
@@ -77,7 +76,7 @@ namespace smalltime
 		//========================================
 		// Simple clear of array with 0.0
 		//==========================================
-		void ClearTransitionPool(const TransitionPool buffer_type)
+		void TzdbHeaderConnector::ClearTransitionPool(const TransitionPool buffer_type)
 		{
 			if (buffer_type == TransitionPool::KRule)
 				std::fill(KRulePool.begin(), KRulePool.end(), 0.0);
@@ -89,35 +88,19 @@ namespace smalltime
 		//========================================
 		// Simple clear of array with 0.0
 		//==========================================
-		void ClearTransitionPool(const TransitionPool buffer_type, int size)
+		void TzdbHeaderConnector::ClearTransitionPool(const TransitionPool buffer_type, int size)
 		{
 			if (buffer_type == TransitionPool::KRule)
 				std::fill(KRulePool.begin(), KRulePool.begin() + size, 0.0);
 			else
-				std::fill(KZonePool.begin(), KZonePool.begin() + size , 0.0);
+				std::fill(KZonePool.begin(), KZonePool.begin() + size, 0.0);
 
-		}
-
-		//===========================================
-		// Return max size
-		//===========================================
-		int GetMaxRuleSize()
-		{
-			return KMaxRuleSize;
-		}
-
-		//===========================================
-		// Return max size
-		//===========================================
-		int GetMaxZoneSize()
-		{
-			return KMaxZoneSize;
 		}
 
 		//================================================
 		// Find rules matching name id
 		//================================================
-		Rules FindRules(const std::string& name)
+		Rules TzdbHeaderConnector::FindRules(const std::string& name)
 		{
 			auto ruleId = math::getUniqueID(name);
 			Rules searchRules = { ruleId, 0, 0 };
@@ -127,13 +110,13 @@ namespace smalltime
 			if (foundIt != KRuleLookupArray.end())
 				return *foundIt;
 			else
-				return { ruleId, -1, -1 };
+				return{ ruleId, -1, -1 };
 		}
 
 		//================================================
 		// Find rules matching name id
 		//================================================
-		Rules FindRules(uint32_t ruleId)
+		Rules TzdbHeaderConnector::FindRules(uint32_t ruleId)
 		{
 			Rules searchRules = { ruleId, 0, 0 };
 
@@ -148,7 +131,7 @@ namespace smalltime
 		//================================================
 		// Find zones matching name id
 		//================================================
-		Zones FindZones(const std::string& name)
+		Zones TzdbHeaderConnector::FindZones(const std::string& name)
 		{
 			auto zoneId = math::getUniqueID(name);
 			Zones searchZones = { zoneId, 0, 0 };
@@ -164,7 +147,7 @@ namespace smalltime
 		//================================================
 		// Find zones matching name id
 		//================================================
-		Zones FindZones(uint32_t zoneId)
+		Zones TzdbHeaderConnector::FindZones(uint32_t zoneId)
 		{
 			Zones searchZones = { zoneId, 0, 0 };
 
@@ -175,8 +158,5 @@ namespace smalltime
 			else
 				return{ zoneId, -1, -1 };
 		}
-
-
 	}
 }
-*/
