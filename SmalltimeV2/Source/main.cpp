@@ -8,7 +8,7 @@
 #include <TimeMath.h>
 #include "Utils\StlPerfCounter.h"
 
-#include "Core\Tz\rule_group.h"
+#include <rule_group.h>
 #include "Core\\Tz\tzdb_header_connector.h"
 #include <itzdbconnector.h>
 #include <memory>
@@ -37,7 +37,7 @@ int main()
 	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
 
 
-	BasicDateTime<> dt0(2016, 4, 3, 2, 0, 0, 0, tz::TimeType::TimeType_Wall);
+	BasicDateTime<> dt0(2016, 10, 2, 2, 0, 0, 0, tz::TimeType::TimeType_Wall);
 	BasicDateTime<> dt(2016, 4, 2, 16, 59, 59, 999, tz::TimeType::TimeType_Utc);
 
 	

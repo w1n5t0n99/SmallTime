@@ -1,11 +1,11 @@
 
 #include "rule_group.h"
-#include <FloatUtil.h>
+#include "smalltime_exceptions.h"
+#include "floatutil.h"
 #include <TimeMath.h>
 #include <iostream>
 #include <assert.h>
 #include <array>
-#include "../Exceptions.h"
 
 namespace smalltime
 {
@@ -231,9 +231,9 @@ namespace smalltime
 					else
 					{
 						if (cur_dt.getType() == TimeType_Wall)
-							throw TimeZoneAmbigNoneException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+							throw TimeZoneAmbigNoneException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), TimeType_Wall));
 						else if (cur_dt.getType() == TimeType_Utc)
-							throw TimeZoneAmbigMultiException(CalcTransitionWallOrUtc(prev_rule.first, prev_rule.second, cur_rule_dt.getType()), cur_rule_dt);
+							throw TimeZoneAmbigMultiException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), TimeType_Utc));
 					}
 				}
 			}
@@ -255,7 +255,7 @@ namespace smalltime
 					else if (choose == Choose::Latest)
 						return next_rule.first;
 					else
-						throw TimeZoneAmbigMultiException(cur_dt, next_rule_dt);
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(next_rule_inst - math::MSEC(), TimeType_Wall), next_rule_dt);
 				}
 			}
 			

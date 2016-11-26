@@ -4,7 +4,7 @@
 
 #include <CoreDecls.h>
 #include <IsoChronology.h>
-#include "../Exceptions.h"
+#include <smalltime_exceptions.h>
 
 #include <array>
 

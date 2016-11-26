@@ -66,22 +66,16 @@
     <ClCompile Include="..\SmalltimeShared\Source\TimeMath.cpp">
       <Filter>Source Files\Core\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Tz\TzdbAccessor.cpp">
-      <Filter>Source Files\Core\Tz</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Tz\tzdb_header_connector.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Tz\rule_group.cpp">
+    <ClCompile Include="..\SmalltimeShared\Source\rule_group.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DateTime\LocalDateTime.h">
       <Filter>Header Files\Core\Datetime</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Exceptions.h">
-      <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utils\StlPerfCounter.h">
       <Filter>Header Files\Utils</Filter>
@@ -107,9 +101,6 @@
     <ClInclude Include="..\SmalltimeShared\Include\BasicDateTime.h">
       <Filter>Header Files\Core\Datetime</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Tz\TzdbAccessor.h">
-      <Filter>Header Files\Core\Tz</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Tz\Tzdb.h">
       <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
@@ -122,10 +113,13 @@
     <ClInclude Include="Source\Core\Tz\tzdb_header_connector.h">
       <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Tz\rule_group.h">
+    <ClInclude Include="..\SmalltimeShared\Include\rule_group.h">
       <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
-    <ClInclude Include="..\SmalltimeShared\Include\FloatUtil.h">
+    <ClInclude Include="..\SmalltimeShared\Include\smalltime_exceptions.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SmalltimeShared\Include\floatutil.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>

@@ -22,9 +22,8 @@
     <ClCompile Include="..\SmalltimeShared\Source\CalMath.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\IsoChronology.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\MathUtils.cpp" />
+    <ClCompile Include="..\SmalltimeShared\Source\rule_group.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\TimeMath.cpp" />
-    <ClCompile Include="Source\Core\Tz\rule_group.cpp" />
-    <ClCompile Include="Source\Core\Tz\TzdbAccessor.cpp" />
     <ClCompile Include="Source\Core\Tz\tzdb_header_connector.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Utils\StlPerfCounter.cpp" />
@@ -34,17 +33,16 @@
     <ClInclude Include="..\SmalltimeShared\Include\CalMath.h" />
     <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h" />
     <ClInclude Include="..\SmalltimeShared\Include\CoreDecls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\FloatUtil.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\floatutil.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\smalltime_exceptions.h" />
     <ClInclude Include="..\SmalltimeShared\Include\IsoChronology.h" />
     <ClInclude Include="..\SmalltimeShared\Include\itzdbconnector.h" />
     <ClInclude Include="..\SmalltimeShared\Include\MathUtils.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\rule_group.h" />
     <ClInclude Include="..\SmalltimeShared\Include\TimeMath.h" />
     <ClInclude Include="..\SmalltimeShared\Include\TzDecls.h" />
     <ClInclude Include="Source\Core\DateTime\LocalDateTime.h" />
-    <ClInclude Include="Source\Core\Exceptions.h" />
-    <ClInclude Include="Source\Core\Tz\rule_group.h" />
     <ClInclude Include="Source\Core\Tz\Tzdb.h" />
-    <ClInclude Include="Source\Core\Tz\TzdbAccessor.h" />
     <ClInclude Include="Source\Core\Tz\tzdb_header_connector.h" />
     <ClInclude Include="Source\Utils\StlPerfCounter.h" />
   </ItemGroup>
