@@ -13,12 +13,12 @@ namespace smalltime
 		//==============================================
 		std::ostream& operator<<(std::ostream& outStream, const tz::TimeType tmType)
 		{
-			if (tmType == tz::TimeType_Wall)
-				outStream << "TimeType_Wall";
-			else if(tmType == tz::TimeType_Utc)
-				outStream << "TimeType_Utc";
+			if (tmType == tz::KTimeType_Wall)
+				outStream << "KTimeType_Wall";
+			else if(tmType == tz::KTimeType_Utc)
+				outStream << "KTimeType_Utc";
 			else
-				outStream << "TimeType_Std";
+				outStream << "KTimeType_Std";
 
 			return outStream;
 		}
@@ -26,14 +26,14 @@ namespace smalltime
 		//================================================
 		// Overload of stream operator for day type
 		//================================================
-		std::ostream& operator<<(std::ostream& outStream, const tz::DayType dayType)
+		std::ostream& operator<<(std::ostream& outStream, const tz::DayType day_type)
 		{
-			if (dayType == tz::DayType_Dom)
-				outStream << "DayType_Dom";
-			else if (dayType == tz::DayType_LastSun)
-				outStream << "DayType_LastSun";
+			if (day_type == tz::KDayType_Dom)
+				outStream << "KDayType_Dom";
+			else if (day_type == tz::KDayType_LastSun)
+				outStream << "KDayType_LastSun";
 			else
-				outStream << "DayType_SunGE";
+				outStream << "KDayType_SunGE";
 			
 			return outStream;
 		}
@@ -43,7 +43,7 @@ namespace smalltime
 		//=========================================================
 		static auto ZONE_CMP = [](const tz::Zones& lhs, const tz::Zones& rhs)
 		{
-			return lhs.zoneId < rhs.zoneId;
+			return lhs.zone_id < rhs.zone_id;
 		};
 
 		//=========================================================
@@ -51,7 +51,7 @@ namespace smalltime
 		//=========================================================
 		static auto RULE_CMP = [](const tz::Rules& lhs, const tz::Rules& rhs)
 		{
-			return lhs.ruleId < rhs.ruleId;
+			return lhs.rule_id < rhs.rule_id;
 		};
 
 		//===================================================
@@ -95,56 +95,51 @@ namespace smalltime
 		//=================================================
 		// Add body to file
 		//==================================================
-		bool SrcBuilder::buildBody(const std::vector<tz::Rule>& vRules, const std::vector<tz::Zone>& vZones,
-			const std::vector<tz::Link>& vLinks, std::ofstream& outFile)
+		bool SrcBuilder::buildBody(const std::vector<tz::Rule>& vec_rule, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Zones>& vec_zone_lookup,
+			const std::vector<tz::Rules>& vec_rule_lookup, const MetaData& tzdb_meta, std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
-			// Create lookup data
-			std::vector<tz::Zones> vLookupZones = {};
-			std::vector<tz::Rules> vLookupRules = {};
-
-			buildZoneLookup(vZones, vLinks, vLookupZones);
-			buildRuleLookup(vRules, vLookupRules);
+			//buildZoneLookup(vec_zone, vec_link, vec_zone_lookup);
+			//buildRuleLookup(vec_rule, vec_rule_lookup);
 
 			// Add Meta data
-			MetaData meta;
-			BuildMetaData(vZones, vRules, vLookupZones, vLookupRules, meta);
+			//BuildMetaData(vec_zone, vec_rule, vec_zone_lookup, vec_rule_lookup, tzdb_meta);
 
-			outFile << "\nstatic const RD KMaxZoneOffset = " << meta.max_zone_offset << ";";
-			outFile << "\nstatic const RD KMinZoneOffset = " << meta.min_zone_offset << ";";
-			outFile << "\nstatic const RD KMaxRuleOffset = " << meta.max_rule_offset << ";";
-			outFile << "\nstatic const int KMaxZoneSize = " << meta.max_zone_size << ";";
-			outFile << "\nstatic const int KMaxRuleSize = " << meta.max_rule_size << ";";
+			out_file << "\nstatic const RD KMaxZoneOffset = " << tzdb_meta.max_zone_offset << ";";
+			out_file << "\nstatic const RD KMinZoneOffset = " << tzdb_meta.min_zone_offset << ";";
+			out_file << "\nstatic const RD KMaxRuleOffset = " << tzdb_meta.max_rule_offset << ";";
+			out_file << "\nstatic const int KMaxZoneSize = " << tzdb_meta.max_zone_size << ";";
+			out_file << "\nstatic const int KMaxRuleSize = " << tzdb_meta.max_rule_size << ";";
 
-			outFile << "\n\nthread_local static std::array<RD, KMaxZoneSize * 3> KZonePool;";
-			outFile << "\nthread_local static std::array<RD, KMaxRuleSize * 3> KRulePool;";
+			out_file << "\n\nthread_local static std::array<RD, KMaxZoneSize * 3> KZonePool;";
+			out_file << "\nthread_local static std::array<RD, KMaxRuleSize * 3> KRulePool;";
 
-			outFile << "\n\nstatic constexpr std::array<Zone," << vZones.size() << "> KZoneArray = {\n";
+			out_file << "\n\nstatic constexpr std::array<Zone," << vec_zone.size() << "> KZoneArray = {\n";
 			// Add zones
-			for (const auto& zone : vZones)
-				insertZone(zone, outFile);
+			for (const auto& zone : vec_zone)
+				insertZone(zone, out_file);
 
-			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Rule," << vRules.size() << "> KRuleArray = {\n";
+			out_file << "\n};\n";
+			out_file << "\nstatic constexpr std::array<Rule," << vec_rule.size() << "> KRuleArray = {\n";
 			// Add rules
-			for (const auto& rule : vRules)
-				insertRule(rule, outFile);
+			for (const auto& rule : vec_rule)
+				insertRule(rule, out_file);
 
-			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Zones," << vLookupZones.size() << "> KZoneLookupArray = {\n";
+			out_file << "\n};\n";
+			out_file << "\nstatic constexpr std::array<Zones," << vec_zone_lookup.size() << "> KZoneLookupArray = {\n";
 			// Add zones
-			for (const auto& zones : vLookupZones)
-				insertZoneSearch(zones, outFile);
+			for (const auto& zones : vec_zone_lookup)
+				insertZoneSearch(zones, out_file);
 			
-			outFile << "\n};\n";
-			outFile << "\nstatic constexpr std::array<Rules," << vLookupRules.size() << "> KRuleLookupArray = {\n";
+			out_file << "\n};\n";
+			out_file << "\nstatic constexpr std::array<Rules," << vec_rule_lookup.size() << "> KRuleLookupArray = {\n";
 			// Add rules
-			for (const auto& rules : vLookupRules)
-				insertRuleSearch(rules, outFile);
+			for (const auto& rules : vec_rule_lookup)
+				insertRuleSearch(rules, out_file);
 
-			outFile << "\n};\n";
+			out_file << "\n};\n";
 
 			return true;
 		}
@@ -160,8 +155,8 @@ namespace smalltime
 			// 17 digits should be enough to round trip double
 			outFile << std::setprecision(17);
 
-			outFile << "Rule {" << rule.ruleId << ", " << rule.fromYear << ", " << rule.toYear << ", " << rule.month << ", "
-				<< rule.day << ", " << rule.dayType << ", " << rule.atTime << ", " << rule.atType << ", " << rule.offset << ", " << rule.letter << "}";
+			outFile << "Rule {" << rule.rule_id << ", " << rule.from_year << ", " << rule.to_year << ", " << rule.month << ", "
+				<< rule.day << ", " << rule.day_type << ", " << rule.at_time << ", " << rule.at_type << ", " << rule.offset << ", " << rule.letter << "}";
 			outFile << ",\n";
 
 			return true;
@@ -178,7 +173,7 @@ namespace smalltime
 			// 17 digits should be enough to round trip double
 			outFile << std::setprecision(17);
 
-			outFile << "Zone {" << zone.zoneId << ", " << zone.ruleId << ", " << zone.ruleOffset << ", " << zone.until << ", " << zone.untilType << ", " << zone.zoneOffset << ", " << zone.abbrev << "}";
+			outFile << "Zone {" << zone.zone_id << ", " << zone.rule_id << ", " << zone.until_wall << ", " << zone.until_utc << ", " << zone.until_type << ", " << zone.zone_offset << ", " << zone.abbrev << "}";
 			outFile << ",\n";
 
 			return true;
@@ -192,7 +187,7 @@ namespace smalltime
 			if (!outFile)
 				return false;
 
-			outFile << "Rules {" << rules.ruleId << ", " << rules.first << ", " << rules.size << "}";
+			outFile << "Rules {" << rules.rule_id << ", " << rules.first << ", " << rules.size << "}";
 			outFile << ",\n";
 
 			return true;
@@ -206,146 +201,8 @@ namespace smalltime
 			if (!outFile)
 				return false;
 
-			outFile << "Zones {" << zones.zoneId << ", " << zones.first << ", " << zones.size << "}";
+			outFile << "Zones {" << zones.zone_id << ", " << zones.first << ", " << zones.size << "}";
 			outFile << ",\n";
-
-			return true;
-		}
-
-		//====================================================
-		// Build sorted vector for easy zone lookup
-		//====================================================
-		bool SrcBuilder::buildZoneLookup(const std::vector<tz::Zone>& vZones, const std::vector<tz::Link>& vLinks, std::vector<tz::Zones>& vLookupZones)
-		{
-			//add zones
-			if (!vZones.empty())
-			{
-				uint32_t curZoneId = vZones[0].zoneId;
-				int firstZone = 0;
-				int lastZone = 0;
-
-				for (int i = 0; i < vZones.size(); ++i)
-				{
-					if (vZones[i].zoneId != curZoneId)
-					{
-						tz::Zones z = { curZoneId, firstZone, lastZone - firstZone + 1 };
-						vLookupZones.push_back(z);
-
-						curZoneId = vZones[i].zoneId;
-						firstZone = i;
-					}
-
-					lastZone = i;
-				}
-
-				// add last set of zone entries
-				tz::Zones z = { curZoneId, firstZone, lastZone - firstZone + 1 };
-				vLookupZones.push_back(z);
-			}
-			else
-			{
-				return false;
-			}
-
-			// add links
-			std::vector<tz::Zones> vLookupLinks = {};
-			for (const auto& zl : vLookupZones)
-			{
-				for (const auto& link : vLinks)
-				{
-					if (link.targetZone == zl.zoneId)
-					{
-						tz::Zones z = { link.refZone, zl.first, zl.size };
-						vLookupLinks.push_back(z);
-					}
-				}
-			}
-
-			// merge links back int zones
-			vLookupZones.reserve(vLookupZones.size() + vLookupLinks.size());
-			vLookupZones.insert(vLookupZones.end(), vLookupLinks.begin(), vLookupLinks.end());
-
-			//sort zones by id
-			std::sort(vLookupZones.begin(), vLookupZones.end(), ZONE_CMP);
-
-			return true;
-		}
-
-		//====================================================
-		// Build sorted vector for easy zone lookup
-		//====================================================
-		bool SrcBuilder::buildRuleLookup(const std::vector<tz::Rule>& vRules, std::vector<tz::Rules>& vLookupRules)
-		{
-			//add rules
-			if (!vRules.empty())
-			{
-				uint32_t curRuleId = vRules[0].ruleId;
-				int firstRule = 0;
-				int lastRule = 0;
-
-				for (int i = 0; i < vRules.size(); ++i)
-				{
-					if (vRules[i].ruleId != curRuleId)
-					{
-						tz::Rules r = { curRuleId, firstRule, lastRule - firstRule + 1 };
-						vLookupRules.push_back(r);
-
-						curRuleId = vRules[i].ruleId;
-						firstRule = i;
-					}
-
-					lastRule = i;
-				}
-
-				// add last set of rule entries
-				tz::Rules r = { curRuleId, firstRule, lastRule - firstRule + 1 };
-				vLookupRules.push_back(r);
-
-				//sort rules by id
-				std::sort(vLookupRules.begin(), vLookupRules.end(), RULE_CMP);
-
-				return true;
-			}
-
-			return false;
-		}
-
-		//===========================================================
-		// Build the meta data from process rules and zones
-		//===========================================================
-		bool SrcBuilder::BuildMetaData(const std::vector<tz::Zone>& vZone, const std::vector<tz::Rule>& vRule, const std::vector<tz::Zones>& vLookupZones, const std::vector<tz::Rules>& vLookupRules, MetaData& mdata)
-		{
-			mdata.max_zone_offset = 0.0; mdata.min_zone_offset = 0.0; mdata.max_rule_offset = 0.0;
-			// find min and max zone offset
-			for (const auto& zone : vZone)
-			{
-				if (zone.zoneOffset < mdata.min_zone_offset)
-					mdata.min_zone_offset = zone.zoneOffset;
-				else if (zone.zoneOffset > mdata.max_zone_offset)
-					mdata.max_zone_offset = zone.zoneOffset;
-			}
-
-			// find the max rule offset, min is always 0.0
-			for (const auto& rule : vRule)
-			{
-				if (rule.offset > mdata.max_rule_offset)
-					mdata.max_rule_offset = rule.offset;
-			}
-
-			mdata.max_zone_size = 1; mdata.max_rule_size = 1;
-			// find the max zone size
-			for (const auto& zones : vLookupZones)
-			{
-				if (zones.size > mdata.max_zone_size)
-					mdata.max_zone_size = zones.size;
-			}
-
-			// find the max rule size
-			for (const auto& rules : vLookupRules)
-			{
-				if (rules.size > mdata.max_rule_size)
-					mdata.max_rule_size = rules.size;
-			}
 
 			return true;
 		}

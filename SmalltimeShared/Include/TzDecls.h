@@ -15,66 +15,66 @@ namespace smalltime
 		
 		enum TimeType
 		{
-			TimeType_Wall = 0x1,
-			TimeType_Std = 0x2,
-			TimeType_Utc = 0x4
+			KTimeType_Wall = 0x1,
+			KTimeType_Std = 0x2,
+			KTimeType_Utc = 0x4
 		};
 
 		enum DayType
 		{
-			DayType_SunGE = 0,
-			DayType_LastSun = 1,
-			DayType_Dom = 2
+			KDayType_SunGE = 0,
+			KDayType_LastSun = 1,
+			KDayType_Dom = 2
 		};
 
 		enum RuleType
 		{
-			RuleType_Offset = 0,
-			RuleType_None = 1,
-			RuleType_ID = 2
+			KRuleType_Offset = 0,
+			KRuleType_None = 1,
+			KRuleType_ID = 2
 		};
 
 		struct Rule
 		{
-			uint32_t ruleId;
-			int fromYear;
-			int toYear;
+			uint32_t rule_id;
+			int from_year;
+			int to_year;
 			int month;
 			int day;
-			DayType dayType;
-			RD atTime;
-			TimeType atType;
+			DayType day_type;
+			RD at_time;
+			TimeType at_type;
 			RD offset;
 			uint32_t letter;
 		};
 
 		struct Zone
 		{
-			uint32_t zoneId;
-			uint32_t ruleId;
-			RD ruleOffset;
-			RD until;
-			TimeType untilType;
-			RD zoneOffset;
+			uint32_t zone_id;
+			uint32_t rule_id;
+			RD until_wall;
+			RD until_utc;
+			TimeType until_type;
+			RD zone_offset;
 			uint64_t abbrev;
 		};
 
 		struct Link
 		{
-			uint32_t refZone;
-			uint32_t targetZone;
+			uint32_t ref_zone;
+			uint32_t target_zone;
 		};
 
 		struct Zones
 		{
-			uint32_t zoneId;
+			uint32_t zone_id;
 			int first;
 			int size;
 		};
 
 		struct Rules
 		{
-			uint32_t ruleId;
+			uint32_t rule_id;
 			int first;
 			int size;
 		};

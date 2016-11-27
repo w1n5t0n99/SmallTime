@@ -27,7 +27,7 @@ namespace smalltime
 		struct ZoneData
 		{
 			std::string name;
-			std::string gmtOffset;
+			std::string gmt_offset;
 			std::string rule;
 			std::string format;
 			std::string until;
@@ -35,8 +35,8 @@ namespace smalltime
 
 		struct LinkData
 		{
-			std::string refZoneName;
-			std::string targetZoneName;
+			std::string ref_zone_name;
+			std::string target_zone_name;
 		};
 
 		struct MetaData

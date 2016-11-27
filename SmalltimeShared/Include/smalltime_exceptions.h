@@ -47,9 +47,9 @@ namespace smalltime
 				":" << earliest_rule_dt_.getMinute() << ":" << earliest_rule_dt_.getSecond() << ":" << earliest_rule_dt_.getMillisecond() << " and " << latest_rule_dt_.getYear() << "/" << latest_rule_dt_.getMonth() << "/" << latest_rule_dt_.getDay() << "T" << latest_rule_dt_.getHour()
 				<< ":" << latest_rule_dt_.getMinute() << ":" << latest_rule_dt_.getSecond() << ":" << latest_rule_dt_.getMillisecond();
 
-			if (earliest_rule_dt_.getType() == tz::TimeType_Wall)
+			if (earliest_rule_dt_.getType() == tz::KTimeType_Wall)
 				sstr << " local";
-			else if (earliest_rule_dt_.getType() == tz::TimeType_Utc)
+			else if (earliest_rule_dt_.getType() == tz::KTimeType_Utc)
 				sstr << " utc";
 			else
 				sstr << " some how its in STD that shouldn't happen!";
@@ -86,9 +86,9 @@ namespace smalltime
 				":" << earliest_rule_dt_.getMinute() << ":" << earliest_rule_dt_.getSecond() << ":" << earliest_rule_dt_.getMillisecond() << " and " << latest_rule_dt_.getYear() << "/" << latest_rule_dt_.getMonth() << "/" << latest_rule_dt_.getDay() << "T" << latest_rule_dt_.getHour()
 				<< ":" << latest_rule_dt_.getMinute() << ":" << latest_rule_dt_.getSecond() << ":" << latest_rule_dt_.getMillisecond();
 
-			if (earliest_rule_dt_.getType() == tz::TimeType_Wall)
+			if (earliest_rule_dt_.getType() == tz::KTimeType_Wall)
 				sstr << " local";
-			else if (earliest_rule_dt_.getType() == tz::TimeType_Utc)
+			else if (earliest_rule_dt_.getType() == tz::KTimeType_Utc)
 				sstr << " some how its in UTC that shouldn't happen!";
 			else
 				sstr << " some how its in STD that shouldn't happen!";

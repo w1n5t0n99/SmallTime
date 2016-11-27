@@ -131,7 +131,7 @@ namespace smalltime
 			ZoneData iz;
 			iz.name = currZoneName;
 			// extract gmt offset
-			lineStream >> iz.gmtOffset;
+			lineStream >> iz.gmt_offset;
 			// extract rules
 			lineStream >> iz.rule;
 			// extract format
@@ -156,10 +156,10 @@ namespace smalltime
 
 			LinkData il;
 			// extract label 
-			lineStream >> il.targetZoneName;
+			lineStream >> il.target_zone_name;
 			// extract link 
-			lineStream >> il.targetZoneName;
-			lineStream >> il.refZoneName;
+			lineStream >> il.target_zone_name;
+			lineStream >> il.ref_zone_name;
 
 			vLinkData.push_back(il);
 			return true;

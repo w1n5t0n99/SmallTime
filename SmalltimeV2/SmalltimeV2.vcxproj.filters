@@ -72,6 +72,9 @@
     <ClCompile Include="..\SmalltimeShared\Source\rule_group.cpp">
       <Filter>Source Files\Core\Tz</Filter>
     </ClCompile>
+    <ClCompile Include="..\SmalltimeShared\Source\zone_group.cpp">
+      <Filter>Source Files\Core\Tz</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DateTime\LocalDateTime.h">
@@ -121,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="..\SmalltimeShared\Include\floatutil.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SmalltimeShared\Include\zone_group.h">
+      <Filter>Header Files\Core\Tz</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,20 +25,20 @@ int main()
 	std::shared_ptr<tz::TzdbHeaderConnector> tzdb_connector = std::make_shared<tz::TzdbHeaderConnector>();
 
 	auto rule_handle = tzdb_connector->GetRuleHandle();
-	auto rule_id = math::getUniqueID("AT");
-	auto rules = tzdb_connector->FindRules("AT");
+	auto rule_id = math::getUniqueID("US");
+	auto rules = tzdb_connector->FindRules("US");
 
 	auto zoneHandle = tzdb_connector->GetZoneHandle();
-	auto zones = tzdb_connector->FindZones("Australia/Hobart");
+	auto zones = tzdb_connector->FindZones("America/New_York");
 
-	std::cout << "Rules ID: " << rules.ruleId << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
-	std::cout << "Zones ID: " << zones.zoneId << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
+	std::cout << "Rules ID: " << rules.rule_id << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
+	std::cout << "Zones ID: " << zones.zone_id << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
 
 	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
 
 
-	BasicDateTime<> dt0(2016, 10, 2, 2, 0, 0, 0, tz::TimeType::TimeType_Wall);
-	BasicDateTime<> dt(2016, 4, 2, 16, 59, 59, 999, tz::TimeType::TimeType_Utc);
+	BasicDateTime<> dt0(2016, 11, 6, 1, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+	BasicDateTime<> dt(2016, 4, 5, 16, 59, 59, 999, tz::TimeType::KTimeType_Utc);
 
 	
 	try

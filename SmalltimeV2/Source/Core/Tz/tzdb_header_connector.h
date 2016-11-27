@@ -24,10 +24,10 @@ namespace smalltime
 			virtual void ClearTransitionPool(const TransitionPool buffer_type, int size) override;
 
 			virtual Rules FindRules(const std::string& ruleName) override;
-			virtual Rules FindRules(uint32_t ruleId) override;
+			virtual Rules FindRules(uint32_t rule_id) override;
 
 			virtual Zones FindZones(const std::string& zoneName) override;
-			virtual Zones FindZones(uint32_t zoneId) override;
+			virtual Zones FindZones(uint32_t zone_id) override;
 		};
 	}
 }

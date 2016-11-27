@@ -28,11 +28,11 @@ namespace smalltime
 			virtual void ClearTransitionPool(const TransitionPool buffer_type) = 0;
 			virtual void ClearTransitionPool(const TransitionPool buffer_type, int size) = 0;
 
-			virtual Rules FindRules(const std::string& ruleName) = 0;
-			virtual Rules FindRules(uint32_t ruleId) = 0;
+			virtual Rules FindRules(const std::string& rule_name) = 0;
+			virtual Rules FindRules(uint32_t rule_id) = 0;
 
-			virtual Zones FindZones(const std::string& zoneName) = 0;
-			virtual Zones FindZones(uint32_t zoneId) = 0;
+			virtual Zones FindZones(const std::string& zone_name) = 0;
+			virtual Zones FindZones(uint32_t zone_id) = 0;
 
 		};
 	}

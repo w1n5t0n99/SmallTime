@@ -5,6 +5,8 @@
 #include <CoreDecls.h>
 #include <TzDecls.h>
 #include <BasicDateTime.h>
+#include <itzdbconnector.h>
+#include <memory>
 #include "../CompDecls.h"
 
 namespace smalltime
@@ -14,22 +16,29 @@ namespace smalltime
 		class Generator
 		{
 		public:
-			bool proccessUtc(std::vector<tz::Zone>& vZone);
-			bool processRules(std::vector<tz::Rule>& vRule, const std::vector<RuleData>& vRuleData);
-			bool processZones(std::vector<tz::Zone>& vZone, const std::vector<ZoneData>& vZoneData);
-			bool processLinks(std::vector<tz::Link>& vLink, const std::vector<LinkData>& vLinkData);
+			bool ProccessUtc(std::vector<tz::Zone>& vec_zone);
+			bool ProcessRules(std::vector<tz::Rule>& vec_rule, const std::vector<RuleData>& vec_ruledata);
+			bool ProcessZones(std::vector<tz::Zone>& vec_zone, const std::vector<ZoneData>& vec_zonedata);
+			bool ProcessLinks(std::vector<tz::Link>& vec_link, const std::vector<LinkData>& vec_linkdata);
+
+			bool ProcessZoneLookup(std::vector<tz::Zones>& vec_zone_lookup, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Link>& vec_link);
+			bool ProcessRuleLookup(std::vector<tz::Rules>& vec_rule_lookup, const std::vector<tz::Rule>& vec_rule);
+			bool ProcessMeta(MetaData& tzdb_meta, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Rule>& vec_rule,
+				const std::vector<tz::Zones>& vec_zone_lookup, const std::vector<tz::Rules>& vec_rule_lookup);
+
+			bool PostProcessZones(std::vector<tz::Zone>& vec_zone, std::shared_ptr<tz::ITzdbConnector> tzdb_connector);
 
 		protected:
 
-			std::array<int, 4> convertTimeStrToFields(std::string str);
-			RD convertTimeStrToRd(std::string tmStr);
-			BasicDateTime<> convertZoneUntil(std::string str);
-			RD convertToZoneRuleOffset(std::string str);
-			uint32_t convertToZoneRuleId(std::string str);
-			int convertToMonth(const std::string& str);
+			std::array<int, 4> ConvertTimeStrToFields(std::string str);
+			RD ConvertTimeStrToRd(std::string tmStr);
+			BasicDateTime<> ConvertZoneUntil(std::string str);
+			RD ConvertToZoneRuleOffset(std::string str);
+			uint32_t ConvertToZoneRuleId(std::string str);
+			int ConvertToMonth(const std::string& str);
 
-			tz::TimeType checkTimeSuffix(const std::string& tmStr);
-			tz::DayType checkDayType(const std::string& str);
+			tz::TimeType CheckTimeSuffix(const std::string& tmStr);
+			tz::DayType CheckDayType(const std::string& str);
 
 		};
 	}

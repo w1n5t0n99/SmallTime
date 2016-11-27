@@ -11,7 +11,7 @@ namespace smalltime
 		//=========================================================
 		static auto ZONE_CMP = [](const tz::Zones& lhs, const tz::Zones& rhs)
 		{
-			return lhs.zoneId < rhs.zoneId;
+			return lhs.zone_id < rhs.zone_id;
 		};
 
 		//=========================================================
@@ -19,7 +19,7 @@ namespace smalltime
 		//=========================================================
 		static auto RULE_CMP = [](const tz::Rules& lhs, const tz::Rules& rhs)
 		{
-			return lhs.ruleId < rhs.ruleId;
+			return lhs.rule_id < rhs.rule_id;
 		};
 
 		//===============================================
@@ -102,30 +102,30 @@ namespace smalltime
 		//================================================
 		Rules TzdbHeaderConnector::FindRules(const std::string& name)
 		{
-			auto ruleId = math::getUniqueID(name);
-			Rules searchRules = { ruleId, 0, 0 };
+			auto rule_id = math::getUniqueID(name);
+			Rules searchRules = { rule_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KRuleLookupArray.begin(), KRuleLookupArray.end(), searchRules, RULE_CMP);
 
 			if (foundIt != KRuleLookupArray.end())
 				return *foundIt;
 			else
-				return{ ruleId, -1, -1 };
+				return{ rule_id, -1, -1 };
 		}
 
 		//================================================
 		// Find rules matching name id
 		//================================================
-		Rules TzdbHeaderConnector::FindRules(uint32_t ruleId)
+		Rules TzdbHeaderConnector::FindRules(uint32_t rule_id)
 		{
-			Rules searchRules = { ruleId, 0, 0 };
+			Rules searchRules = { rule_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KRuleLookupArray.begin(), KRuleLookupArray.end(), searchRules, RULE_CMP);
 
 			if (foundIt != KRuleLookupArray.end())
 				return *foundIt;
 			else
-				return{ ruleId, -1, -1 };
+				return{ rule_id, -1, -1 };
 		}
 
 		//================================================
@@ -133,30 +133,30 @@ namespace smalltime
 		//================================================
 		Zones TzdbHeaderConnector::FindZones(const std::string& name)
 		{
-			auto zoneId = math::getUniqueID(name);
-			Zones searchZones = { zoneId, 0, 0 };
+			auto zone_id = math::getUniqueID(name);
+			Zones searchZones = { zone_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KZoneLookupArray.begin(), KZoneLookupArray.end(), searchZones, ZONE_CMP);
 
 			if (foundIt != KZoneLookupArray.end())
 				return *foundIt;
 			else
-				return{ zoneId, -1, -1 };
+				return{ zone_id, -1, -1 };
 		}
 
 		//================================================
 		// Find zones matching name id
 		//================================================
-		Zones TzdbHeaderConnector::FindZones(uint32_t zoneId)
+		Zones TzdbHeaderConnector::FindZones(uint32_t zone_id)
 		{
-			Zones searchZones = { zoneId, 0, 0 };
+			Zones searchZones = { zone_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KZoneLookupArray.begin(), KZoneLookupArray.end(), searchZones, ZONE_CMP);
 
 			if (foundIt != KZoneLookupArray.end())
 				return *foundIt;
 			else
-				return{ zoneId, -1, -1 };
+				return{ zone_id, -1, -1 };
 		}
 	}
 }

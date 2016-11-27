@@ -57,7 +57,7 @@ namespace smalltime
 			InitTransitionData(cur_dt.getYear());
 
 			const Rule* closest_rule = nullptr;
-			BasicDateTime<> closest_rule_dt(0.0, TimeType::TimeType_Wall);
+			BasicDateTime<> closest_rule_dt(0.0, TimeType::KTimeType_Wall);
 			RD closest_diff = DMAX;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
@@ -212,9 +212,9 @@ namespace smalltime
 				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
 
 				RD cur_rule_inst = 0.0;
-				if(cur_dt.getType() == TimeType_Wall)
+				if(cur_dt.getType() == KTimeType_Wall)
 					cur_rule_inst = cur_rule_dt.getRd() + offset_diff;
-				else if(cur_dt.getType() == TimeType_Utc)
+				else if(cur_dt.getType() == KTimeType_Utc)
 					cur_rule_inst = cur_rule_dt.getRd() - offset_diff;
 
 				if ((cur_dt.getRd() >= cur_rule_dt.getRd() || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11))&& cur_dt.getRd() < cur_rule_inst)
@@ -230,10 +230,10 @@ namespace smalltime
 					}
 					else
 					{
-						if (cur_dt.getType() == TimeType_Wall)
-							throw TimeZoneAmbigNoneException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), TimeType_Wall));
-						else if (cur_dt.getType() == TimeType_Utc)
-							throw TimeZoneAmbigMultiException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), TimeType_Utc));
+						if (cur_dt.getType() == KTimeType_Wall)
+							throw TimeZoneAmbigNoneException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), KTimeType_Wall));
+						else if (cur_dt.getType() == KTimeType_Utc)
+							throw TimeZoneAmbigMultiException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), KTimeType_Utc));
 					}
 				}
 			}
@@ -255,7 +255,7 @@ namespace smalltime
 					else if (choose == Choose::Latest)
 						return next_rule.first;
 					else
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(next_rule_inst - math::MSEC(), TimeType_Wall), next_rule_dt);
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(next_rule_inst, KTimeType_Wall), BasicDateTime<>(next_rule_dt.getRd() - math::MSEC(), KTimeType_Wall));
 				}
 			}
 			
@@ -270,12 +270,12 @@ namespace smalltime
 			int closest_year = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
-				int cur_range = year - rule_arr_[i].fromYear;
+				int rule_range = rule_arr_[i].to_year - rule_arr_[i].from_year;
+				int cur_range = year - rule_arr_[i].from_year;
 				int cur_year = 0;
 
 				if (cur_range > rule_range)
-					cur_year = rule_arr_[i].toYear;
+					cur_year = rule_arr_[i].to_year;
 				else if (cur_range < 0)
 					cur_year = 0;
 				else
@@ -298,12 +298,12 @@ namespace smalltime
 			int closest_year = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
-				int cur_range = year - rule_arr_[i].fromYear;
+				int rule_range = rule_arr_[i].to_year - rule_arr_[i].from_year;
+				int cur_range = year - rule_arr_[i].from_year;
 				int cur_year = 0;
 
 				if (cur_range > rule_range)
-					cur_year = rule_arr_[i].toYear;
+					cur_year = rule_arr_[i].to_year;
 				else if (cur_range < 0)
 					cur_year = 0;
 				else
@@ -326,14 +326,14 @@ namespace smalltime
 			int closest_year = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				int rule_range = rule_arr_[i].toYear - rule_arr_[i].fromYear;
-				int cur_range = year - rule_arr_[i].fromYear;
+				int rule_range = rule_arr_[i].to_year - rule_arr_[i].from_year;
+				int cur_range = year - rule_arr_[i].from_year;
 				int cur_year = 0;
 
 				if (cur_range > rule_range)
 					cur_year = 0;
 				else if (cur_range < 0)
-					cur_year = rule_arr_[i].fromYear;
+					cur_year = rule_arr_[i].from_year;
 				else
 					cur_year = year;
 
@@ -365,12 +365,12 @@ namespace smalltime
 		//=========================================================
 		BasicDateTime<> RuleGroup::CalcTransitionWallOrUtc(const Rule* const rule, int year, TimeType time_type)
 		{
-			if (time_type == TimeType::TimeType_Wall)
+			if (time_type == TimeType::KTimeType_Wall)
 				return CalcTransitionWall(rule, year);
-			else if (time_type == TimeType::TimeType_Utc)
+			else if (time_type == TimeType::KTimeType_Utc)
 				return CalcTransitionUtc(rule, year);
 			else
-				return BasicDateTime<>(0.0, TimeType_Std);
+				return BasicDateTime<>(0.0, KTimeType_Std);
 		}
 
 		//==================================================
@@ -384,11 +384,11 @@ namespace smalltime
 
 			//InitTransitionData(year);
 
-			if (rule->atType == TimeType_Wall)
+			if (rule->at_type == KTimeType_Wall)
 			{
 				return rule_transition;
 			}
-			else if (rule->atType == TimeType_Std)
+			else if (rule->at_type == KTimeType_Std)
 			{
 				RD save = 0.0;
 				auto pr = FindPreviousRule(rule_transition);
@@ -397,7 +397,7 @@ namespace smalltime
 					save = pr.first->offset;
 
 				RD wall_rule_transition = rule_transition.getRd() + save;
-				return BasicDateTime<>(wall_rule_transition, TimeType_Wall);
+				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
 
 			}
 			else
@@ -408,8 +408,8 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD wall_rule_transition = rule_transition.getRd() + zone_->zoneOffset + save;
-				return BasicDateTime<>(wall_rule_transition, TimeType_Wall);
+				RD wall_rule_transition = rule_transition.getRd() + zone_->zone_offset + save;
+				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
 			}
 		}
 
@@ -418,19 +418,19 @@ namespace smalltime
 		//======================================================
 		BasicDateTime<> RuleGroup::CalcTransitionUtc(const Rule* const rule, int year)
 		{
-			auto rule_transition = CalcTransitionFast(rule, year, TimeType_Utc);
+			auto rule_transition = CalcTransitionFast(rule, year, KTimeType_Utc);
 			if (rule_transition.getRd() == 0.0)
 				return rule_transition;
 
 			//InitTransitionData(year);
-			if (rule->atType == TimeType_Utc)
+			if (rule->at_type == KTimeType_Utc)
 			{
 				return rule_transition;
 			}
-			else if (rule->atType == TimeType_Std)
+			else if (rule->at_type == KTimeType_Std)
 			{
-				RD utc_rule_transition = rule_transition.getRd() - zone_->zoneOffset;
-				return BasicDateTime<>(utc_rule_transition, TimeType_Utc);
+				RD utc_rule_transition = rule_transition.getRd() - zone_->zone_offset;
+				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
 
 			}
 			else
@@ -441,8 +441,8 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD utc_rule_transition = rule_transition.getRd() - zone_->zoneOffset - save;
-				return BasicDateTime<>(utc_rule_transition, TimeType_Utc);
+				RD utc_rule_transition = rule_transition.getRd() - zone_->zone_offset - save;
+				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
 			}
 
 		}
@@ -452,15 +452,15 @@ namespace smalltime
 		//===========================================================
 		BasicDateTime<> RuleGroup::CalcTransitionFast(const Rule* const rule, int year, TimeType time_type)
 		{
-			if (year < rule->fromYear || year > rule->toYear)
+			if (year < rule->from_year || year > rule->to_year)
 				return BasicDateTime<>(0.0, time_type);
 
 			//HMS hms = { 0, 0, 0, 0 };
-			HMS hms = math::hmsFromRd(rule->atTime);
+			HMS hms = math::hmsFromRd(rule->at_time);
 
-			if (rule->dayType == DayType_Dom)
+			if (rule->day_type == KDayType_Dom)
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], time_type);
-			else if (rule->dayType == DayType_SunGE)
+			else if (rule->day_type == KDayType_SunGE)
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, time_type);
 			else
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, time_type);
