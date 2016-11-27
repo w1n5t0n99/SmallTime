@@ -9,6 +9,7 @@
 #include "Utils\StlPerfCounter.h"
 
 #include <rule_group.h>
+#include <zone_group.h>
 #include "Core\\Tz\tzdb_header_connector.h"
 #include <itzdbconnector.h>
 #include <memory>
@@ -35,9 +36,12 @@ int main()
 	std::cout << "Zones ID: " << zones.zone_id << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
 
 	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
+	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
 
 
-	BasicDateTime<> dt0(2016, 11, 6, 1, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+//	BasicDateTime<> dt0(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);
+	BasicDateTime<> dt0(1967, 1, 1, 0, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+
 	BasicDateTime<> dt(2016, 4, 5, 16, 59, 59, 999, tz::TimeType::KTimeType_Utc);
 
 	
@@ -55,7 +59,11 @@ int main()
 	try
 	{
 		auto ar = ru.FindActiveRule(dt0, Choose::Error);
-		//std::cout << "Rule offset - " << ar->offset << std::endl;
+		auto z = zu.FindActiveZone(dt0, Choose::Error);
+
+		BasicDateTime<> cr(z->until_wall, z->until_type);
+		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.getYear(), cr.getMonth(), cr.getDay(), cr.getHour(), cr.getMinute(), cr.getSecond(), cr.getMillisecond());
+
 	}
 	catch (const std::exception& e)
 	{
