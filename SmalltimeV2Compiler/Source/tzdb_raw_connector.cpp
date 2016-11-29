@@ -117,7 +117,7 @@ namespace smalltime
 		//================================================
 		tz::Rules TzdbRawConnector::FindRules(const std::string& name)
 		{
-			auto ruleId = math::getUniqueID(name);
+			auto ruleId = math::GetUniqueID(name);
 			tz::Rules searchRules = { ruleId, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(vec_rule_lookup_.begin(), vec_rule_lookup_.end(), searchRules, RULE_CMP);
@@ -148,7 +148,7 @@ namespace smalltime
 		//================================================
 		tz::Zones TzdbRawConnector::FindZones(const std::string& name)
 		{
-			auto zoneId = math::getUniqueID(name);
+			auto zoneId = math::GetUniqueID(name);
 			tz::Zones searchZones = { zoneId, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(vec_zone_lookup_.begin(), vec_zone_lookup_.end(), searchZones, ZONE_CMP);

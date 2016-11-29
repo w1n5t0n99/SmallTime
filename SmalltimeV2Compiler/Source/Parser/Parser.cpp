@@ -9,16 +9,16 @@ namespace smalltime
 		//============================================================================
 		// return container of all rules in file
 		//===========================================================================
-		bool Parser::parseRules(std::vector<RuleData>& vRuleData, std::ifstream& src)
+		bool Parser::ParseRules(std::vector<RuleData>& vec_ruledata, std::ifstream& src)
 		{
-			std::string lineStr;
+			std::string line_str;
 			src.clear();
 			src.seekg(0, std::ios::beg);
 
-			while (std::getline(src, lineStr))
+			while (std::getline(src, line_str))
 			{
 				//iterate line by line through file, searching for rules
-				extractRule(vRuleData, lineStr);
+				ExtractRule(vec_ruledata, line_str);
 			}
 
 			return true;
@@ -27,16 +27,16 @@ namespace smalltime
 		//===============================================================================
 		// return container of all zones in file
 		//===================================================================================
-		bool Parser::parseZones(std::vector<ZoneData>& vZoneData, std::ifstream& src)
+		bool Parser::ParseZones(std::vector<ZoneData>& vec_zonedata, std::ifstream& src)
 		{
-			std::string lineStr;
+			std::string line_str;
 			src.clear();
 			src.seekg(0, std::ios::beg);
 
-			while (std::getline(src, lineStr))
+			while (std::getline(src, line_str))
 			{
 				//iterate line by line through file, searching for rules
-				extractZone(vZoneData, lineStr);
+				ExtractZone(vec_zonedata, line_str);
 			}
 
 			return true;
@@ -46,16 +46,16 @@ namespace smalltime
 		//===============================================================================
 		// return container of all zones in file
 		//===================================================================================
-		bool Parser::parseLinks(std::vector<LinkData>& vLinkData, std::ifstream& src)
+		bool Parser::ParseLinks(std::vector<LinkData>& vec_linkdata, std::ifstream& src)
 		{
-			std::string lineStr;
+			std::string line_str;
 			src.clear();
 			src.seekg(0, std::ios::beg);
 
-			while (std::getline(src, lineStr))
+			while (std::getline(src, line_str))
 			{
 				//iterate line by line through file, searching for rules
-				extractLink(vLinkData, lineStr);
+				ExtractLink(vec_linkdata, line_str);
 			}
 
 			return true;
@@ -65,12 +65,12 @@ namespace smalltime
 		//========================================================
 		// check if line contains rule and add if it does
 		//===========================================================
-		bool Parser::extractRule(std::vector<RuleData>& vRuleData, const std::string& lineStr)
+		bool Parser::ExtractRule(std::vector<RuleData>& vec_ruledata, const std::string& line_str)
 		{
-			if (getLineType(lineStr) != LineType::Rule)
+			if (GetLineType(line_str) != LineType::KRule)
 				return false;
 
-			std::stringstream lineStream(lineStr);
+			std::stringstream lineStream(line_str);
 
 			RuleData ir;
 			// extract label - we can jsut discard it
@@ -95,7 +95,7 @@ namespace smalltime
 			// extract letters
 			lineStream >> ir.letters;
 
-			vRuleData.push_back(ir);
+			vec_ruledata.push_back(ir);
 			return true;
 
 		}
@@ -103,21 +103,21 @@ namespace smalltime
 		//========================================================
 		// check if line contains zone and add if it does
 		//===========================================================
-		bool Parser::extractZone(std::vector<ZoneData>& vZoneData, const std::string& lineStr)
+		bool Parser::ExtractZone(std::vector<ZoneData>& vec_zonedata, const std::string& line_str)
 		{
 			static std::string currZoneName = "";
 
 
-			LineType lt = getLineType(lineStr);
-			if (lt != LineType::ZoneHead && lt != LineType::ZoneBody)
+			LineType lt = GetLineType(line_str);
+			if (lt != LineType::KZoneHead && lt != LineType::KZoneBody)
 				return false;
 
-			std::string fmtLineStr = formatZoneLine(lineStr);
+			std::string fmtLineStr = FormatZoneLine(line_str);
 			std::stringstream lineStream(fmtLineStr);
 			std::string fw;
 
 			// extract the zone name from head line
-			if (lt == LineType::ZoneHead)
+			if (lt == LineType::KZoneHead)
 			{
 				//discard label
 				lineStream >> fw;
@@ -139,7 +139,7 @@ namespace smalltime
 			// extract remaining line since "until" is a variable length
 			std::getline(lineStream, iz.until);
 
-			vZoneData.push_back(iz);
+			vec_zonedata.push_back(iz);
 			return true;
 
 		}
@@ -147,12 +147,12 @@ namespace smalltime
 		//============================================================
 		// extract link data
 		//============================================================
-		bool Parser::extractLink(std::vector<LinkData>& vLinkData, const std::string& lineStr)
+		bool Parser::ExtractLink(std::vector<LinkData>& vec_linkdata, const std::string& line_str)
 		{
-			if (getLineType(lineStr) != LineType::Link)
+			if (GetLineType(line_str) != LineType::KLink)
 				return false;
 
-			std::stringstream lineStream(lineStr);
+			std::stringstream lineStream(line_str);
 
 			LinkData il;
 			// extract label 
@@ -161,7 +161,7 @@ namespace smalltime
 			lineStream >> il.target_zone_name;
 			lineStream >> il.ref_zone_name;
 
-			vLinkData.push_back(il);
+			vec_linkdata.push_back(il);
 			return true;
 
 		}
@@ -169,28 +169,28 @@ namespace smalltime
 		//================================================
 		// Determine the type of line
 		//=================================================
-		Parser::LineType Parser::getLineType(const std::string& lineStr)
+		Parser::LineType Parser::GetLineType(const std::string& line_str)
 		{
 			std::string fw;
-			std::stringstream lineStream(lineStr);
+			std::stringstream lineStream(line_str);
 			// check first text to see line type
 			lineStream >> fw;
 
 			//check if comment line
 			//lines are commented by single start # or whole line delimeter ################
 			if (fw == "#" || fw.empty() || std::all_of(fw.begin(), fw.end(), [](char c) { if (c == '#') { return true; } else { return false; } }) == true)
-				return LineType::Comment;
+				return LineType::KComment;
 			//check if Rule Line
 			else if (fw == "Rule")
-				return LineType::Rule;
+				return LineType::KRule;
 			// check if Link line
 			else if (fw == "Link")
-				return LineType::Link;
+				return LineType::KLink;
 			// check if start of Zone 
 			else if (fw == "Zone")
-				return LineType::ZoneHead;
+				return LineType::KZoneHead;
 			else
-				return LineType::ZoneBody;
+				return LineType::KZoneBody;
 
 
 		}
@@ -198,19 +198,19 @@ namespace smalltime
 		//========================================================
 		// removes any beginning whitespace or ending comments
 		//========================================================
-		std::string Parser::formatZoneLine(const std::string lineStr)
+		std::string Parser::FormatZoneLine(const std::string line_str)
 		{
 			static const std::string whiteSpaceStr = " \t";
 
 			// remove whitespace padding
-			const auto strBegin = lineStr.find_first_not_of(whiteSpaceStr);
+			const auto strBegin = line_str.find_first_not_of(whiteSpaceStr);
 			if (strBegin == std::string::npos)
 				return "";
 
-			const auto strEnd = lineStr.find_last_not_of(whiteSpaceStr);
+			const auto strEnd = line_str.find_last_not_of(whiteSpaceStr);
 			const auto strRange = strEnd - strBegin + 1;
 
-			std::string formattedStr = lineStr.substr(strBegin, strRange);
+			std::string formattedStr = line_str.substr(strBegin, strRange);
 
 			// remove ending comments
 			bool cmtFound = false;

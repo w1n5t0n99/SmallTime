@@ -8,25 +8,25 @@ namespace smalltime
 		//=====================================================
 		// convert RD time format to time fields
 		//======================================================
-		HMS hmsFromRd(RD rd)
+		HMS HmsFromFixed(RD rd)
 		{
 
-			RD tmOnly = extractTime(rd);
+			RD tmOnly = ExtractTime(rd);
 			//Make sure value is rounded to closest whole second
-			RD timeInMillis = std::round(tmOnly * MILLISECONDS_IN_DAY);
+			RD timeInMillis = std::round(tmOnly * KMILLISECONDS_IN_DAY);
 
-			RD hours = timeInMillis / MILLISECONDS_IN__HOUR;
+			RD hours = timeInMillis / KMILLISECONDS_IN__HOUR;
 			int ihours = static_cast<int>(std::floor(hours));
 
-			RD minsInMilliseconds = quickFlMod(timeInMillis, MILLISECONDS_IN__HOUR, hours);
-			RD mins = minsInMilliseconds / MILLISECONDS_IN_MINUTE;
+			RD minsInMilliseconds = QuickFlMod(timeInMillis, KMILLISECONDS_IN__HOUR, hours);
+			RD mins = minsInMilliseconds / KMILLISECONDS_IN_MINUTE;
 			int imins = static_cast<int>(std::floor(mins));
 
-			RD secsInMilliseconds = quickFlMod(minsInMilliseconds, MILLISECONDS_IN_MINUTE, mins);
-			RD secs = secsInMilliseconds / MILLISECONDS_IN_SECOND;
+			RD secsInMilliseconds = QuickFlMod(minsInMilliseconds, KMILLISECONDS_IN_MINUTE, mins);
+			RD secs = secsInMilliseconds / KMILLISECONDS_IN_SECOND;
 			int isecs = static_cast<int>(std::floor(secs));
 
-			RD millis = quickFlMod(secsInMilliseconds, MILLISECONDS_IN_SECOND, secs);
+			RD millis = QuickFlMod(secsInMilliseconds, KMILLISECONDS_IN_SECOND, secs);
 			int imillis = static_cast<int>(std::floor(millis));
 
 			return{ ihours, imins, isecs, imillis };

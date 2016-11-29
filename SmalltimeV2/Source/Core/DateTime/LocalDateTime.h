@@ -18,30 +18,30 @@ namespace smalltime
 		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel);
 		LocalDateTime(RD rd);
 
-		int getYear() const { return m_ymd[0]; }
-		int getMonth() const { return m_ymd[1]; }
-		int getDay() const { return m_ymd[2]; }
+		int GetYear() const { return ymd_[0]; }
+		int GetMonth() const { return ymd_[1]; }
+		int GetDay() const { return ymd_[2]; }
 
-		int getHour() const { return m_hms[0]; }
-		int getMinute() const { return m_hms[1]; }
-		int getSecond() const { return m_hms[2]; }
-		int getMillisecond() const { return m_hms[3]; }
+		int GetHour() const { return hms_[0]; }
+		int GetMinute() const { return hms_[1]; }
+		int GetSecond() const { return hms_[2]; }
+		int GetMillisecond() const { return hms_[3]; }
 
-		RD getRd() const { return m_rd; }
+		RD GetFixed() const { return fixed_; }
 
 	private:
-		YMD m_ymd;
-		HMS m_hms;
-		RD m_rd;
+		YMD ymd_;
+		HMS hms_;
+		RD fixed_;
 
-		static T CHRONOLOGY;
+		static T KCHRONOLOGY;
 	};
 
 	//==================================
 	// Init static member
 	//==================================
 	template <typename T = chrono::IsoChronology>
-	T LocalDateTime<T>::CHRONOLOGY;
+	T LocalDateTime<T>::KCHRONOLOGY;
 
 	//================================================
 	// Ctor - create date from fields
@@ -49,16 +49,16 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	LocalDateTime<T>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		// check if valid date
-		if (year != m_ymd[0] || month != m_ymd[1] || day != m_ymd[2])
+		if (year != ymd_[0] || month != ymd_[1] || day != ymd_[2])
 			throw InvalidFieldException("Invalid field or fields");
 		// check if valid time
-		m_hms = CHRONOLOGY.timeFromRd(m_rd);
-		if(hour != m_hms[0] || minute != m_hms[1] || second != m_hms[2] || millisecond != m_hms[3])
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		if(hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
 	}
@@ -69,19 +69,19 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	LocalDateTime<T>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		// check if valid date
-		if (year != m_ymd[0] || month != m_ymd[1] || day != m_ymd[2])
+		if (year != ymd_[0] || month != ymd_[1] || day != ymd_[2])
 			throw InvalidFieldException("Invalid field or fields");
 
-		m_rd = CHRONOLOGY.rdRelativeTo(m_rd, rel);
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 		// check if valid time
-		m_hms = CHRONOLOGY.timeFromRd(m_rd);
-		if (hour != m_hms[0] || minute != m_hms[1] || second != m_hms[2] || millisecond != m_hms[3])
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 	}
 
@@ -91,14 +91,14 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	LocalDateTime<T>::LocalDateTime(RD rd)
 	{
-		m_ymd = CHRONOLOGY.ymdFromRd(rd);
-		m_rd = CHRONOLOGY.rdFromYmd(m_ymd[0], m_ymd[1], m_ymd[2]);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
 
-		m_hms = CHRONOLOGY.timeFromRd(rd);
-		m_rd += CHRONOLOGY.rdFromTime(m_hms[0], m_hms[1], m_hms[2], m_hms[3]);
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
 		// check if valid date
-		if (m_rd != rd)
+		if (fixed_ != rd)
 			throw InvalidFieldException("Invalid field or fields");
 	}
 
@@ -118,65 +118,65 @@ namespace smalltime
 		//LocalDateTime(int year, int day, int hour, int minute, int second, int millisecond);
 
 
-		int getYear() const { return m_ymd[0]; }
-		int getMonth() const { return m_ymd[1]; }
-		int getDay() const { return m_ymd[2]; }
+		int GetYear() const { return ymd_[0]; }
+		int GetMonth() const { return ymd_[1]; }
+		int GetDay() const { return ymd_[2]; }
 
-		int getWeekYear() const { return m_ywd[0]; }
-		int getWeekOfWeekYear() const { return m_ywd[1]; }
-		int getDayOfWeekYear() const { return m_ywd[2]; }
+		int GetWeekYear() const { return ywd_[0]; }
+		int GetWeekOfWeekYear() const { return ywd_[1]; }
+		int GetDayOfWeekYear() const { return ywd_[2]; }
 
-		int getDayOfYear() const { return m_dayOfYear; }
+		int GetDayOfYear() const { return day_of_year_; }
 
-		int getHour() const { return m_hms[0]; }
-		int getMinute() const { return m_hms[1]; }
-		int getSecond() const { return m_hms[2]; }
-		int getMillisecond() const { return m_hms[3]; }
+		int GetHour() const { return hms_[0]; }
+		int GetMinute() const { return hms_[1]; }
+		int GetSecond() const { return hms_[2]; }
+		int GetMillisecond() const { return hms_[3]; }
 
-		int getWeekOfMonth() const { return m_weekOfMonth; }
-		bool isLeapYear() const { return m_leapYear; }
+		int GetWeekOfMonth() const { return week_of_month_; }
+		bool IsLeapYear() const { return leap_year_; }
 
-		RD getRd() const { return m_rd; }
+		RD GetFixed() const { return fixed_; }
 
 	private:
-		YMD m_ymd;
-		YWD m_ywd;
-		HMS m_hms;
-		int m_dayOfYear, m_weekOfMonth;
-		bool m_leapYear;
-		RD m_rd;
+		YMD ymd_;
+		YWD ywd_;
+		HMS hms_;
+		int day_of_year_, week_of_month_;
+		bool leap_year_;
+		RD fixed_;
 
-		static chrono::IsoChronology CHRONOLOGY;
+		static chrono::IsoChronology KCHRONOLOGY;
 	};
 
 	//==================================
 	// Init static member
 	//==================================
-	chrono::IsoChronology LocalDateTime<chrono::IsoChronology>::CHRONOLOGY;
+	chrono::IsoChronology LocalDateTime<chrono::IsoChronology>::KCHRONOLOGY;
 
 	//================================================
 	// Ctor - create date from fields
 	//================================================
 	LocalDateTime<chrono::IsoChronology>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		// check if valid date
-		if (year != m_ymd[0] || month != m_ymd[1] || day != m_ymd[2])
+		if (year != ymd_[0] || month != ymd_[1] || day != ymd_[2])
 			throw InvalidFieldException("Invalid field or fields");
 		// check if valid time
-		m_hms = CHRONOLOGY.timeFromRd(m_rd);
-		if (hour != m_hms[0] || minute != m_hms[1] || second != m_hms[2] || millisecond != m_hms[3])
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
 		// since this should be a valid date we can obtain the other data
-		m_ywd = CHRONOLOGY.ywdFromRd(m_rd);
-		m_leapYear = CHRONOLOGY.isLeapYear(m_ymd[0]);
-		m_weekOfMonth = CHRONOLOGY.weekOfMonth(m_ymd, m_rd);
-		auto yd = CHRONOLOGY.ydFromRd(m_rd);
-		m_dayOfYear = yd[1];
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
 
 	}
 
@@ -185,27 +185,27 @@ namespace smalltime
 	//====================================================
 	LocalDateTime<chrono::IsoChronology>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		// check if valid date
-		if (year != m_ymd[0] || month != m_ymd[1] || day != m_ymd[2])
+		if (year != ymd_[0] || month != ymd_[1] || day != ymd_[2])
 			throw InvalidFieldException("Invalid field or fields");
 
-		m_rd = CHRONOLOGY.rdRelativeTo(m_rd, rel);
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 		// check if valid time
-		m_hms = CHRONOLOGY.timeFromRd(m_rd);
-		if (hour != m_hms[0] || minute != m_hms[1] || second != m_hms[2] || millisecond != m_hms[3])
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
 		// since this should be a valid date we can obtain the other data
-		m_ywd = CHRONOLOGY.ywdFromRd(m_rd);
-		m_leapYear = CHRONOLOGY.isLeapYear(m_ymd[0]);
-		m_weekOfMonth = CHRONOLOGY.weekOfMonth(m_ymd, m_rd);
-		auto yd = CHRONOLOGY.ydFromRd(m_rd);
-		m_dayOfYear = yd[1];
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
 	}
 
 	//====================================================
@@ -213,22 +213,22 @@ namespace smalltime
 	//====================================================
 	LocalDateTime<chrono::IsoChronology>::LocalDateTime(RD rd)
 	{
-		m_ymd = CHRONOLOGY.ymdFromRd(rd);
-		m_rd = CHRONOLOGY.rdFromYmd(m_ymd[0], m_ymd[1], m_ymd[2]);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
 
-		m_hms = CHRONOLOGY.timeFromRd(rd);
-		m_rd += CHRONOLOGY.rdFromTime(m_hms[0], m_hms[1], m_hms[2], m_hms[3]);
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
 		// check if valid date
-		if (m_rd != rd)
+		if (fixed_ != rd)
 			throw InvalidFieldException("Invalid field or fields");
 
 		// since this should be a valid date we can obtain the other data
-		m_ywd = CHRONOLOGY.ywdFromRd(m_rd);
-		m_leapYear = CHRONOLOGY.isLeapYear(m_ymd[0]);
-		m_weekOfMonth = CHRONOLOGY.weekOfMonth(m_ymd, m_rd);
-		auto yd = CHRONOLOGY.ydFromRd(m_rd);
-		m_dayOfYear = yd[1];
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
 	}
 
 }

@@ -12,26 +12,26 @@ namespace smalltime
 		class IsoChronology
 		{
 		public:
-			RD rdFromYmd(int year, int month, int day) const;
-			RD rdFromYwd(int year, int month, int day) const;
-			RD rdFromYd(int year, int day) const;
+			RD FixedFromYmd(int year, int month, int day) const;
+			RD FixedFromYwd(int year, int month, int day) const;
+			RD FixedFromYd(int year, int day) const;
 
-			YMD ymdFromRd(RD rd) const;
-			YWD ywdFromRd(RD rd) const;
-			YD ydFromRd(RD rd) const;
+			YMD YmdFromFixed(RD rd) const;
+			YWD YwdFromFixed(RD rd) const;
+			YD YdFromFixed(RD rd) const;
 			
-			RD rdRelativeTo(RD rd, RelSpec rel) const;
+			RD FixedRelativeTo(RD rd, RelSpec rel) const;
 
-			RD rdFromTime(int hour, int minute, int second, int milli) const;
-			HMS timeFromRd(RD rd) const;
+			RD FixedFromTime(int hour, int minute, int second, int milli) const;
+			HMS TimeFromFixed(RD rd) const;
 
-			int weekOfMonth(const YWD& ywd, RD rd) const;
-			bool isLeapYear(int year) const;
+			int WeekOfMonth(const YWD& ywd, RD rd) const;
+			bool IsLeapYear(int year) const;
 
 		private:
-			int determineYearFromFixed(RD rd) const;
+			int DetermineYearFromFixed(RD rd) const;
 
-			const int m_minDaysInFirstWeek = 4;
+			const int min_days_in_first_week_ = 4;
 
 		};
 

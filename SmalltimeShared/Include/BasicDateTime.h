@@ -17,25 +17,25 @@ namespace smalltime
 		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType);
 		BasicDateTime(RD rd, tz::TimeType tmType);
 
-		int getYear() const { return m_ymd[0]; }
-		int getMonth() const { return m_ymd[1]; }
-		int getDay() const { return m_ymd[2]; }
+		int GetYear() const { return ymd_[0]; }
+		int GetMonth() const { return ymd_[1]; }
+		int GetDay() const { return ymd_[2]; }
 
-		int getHour() const { return m_hms[0]; }
-		int getMinute() const { return m_hms[1]; }
-		int getSecond() const { return m_hms[2]; }
-		int getMillisecond() const { return m_hms[3]; }
+		int GetHour() const { return hms_[0]; }
+		int GetMinute() const { return hms_[1]; }
+		int GetSecond() const { return hms_[2]; }
+		int GetMillisecond() const { return hms_[3]; }
 
-		RD getRd() const { return m_rd; }
-		tz::TimeType getType() const { return m_tmType; }
+		RD GetFixed() const { return fixed_; }
+		tz::TimeType GetType() const { return time_type_; }
 
 	private:
-		YMD m_ymd;
-		HMS m_hms;
-		RD m_rd;
-		tz::TimeType m_tmType;
+		YMD ymd_;
+		HMS hms_;
+		RD fixed_;
+		tz::TimeType time_type_;
 
-		static T CHRONOLOGY;
+		static T KCHRONOLOGY;
 			
 	};
 
@@ -43,7 +43,7 @@ namespace smalltime
 	// Init static member
 	//==================================
 	template <typename T = chrono::IsoChronology>
-	T BasicDateTime<T>::CHRONOLOGY;
+	T BasicDateTime<T>::KCHRONOLOGY;
 
 	//================================================
 	// Ctor - create date from fields
@@ -51,12 +51,12 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 
-		m_ymd = { year, month, day };
-		m_hms = { hour, minute, second, millisecond };
-		m_tmType = tmType;
+		ymd_ = { year, month, day };
+		hms_ = { hour, minute, second, millisecond };
+		time_type_ = tmType;
 	}
 
 	//====================================================
@@ -65,14 +65,14 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType)
 	{
-		m_rd = CHRONOLOGY.rdFromYmd(year, month, day);
-		m_rd = CHRONOLOGY.rdRelativeTo(m_rd, rel);
-		m_rd += CHRONOLOGY.rdFromTime(hour, minute, second, millisecond);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
 
 		// check if fields have been altered
-		m_ymd = CHRONOLOGY.ymdFromRd(m_rd);
-		m_hms = CHRONOLOGY.timeFromRd(m_rd);
-		m_tmType = tmType;
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		time_type_ = tmType;
 	}
 
 	//====================================================
@@ -81,11 +81,11 @@ namespace smalltime
 	template <typename T = chrono::IsoChronology>
 	BasicDateTime<T>::BasicDateTime(RD rd, tz::TimeType tmType)
 	{
-		m_rd = rd;
-		m_ymd = CHRONOLOGY.ymdFromRd(rd);
-		m_hms = CHRONOLOGY.timeFromRd(rd);
+		fixed_ = rd;
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
 
-		m_tmType = tmType;
+		time_type_ = tmType;
 	}
 
 }

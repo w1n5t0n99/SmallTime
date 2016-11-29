@@ -26,7 +26,7 @@ int main()
 	std::shared_ptr<tz::TzdbHeaderConnector> tzdb_connector = std::make_shared<tz::TzdbHeaderConnector>();
 
 	auto rule_handle = tzdb_connector->GetRuleHandle();
-	auto rule_id = math::getUniqueID("US");
+	auto rule_id = math::GetUniqueID("US");
 	auto rules = tzdb_connector->FindRules("US");
 
 	auto zoneHandle = tzdb_connector->GetZoneHandle();
@@ -47,7 +47,7 @@ int main()
 	
 	try
 	{
-		auto ar = ru.FindActiveRule(dt, Choose::Error);
+		auto ar = ru.FindActiveRule(dt, Choose::KError);
 		//std::cout << "Rule offset - " << ar->offset << std::endl;
 	}
 	catch (const std::exception& e)
@@ -58,11 +58,11 @@ int main()
 	
 	try
 	{
-		auto ar = ru.FindActiveRule(dt0, Choose::Error);
-		auto z = zu.FindActiveZone(dt0, Choose::Error);
+		auto ar = ru.FindActiveRule(dt0, Choose::KError);
+		auto z = zu.FindActiveZone(dt0, Choose::KError);
 
 		BasicDateTime<> cr(z->until_wall, z->until_type);
-		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.getYear(), cr.getMonth(), cr.getDay(), cr.getHour(), cr.getMinute(), cr.getSecond(), cr.getMillisecond());
+		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
 
 	}
 	catch (const std::exception& e)

@@ -15,69 +15,58 @@ namespace smalltime
 	using YD = std::array<int, 2>;
 	using HMS = std::array<int, 4>;
 
-	static const int RD0 = 0;
-	static const RD RD_EPOCH = 1.0;
-
-	// Used for specifying the calendar system Chronology can use
-	enum class CalSpec
-	{
-		Iso,
-		Gregorian,
-		Julian,
-		Islamic,
-		Hebrew,
-		Persian
-	};
+	static const int KRD0 = 0;
+	static const RD KRD_EPOCH = 1.0;
 
 	// Used for specifying a date-time relative to another
 	enum class RelSpec
 	{
-		SunOnOrAfter = 7,
-		MonOnOrAfter = 8,
-		TuesOnOrAfter = 9,
-		WedOnOrAfter = 10,
-		ThursOnOrAfter = 11,
-		FriOnOrAfter = 12,
-		SatOnOrAfter = 13,
+		KSunOnOrAfter = 7,
+		KMonOnOrAfter = 8,
+		KTuesOnOrAfter = 9,
+		KWedOnOrAfter = 10,
+		KThursOnOrAfter = 11,
+		KFriOnOrAfter = 12,
+		KSatOnOrAfter = 13,
 
-		SunAfter = 14,
-		MonAfter = 15,
-		TuesAfter = 16,
-		WedAfter = 17,
-		ThursAfter = 18,
-		FriAfter = 19,
-		SatAfter = 20,
+		KSunAfter = 14,
+		KMonAfter = 15,
+		KTuesAfter = 16,
+		KWedAfter = 17,
+		KThursAfter = 18,
+		KFriAfter = 19,
+		KSatAfter = 20,
 
-		SunOnOrBefore = 21,
-		MonOnOrBefore = 22,
-		TuesOnOrBefore = 23,
-		WedOnOrBefore = 24,
-		ThursOnOrBefore = 25,
-		FriOnOrBefore = 26,
-		SatOnOrBefore = 27,
+		KSunOnOrBefore = 21,
+		KMonOnOrBefore = 22,
+		KTuesOnOrBefore = 23,
+		KWedOnOrBefore = 24,
+		KThursOnOrBefore = 25,
+		KFriOnOrBefore = 26,
+		KSatOnOrBefore = 27,
 
-		SunBefore = 28,
-		MonBefore = 29,
-		TuesBefore = 30,
-		WedBefore = 31,
-		ThursBefore = 32,
-		FriBefore = 33,
-		SatBefore = 34,
+		KSunBefore = 28,
+		KMonBefore = 29,
+		KTuesBefore = 30,
+		KWedBefore = 31,
+		KThursBefore = 32,
+		KFriBefore = 33,
+		KSatBefore = 34,
 
-		LastSun = 35,
-		LastMon = 36,
-		LastTues = 37,
-		LastWed = 38,
-		LastThurs = 39,
-		LastFri = 40,
-		LastSat = 41,
+		KLastSun = 35,
+		KLastMon = 36,
+		KLastTues = 37,
+		KLastWed = 38,
+		KLastThurs = 39,
+		KLastFri = 40,
+		KLastSat = 41,
 	};
 
 	enum class Choose
 	{
-		Earliest,
-		Latest,
-		Error
+		KEarliest,
+		KLatest,
+		KError
 	};
 
 }

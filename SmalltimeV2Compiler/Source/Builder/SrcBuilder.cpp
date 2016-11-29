@@ -57,22 +57,22 @@ namespace smalltime
 		//===================================================
 		// Add head data to file
 		//====================================================
-		bool SrcBuilder::buildHead(std::ofstream& outFile)
+		bool SrcBuilder::BuildHead(std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
 			// Include guards
-			outFile << "#pragma once\n";
-			outFile << "#ifndef _TZDB_\n";
-			outFile << "#define _TZDB_\n";
-			outFile << "#include \"TzDecls.h\"\n";
-			outFile << "#include <cinttypes>\n";
-			outFile << "#include <array>\n";
-			outFile << "\nnamespace smalltime\n";
-			outFile << "{\n";
-			outFile << "\nnamespace tz\n";
-			outFile << "{\n";
+			out_file << "#pragma once\n";
+			out_file << "#ifndef _TZDB_\n";
+			out_file << "#define _TZDB_\n";
+			out_file << "#include \"TzDecls.h\"\n";
+			out_file << "#include <cinttypes>\n";
+			out_file << "#include <array>\n";
+			out_file << "\nnamespace smalltime\n";
+			out_file << "{\n";
+			out_file << "\nnamespace tz\n";
+			out_file << "{\n";
 
 			return true;
 		}
@@ -80,14 +80,14 @@ namespace smalltime
 		//===================================================
 		// Add tail data to file
 		//====================================================
-		bool SrcBuilder::buildTail(std::ofstream& outFile)
+		bool SrcBuilder::BuildTail(std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
-			outFile << "\n}\n";
-			outFile << "\n}\n";
-			outFile << "#endif\n";
+			out_file << "\n}\n";
+			out_file << "\n}\n";
+			out_file << "#endif\n";
 
 			return true;
 		}
@@ -95,7 +95,7 @@ namespace smalltime
 		//=================================================
 		// Add body to file
 		//==================================================
-		bool SrcBuilder::buildBody(const std::vector<tz::Rule>& vec_rule, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Zones>& vec_zone_lookup,
+		bool SrcBuilder::BuildBody(const std::vector<tz::Rule>& vec_rule, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Zones>& vec_zone_lookup,
 			const std::vector<tz::Rules>& vec_rule_lookup, const MetaData& tzdb_meta, std::ofstream& out_file)
 		{
 			if (!out_file)
@@ -119,25 +119,25 @@ namespace smalltime
 			out_file << "\n\nstatic constexpr std::array<Zone," << vec_zone.size() << "> KZoneArray = {\n";
 			// Add zones
 			for (const auto& zone : vec_zone)
-				insertZone(zone, out_file);
+				InsertZone(zone, out_file);
 
 			out_file << "\n};\n";
 			out_file << "\nstatic constexpr std::array<Rule," << vec_rule.size() << "> KRuleArray = {\n";
 			// Add rules
 			for (const auto& rule : vec_rule)
-				insertRule(rule, out_file);
+				InsertRule(rule, out_file);
 
 			out_file << "\n};\n";
 			out_file << "\nstatic constexpr std::array<Zones," << vec_zone_lookup.size() << "> KZoneLookupArray = {\n";
 			// Add zones
 			for (const auto& zones : vec_zone_lookup)
-				insertZoneSearch(zones, out_file);
+				InsertZoneSearch(zones, out_file);
 			
 			out_file << "\n};\n";
 			out_file << "\nstatic constexpr std::array<Rules," << vec_rule_lookup.size() << "> KRuleLookupArray = {\n";
 			// Add rules
 			for (const auto& rules : vec_rule_lookup)
-				insertRuleSearch(rules, out_file);
+				InsertRuleSearch(rules, out_file);
 
 			out_file << "\n};\n";
 
@@ -147,17 +147,17 @@ namespace smalltime
 		//==================================================
 		// Add single rule object into file
 		//==================================================
-		bool SrcBuilder::insertRule(const tz::Rule& rule, std::ofstream& outFile)
+		bool SrcBuilder::InsertRule(const tz::Rule& rule, std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
 			// 17 digits should be enough to round trip double
-			outFile << std::setprecision(17);
+			out_file << std::setprecision(17);
 
-			outFile << "Rule {" << rule.rule_id << ", " << rule.from_year << ", " << rule.to_year << ", " << rule.month << ", "
+			out_file << "Rule {" << rule.rule_id << ", " << rule.from_year << ", " << rule.to_year << ", " << rule.month << ", "
 				<< rule.day << ", " << rule.day_type << ", " << rule.at_time << ", " << rule.at_type << ", " << rule.offset << ", " << rule.letter << "}";
-			outFile << ",\n";
+			out_file << ",\n";
 
 			return true;
 		}
@@ -165,16 +165,16 @@ namespace smalltime
 		//==========================================================
 		// Add single  zone object into file
 		//============================================================
-		bool SrcBuilder::insertZone(const tz::Zone& zone, std::ofstream& outFile)
+		bool SrcBuilder::InsertZone(const tz::Zone& zone, std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
 			// 17 digits should be enough to round trip double
-			outFile << std::setprecision(17);
+			out_file << std::setprecision(17);
 
-			outFile << "Zone {" << zone.zone_id << ", " << zone.rule_id << ", " << zone.until_wall << ", " << zone.until_utc << ", " << zone.until_type << ", " << zone.zone_offset << ", " << zone.abbrev << "}";
-			outFile << ",\n";
+			out_file << "Zone {" << zone.zone_id << ", " << zone.rule_id << ", " << zone.until_wall << ", " << zone.until_utc << ", " << zone.until_type << ", " << zone.zone_offset << ", " << zone.abbrev << "}";
+			out_file << ",\n";
 
 			return true;
 		}
@@ -182,13 +182,13 @@ namespace smalltime
 		//======================================================
 		// Add single rules object into file
 		//======================================================
-		bool SrcBuilder::insertRuleSearch(const tz::Rules& rules, std::ofstream& outFile)
+		bool SrcBuilder::InsertRuleSearch(const tz::Rules& rules, std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
-			outFile << "Rules {" << rules.rule_id << ", " << rules.first << ", " << rules.size << "}";
-			outFile << ",\n";
+			out_file << "Rules {" << rules.rule_id << ", " << rules.first << ", " << rules.size << "}";
+			out_file << ",\n";
 
 			return true;
 		}
@@ -196,13 +196,13 @@ namespace smalltime
 		//======================================================
 		// Add single zones object into file
 		//======================================================
-		bool SrcBuilder::insertZoneSearch(const tz::Zones& zones, std::ofstream& outFile)
+		bool SrcBuilder::InsertZoneSearch(const tz::Zones& zones, std::ofstream& out_file)
 		{
-			if (!outFile)
+			if (!out_file)
 				return false;
 
-			outFile << "Zones {" << zones.zone_id << ", " << zones.first << ", " << zones.size << "}";
-			outFile << ",\n";
+			out_file << "Zones {" << zones.zone_id << ", " << zones.first << ", " << zones.size << "}";
+			out_file << ",\n";
 
 			return true;
 		}

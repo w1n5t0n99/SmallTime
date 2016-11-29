@@ -39,9 +39,9 @@ int main()
 		inf.open(src, std::ios::in);
 		if (inf)
 		{
-			parser.parseZones(vec_zonedata, inf);
-			parser.parseRules(vec_ruledata, inf);
-			parser.parseLinks(vec_linkdata, inf);
+			parser.ParseZones(vec_zonedata, inf);
+			parser.ParseRules(vec_ruledata, inf);
+			parser.ParseLinks(vec_linkdata, inf);
 			std::cout << src << " parsed ..." << std::endl;
 		}
 		else
@@ -81,9 +81,9 @@ int main()
 
 
 	std::ofstream outf("Tzdb.h", std::ofstream::trunc);
-	srcBuilder.buildHead(outf);
-	srcBuilder.buildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
-	srcBuilder.buildTail(outf);
+	srcBuilder.BuildHead(outf);
+	srcBuilder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
+	srcBuilder.BuildTail(outf);
 
 	outf.close();
 	std::cout << "Source compiled ..." << std::endl;

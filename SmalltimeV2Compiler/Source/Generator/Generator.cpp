@@ -34,7 +34,7 @@ namespace smalltime
 		bool Generator::ProccessUtc(std::vector<tz::Zone>& vec_zone)
 		{
 			// Set a UTC entry
-			tz::Zone utcZone = { math::getUniqueID("UTC") , 0, 0.0, tz::DMAX, tz::KTimeType_Wall, 0.0, math::pack8Chars("UTC") };
+			tz::Zone utcZone = { math::GetUniqueID("UTC") , 0, 0.0, tz::DMAX, tz::KTimeType_Wall, 0.0, math::Pack8Chars("UTC") };
 			vec_zone.push_back(utcZone);
 
 			return true;
@@ -49,7 +49,7 @@ namespace smalltime
 			for (const auto& ruleData : vec_ruledata)
 			{
 				tz::Rule rule;
-				rule.rule_id = math::getUniqueID(ruleData.name);
+				rule.rule_id = math::GetUniqueID(ruleData.name);
 				rule.from_year = atoi(ruleData.from.c_str());
 
 				//check if thier is  a "TO" year
@@ -80,7 +80,7 @@ namespace smalltime
 				rule.at_time = ConvertTimeStrToRd(ruleData.at);
 
 				rule.offset = ConvertTimeStrToRd(ruleData.save);
-				rule.letter = math::pack4Chars(ruleData.letters);
+				rule.letter = math::Pack4Chars(ruleData.letters);
 
 				vec_rule.push_back(rule);
 			}
@@ -97,18 +97,18 @@ namespace smalltime
 			for (const auto& zl : vec_zonedata)
 			{
 				tz::Zone fzl;
-				fzl.zone_id = math::getUniqueID(zl.name);
+				fzl.zone_id = math::GetUniqueID(zl.name);
 				//	fzl.rule = HashString(zl.rule);   //TODO: Rule can also be null "-" or a time offser e.g. 2:00
 
 				fzl.rule_id = ConvertToZoneRuleId(zl.rule);
 				fzl.until_utc = ConvertToZoneRuleOffset(zl.rule);
 
 				fzl.zone_offset = ConvertTimeStrToRd(zl.gmt_offset);
-				fzl.abbrev = math::pack8Chars(zl.format);
+				fzl.abbrev = math::Pack8Chars(zl.format);
 
 				auto untilDt = ConvertZoneUntil(zl.until);
-				fzl.until_wall = untilDt.getRd();
-				fzl.until_type = untilDt.getType();
+				fzl.until_wall = untilDt.GetFixed();
+				fzl.until_type = untilDt.GetType();
 
 				vec_zone.push_back(fzl);
 
@@ -126,8 +126,8 @@ namespace smalltime
 			{
 				tz::Link fll;
 
-				fll.ref_zone = math::getUniqueID(ll.ref_zone_name);
-				fll.target_zone = math::getUniqueID(ll.target_zone_name);
+				fll.ref_zone = math::GetUniqueID(ll.ref_zone_name);
+				fll.target_zone = math::GetUniqueID(ll.target_zone_name);
 				vec_link.push_back(fll);
 
 			}
@@ -296,7 +296,7 @@ namespace smalltime
 						try
 						{
 							tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-							auto r = rg.FindActiveRule(BasicDateTime<>(wall, tz::KTimeType_Wall), Choose::Latest);
+							auto r = rg.FindActiveRule(BasicDateTime<>(wall, tz::KTimeType_Wall), Choose::KLatest);
 							if (r)
 								rule_offset = r->offset;
 						}
@@ -317,7 +317,7 @@ namespace smalltime
 					if (z.rule_id != 0)
 					{
 						tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::Latest);
+						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::KLatest);
 						if (r)
 							rule_offset = r->offset;
 					}
@@ -332,7 +332,7 @@ namespace smalltime
 					if (z.rule_id != 0)
 					{
 						tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::Latest);
+						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::KLatest);
 						if (r)
 							rule_offset = r->offset;
 					}
@@ -404,7 +404,7 @@ namespace smalltime
 		{
 			auto tp = ConvertTimeStrToFields(tmStr);
 
-			return math::rdFromTime(tp[0], tp[1], tp[2], tp[3]);
+			return math::FixedFromTime(tp[0], tp[1], tp[2], tp[3]);
 		}
 
 		//==========================================================================
@@ -473,7 +473,7 @@ namespace smalltime
 					cp[0] += 1;
 				}
 
-				return BasicDateTime<>(cp[0], cp[1], 1, tp[0], tp[1], tp[2], tp[3], smalltime::RelSpec::SunBefore, tz::KTimeType_Wall);
+				return BasicDateTime<>(cp[0], cp[1], 1, tp[0], tp[1], tp[2], tp[3], smalltime::RelSpec::KSunBefore, tz::KTimeType_Wall);
 			}
 
 		}
@@ -515,7 +515,7 @@ namespace smalltime
 			if (str.find_first_of(":") != std::string::npos)
 				return 0;
 			else
-				return math::getUniqueID(str);
+				return math::GetUniqueID(str);
 		}
 
 		//=================================================

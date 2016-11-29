@@ -20,7 +20,7 @@ namespace smalltime
 		//======================================================================
 		// hash string to create unique ID
 		//========================================================================
-		uint32_t getUniqueID(const std::string& str)
+		uint32_t GetUniqueID(const std::string& str)
 		{
 			//uint32_t retID = 0;
 			//MurmurHash3_x86_32(str.c_str(), str.size(), 0, &retID);
@@ -33,7 +33,7 @@ namespace smalltime
 		//=====================================================================
 		// Store first 4 chars of string into uint32_t else fill with 0
 		//=====================================================================
-		uint32_t pack4Chars(std::string str)
+		uint32_t Pack4Chars(std::string str)
 		{
 			size_t strSize = str.size();
 			strSize = ((strSize > 4) ? 4 : strSize);
@@ -49,7 +49,7 @@ namespace smalltime
 		//=====================================================================
 		// Store first 8 chars of string into uint32_t else fill with 0
 		//=====================================================================
-		uint64_t pack8Chars(std::string str)
+		uint64_t Pack8Chars(std::string str)
 		{
 			size_t strSize = str.size();
 			strSize = ((strSize > 8) ? 8 : strSize);
@@ -65,7 +65,7 @@ namespace smalltime
 		//============================================================
 		// Convert packed chars back to string
 		//=============================================================
-		std::string unpack4Chars(uint32_t num)
+		std::string Unpack4Chars(uint32_t num)
 		{
 			std::string str;
 			for (unsigned int i = 4; i > 0; --i)
@@ -77,7 +77,7 @@ namespace smalltime
 		//============================================================
 		// Convert packed chars back to string
 		//=============================================================
-		std::string unpack8Chars(uint64_t num)
+		std::string Unpack8Chars(uint64_t num)
 		{
 			std::string str;
 			for (unsigned int i = 8; i > 0; --i)

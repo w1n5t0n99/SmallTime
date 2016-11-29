@@ -54,7 +54,7 @@ namespace smalltime
 		//====================================================
 		const Rule* const RuleGroup::FindActiveRule(BasicDateTime<> cur_dt, Choose choose)
 		{
-			InitTransitionData(cur_dt.getYear());
+			InitTransitionData(cur_dt.GetYear());
 
 			const Rule* closest_rule = nullptr;
 			BasicDateTime<> closest_rule_dt(0.0, TimeType::KTimeType_Wall);
@@ -68,9 +68,9 @@ namespace smalltime
 				{
 					auto r = &rule_arr_[rules_.first + i];
 
-					auto cur_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.getType());
-					diff = cur_dt.getRd() - cur_rule_dt.getRd();
-					if ((diff >= 0.0  || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11)) && diff < closest_diff )
+					auto cur_rule_dt = CalcTransitionWallOrUtc(r, primary_year_, cur_dt.GetType());
+					diff = cur_dt.GetFixed() - cur_rule_dt.GetFixed();
+					if ((diff >= 0.0  || AlmostEqualUlps(cur_dt.GetFixed(), cur_rule_dt.GetFixed(), 11)) && diff < closest_diff )
 					{
 						closest_rule_dt = cur_rule_dt;
 						closest_diff = diff;
@@ -87,13 +87,13 @@ namespace smalltime
 					// rule transition is not null 
 					if (*(previous_ptr_ + i) > 0.0)
 					{
-						diff = cur_dt.getRd() - previous_ptr_[i];
+						diff = cur_dt.GetFixed() - previous_ptr_[i];
 						const tz::Rule* r = &rule_arr_[rules_.first + i];
 
-						auto cur_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.getType());
-						diff = cur_dt.getRd() - cur_rule_dt.getRd();
+						auto cur_rule_dt = CalcTransitionWallOrUtc(r, previous_year_, cur_dt.GetType());
+						diff = cur_dt.GetFixed() - cur_rule_dt.GetFixed();
 
-						if ((diff >= 0.0 || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11)) && diff < closest_diff)
+						if ((diff >= 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), cur_rule_dt.GetFixed(), 11)) && diff < closest_diff)
 						{
 							closest_rule_dt = cur_rule_dt;
 							closest_diff = diff;
@@ -123,7 +123,7 @@ namespace smalltime
 			for (int i = 0; i < rules_.size; ++i)
 			{
 				auto rule_rd = *(primary_ptr_ + i);
-				diff = cur_rule.getRd() - rule_rd;
+				diff = cur_rule.GetFixed() - rule_rd;
 				// rule transition is not null and before rd
 				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
 				{
@@ -140,7 +140,7 @@ namespace smalltime
 				for (int i = 0; i < rules_.size; ++i)
 				{
 					auto rule_rd = *(previous_ptr_ + i);
-					diff = cur_rule.getRd() - rule_rd;
+					diff = cur_rule.GetFixed() - rule_rd;
 					// rule transition is not null and before rd
 					// rule transition will not be no way close enough to be within ulp margin of error
 					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
@@ -168,7 +168,7 @@ namespace smalltime
 			for (int i = 0; i < rules_.size; ++i)
 			{
 				auto rule_rd = *(primary_ptr_ + i);
-				diff = cur_rule.getRd() - rule_rd;
+				diff = cur_rule.GetFixed() - rule_rd;
 				// rule transition is not null and after the cur rule
 				// rule transition will not be no way close enough to be within ulp margin of error
 				if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff)
@@ -186,7 +186,7 @@ namespace smalltime
 				for (int i = 0; i < rules_.size; ++i)
 				{
 					auto rule_rd = *(next_ptr_ + i);
-					diff = cur_rule.getRd() - rule_rd;
+					diff = cur_rule.GetFixed() - rule_rd;
 					// rule transition is not null and after cur rule
 					if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff )
 					{
@@ -212,27 +212,27 @@ namespace smalltime
 				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
 
 				RD cur_rule_inst = 0.0;
-				if(cur_dt.getType() == KTimeType_Wall)
-					cur_rule_inst = cur_rule_dt.getRd() + offset_diff;
-				else if(cur_dt.getType() == KTimeType_Utc)
-					cur_rule_inst = cur_rule_dt.getRd() - offset_diff;
+				if(cur_dt.GetType() == KTimeType_Wall)
+					cur_rule_inst = cur_rule_dt.GetFixed() + offset_diff;
+				else if(cur_dt.GetType() == KTimeType_Utc)
+					cur_rule_inst = cur_rule_dt.GetFixed() - offset_diff;
 
-				if ((cur_dt.getRd() >= cur_rule_dt.getRd() || AlmostEqualUlps(cur_dt.getRd(), cur_rule_dt.getRd(), 11))&& cur_dt.getRd() < cur_rule_inst)
+				if ((cur_dt.GetFixed() >= cur_rule_dt.GetFixed() || AlmostEqualUlps(cur_dt.GetFixed(), cur_rule_dt.GetFixed(), 11))&& cur_dt.GetFixed() < cur_rule_inst)
 				{
 					// Ambigiuous local time gap
-					if (choose == Choose::Earliest)
+					if (choose == Choose::KEarliest)
 					{
 						return prev_rule.first;
 					}
-					else if (choose == Choose::Latest)
+					else if (choose == Choose::KLatest)
 					{
 						return cur_rule;
 					}
 					else
 					{
-						if (cur_dt.getType() == KTimeType_Wall)
+						if (cur_dt.GetType() == KTimeType_Wall)
 							throw TimeZoneAmbigNoneException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), KTimeType_Wall));
-						else if (cur_dt.getType() == KTimeType_Utc)
+						else if (cur_dt.GetType() == KTimeType_Utc)
 							throw TimeZoneAmbigMultiException(cur_rule_dt, BasicDateTime<>(cur_rule_inst - math::MSEC(), KTimeType_Utc));
 					}
 				}
@@ -243,19 +243,19 @@ namespace smalltime
 			if (next_rule.first)
 			{
 				// Thier cannot be a gap in UTC so no need to check!
-				auto next_rule_dt = CalcTransitionWallOrUtc(next_rule.first, next_rule.second, cur_rule_dt.getType());
+				auto next_rule_dt = CalcTransitionWallOrUtc(next_rule.first, next_rule.second, cur_rule_dt.GetType());
 				auto offset_diff = next_rule.first->offset - cur_rule->offset;
-				auto next_rule_inst = next_rule_dt.getRd() + offset_diff;
+				auto next_rule_inst = next_rule_dt.GetFixed() + offset_diff;
 
-				if ((cur_dt.getRd() >= next_rule_inst || AlmostEqualUlps(cur_dt.getRd(), next_rule_inst, 11)) && cur_dt.getRd() < next_rule_dt.getRd())
+				if ((cur_dt.GetFixed() >= next_rule_inst || AlmostEqualUlps(cur_dt.GetFixed(), next_rule_inst, 11)) && cur_dt.GetFixed() < next_rule_dt.GetFixed())
 				{
 					// Ambiguous multiple local times
-					if (choose == Choose::Earliest)
+					if (choose == Choose::KEarliest)
 						return cur_rule;
-					else if (choose == Choose::Latest)
+					else if (choose == Choose::KLatest)
 						return next_rule.first;
 					else
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(next_rule_inst, KTimeType_Wall), BasicDateTime<>(next_rule_dt.getRd() - math::MSEC(), KTimeType_Wall));
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(next_rule_inst, KTimeType_Wall), BasicDateTime<>(next_rule_dt.GetFixed() - math::MSEC(), KTimeType_Wall));
 				}
 			}
 			
@@ -354,7 +354,7 @@ namespace smalltime
 			int index = 0;
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				buffer[index] = CalcTransitionFast(&rule_arr_[i], year).getRd();
+				buffer[index] = CalcTransitionFast(&rule_arr_[i], year).GetFixed();
 				++index;
 			}
 
@@ -379,7 +379,7 @@ namespace smalltime
 		BasicDateTime<> RuleGroup::CalcTransitionWall(const Rule* const rule, int year)
 		{
 			auto rule_transition = CalcTransitionFast(rule, year);
-			if (rule_transition.getRd() == 0.0)
+			if (rule_transition.GetFixed() == 0.0)
 				return rule_transition;
 
 			//InitTransitionData(year);
@@ -396,7 +396,7 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD wall_rule_transition = rule_transition.getRd() + save;
+				RD wall_rule_transition = rule_transition.GetFixed() + save;
 				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
 
 			}
@@ -408,7 +408,7 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD wall_rule_transition = rule_transition.getRd() + zone_->zone_offset + save;
+				RD wall_rule_transition = rule_transition.GetFixed() + zone_->zone_offset + save;
 				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
 			}
 		}
@@ -419,7 +419,7 @@ namespace smalltime
 		BasicDateTime<> RuleGroup::CalcTransitionUtc(const Rule* const rule, int year)
 		{
 			auto rule_transition = CalcTransitionFast(rule, year, KTimeType_Utc);
-			if (rule_transition.getRd() == 0.0)
+			if (rule_transition.GetFixed() == 0.0)
 				return rule_transition;
 
 			//InitTransitionData(year);
@@ -429,7 +429,7 @@ namespace smalltime
 			}
 			else if (rule->at_type == KTimeType_Std)
 			{
-				RD utc_rule_transition = rule_transition.getRd() - zone_->zone_offset;
+				RD utc_rule_transition = rule_transition.GetFixed() - zone_->zone_offset;
 				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
 
 			}
@@ -441,7 +441,7 @@ namespace smalltime
 				if (pr.first)
 					save = pr.first->offset;
 
-				RD utc_rule_transition = rule_transition.getRd() - zone_->zone_offset - save;
+				RD utc_rule_transition = rule_transition.GetFixed() - zone_->zone_offset - save;
 				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
 			}
 
@@ -456,14 +456,14 @@ namespace smalltime
 				return BasicDateTime<>(0.0, time_type);
 
 			//HMS hms = { 0, 0, 0, 0 };
-			HMS hms = math::hmsFromRd(rule->at_time);
+			HMS hms = math::HmsFromFixed(rule->at_time);
 
 			if (rule->day_type == KDayType_Dom)
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], time_type);
 			else if (rule->day_type == KDayType_SunGE)
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::SunOnOrAfter, time_type);
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::KSunOnOrAfter, time_type);
 			else
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::LastSun, time_type);
+				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::KLastSun, time_type);
 		}
 	}
 }

@@ -14,26 +14,26 @@ namespace smalltime
 		class Parser
 		{
 		public:
-			bool parseRules(std::vector<RuleData>& vRuleData, std::ifstream& src);
-			bool parseZones(std::vector<ZoneData>& vZoneData, std::ifstream& src);
-			bool parseLinks(std::vector<LinkData>& vLinkData, std::ifstream& src);
+			bool ParseRules(std::vector<RuleData>& vec_ruledata, std::ifstream& src);
+			bool ParseZones(std::vector<ZoneData>& vec_zonedata, std::ifstream& src);
+			bool ParseLinks(std::vector<LinkData>& vec_linkdata, std::ifstream& src);
 
 		private:
 			enum class LineType : char
 			{
-				Rule,
-				ZoneHead,
-				ZoneBody,
-				Link,
-				Comment
+				KRule,
+				KZoneHead,
+				KZoneBody,
+				KLink,
+				KComment
 			};
 
-			bool extractRule(std::vector<RuleData>& vRuleData, const std::string& lineStr);
-			bool extractZone(std::vector<ZoneData>& vZoneData, const std::string& lineStr);
-			bool extractLink(std::vector<LinkData>& vLinkData, const std::string& lineStr);
+			bool ExtractRule(std::vector<RuleData>& vec_ruledata, const std::string& line_str);
+			bool ExtractZone(std::vector<ZoneData>& vec_zonedata, const std::string& line_str);
+			bool ExtractLink(std::vector<LinkData>& vec_linkdata, const std::string& line_str);
 
-			LineType getLineType(const std::string& lineStr);
-			std::string formatZoneLine(const std::string lineStr);
+			LineType GetLineType(const std::string& line_str);
+			std::string FormatZoneLine(const std::string line_str);
 
 		};
 	}

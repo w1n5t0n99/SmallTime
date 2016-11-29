@@ -102,7 +102,7 @@ namespace smalltime
 		//================================================
 		Rules TzdbHeaderConnector::FindRules(const std::string& name)
 		{
-			auto rule_id = math::getUniqueID(name);
+			auto rule_id = math::GetUniqueID(name);
 			Rules searchRules = { rule_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KRuleLookupArray.begin(), KRuleLookupArray.end(), searchRules, RULE_CMP);
@@ -133,7 +133,7 @@ namespace smalltime
 		//================================================
 		Zones TzdbHeaderConnector::FindZones(const std::string& name)
 		{
-			auto zone_id = math::getUniqueID(name);
+			auto zone_id = math::GetUniqueID(name);
 			Zones searchZones = { zone_id, 0, 0 };
 
 			const auto& foundIt = std::lower_bound(KZoneLookupArray.begin(), KZoneLookupArray.end(), searchZones, ZONE_CMP);

@@ -10,15 +10,15 @@ namespace smalltime
 	{
 		// Time globals
 		//Milliseconds in standard day, no leap second applied
-		static constexpr RD MILLISECONDS_IN_DAY = 86400000.0;
-		static constexpr RD MILLISECONDS_IN__HOUR = MILLISECONDS_IN_DAY / 24.0;
-		static constexpr RD MILLISECONDS_IN_MINUTE = MILLISECONDS_IN__HOUR / 60.0;
-		static constexpr RD MILLISECONDS_IN_SECOND = MILLISECONDS_IN_MINUTE / 60.0;
+		static constexpr RD KMILLISECONDS_IN_DAY = 86400000.0;
+		static constexpr RD KMILLISECONDS_IN__HOUR = KMILLISECONDS_IN_DAY / 24.0;
+		static constexpr RD KMILLISECONDS_IN_MINUTE = KMILLISECONDS_IN__HOUR / 60.0;
+		static constexpr RD KMILLISECONDS_IN_SECOND = KMILLISECONDS_IN_MINUTE / 60.0;
 
 		//========================================================================
 		// Extract fractional portion of FixedDateTime double
 		//========================================================================
-		inline RD extractTime(const RD& dtm)
+		inline RD ExtractTime(const RD& dtm)
 		{
 			return dtm - std::floor(dtm);
 		}
@@ -26,10 +26,10 @@ namespace smalltime
 		//===========================================
 		// convert time fields to fixed format
 		//===========================================
-		constexpr RD rdFromTime(int h, int m, int s, int ms)
+		constexpr RD FixedFromTime(int h, int m, int s, int ms)
 		{
 			// HoursInMillis + MinsInMillis + SecsInMillis + Millis / MillisInDay
-			return ((h * 60.0 * 60.0 * 1000.0) + (m * 60 * 1000.0) + (s * 1000.0) + ms) / MILLISECONDS_IN_DAY;
+			return ((h * 60.0 * 60.0 * 1000.0) + (m * 60 * 1000.0) + (s * 1000.0) + ms) / KMILLISECONDS_IN_DAY;
 		}
 
 		//============================================
@@ -37,7 +37,7 @@ namespace smalltime
 		//============================================
 		constexpr RD MSEC()
 		{
-			return rdFromTime(0, 0, 0, 1);
+			return FixedFromTime(0, 0, 0, 1);
 		}
 
 		//============================================
@@ -45,7 +45,7 @@ namespace smalltime
 		//============================================
 		constexpr RD SEC()
 		{
-			return rdFromTime(0, 0, 1, 0);
+			return FixedFromTime(0, 0, 1, 0);
 		}
 
 		//============================================
@@ -53,7 +53,7 @@ namespace smalltime
 		//===========================================
 		constexpr RD MIN()
 		{
-			return rdFromTime(0, 1, 0, 0);
+			return FixedFromTime(0, 1, 0, 0);
 		}
 
 		//============================================
@@ -61,10 +61,10 @@ namespace smalltime
 		//===========================================
 		constexpr RD HOUR()
 		{
-			return rdFromTime(1, 0, 0, 0);
+			return FixedFromTime(1, 0, 0, 0);
 		}
 
-		HMS hmsFromRd(RD rd);
+		HMS HmsFromFixed(RD rd);
 	}
 }
 
