@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
-#include <BasicDateTime.h>
+#include <basic_datetime.h>
 
 namespace smalltime
 {

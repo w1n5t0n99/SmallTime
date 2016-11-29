@@ -2,7 +2,7 @@
 #ifndef _TIMEMATH_
 #define _TIMEMATH_
 
-#include "CoreDecls.h"
+#include "core_decls.h"
 
 namespace smalltime
 {

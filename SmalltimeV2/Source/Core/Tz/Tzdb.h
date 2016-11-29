@@ -1,7 +1,7 @@
 #pragma once
 #ifndef _TZDB_
 #define _TZDB_
-#include "TzDecls.h"
+#include "tz_decls.h"
 #include <cinttypes>
 #include <array>
 
@@ -17,8 +17,8 @@ static const RD KMaxRuleOffset = 0.0833333;
 static const int KMaxZoneSize = 19;
 static const int KMaxRuleSize = 86;
 
-thread_local static std::array<RD, KMaxZoneSize * 3> KZonePool;
-thread_local static std::array<RD, KMaxRuleSize * 3> KRulePool;
+thread_local static std::array<RD, KMaxZoneSize * 3> zone_pool;
+thread_local static std::array<RD, KMaxRuleSize * 3> rule_pool;
 
 static constexpr std::array<Zone,1969> KZoneArray = {
 Zone {2390113447, 0, 3651694.9999999884, 3651695.2083333218, KTimeType_Wall, -0.20833333333333334, 4995428977627639856},

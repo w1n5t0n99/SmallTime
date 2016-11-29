@@ -2,9 +2,9 @@
 #ifndef _SRCBUILDER_
 #define _SRCBUILDER_
 
-#include <CoreDecls.h>
-#include <TzDecls.h>
-#include "../CompDecls.h"
+#include <core_decls.h>
+#include <tz_decls.h>
+#include "../comp_decls.h"
 
 #include <vector>
 #include <fstream>

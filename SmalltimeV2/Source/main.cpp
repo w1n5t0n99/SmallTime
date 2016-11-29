@@ -2,10 +2,10 @@
 #include <vector>
 #include <array>
 
-#include "Core\DateTime\LocalDateTime.h"
-#include <BasicDateTime.h>
-#include <MathUtils.h>
-#include <TimeMath.h>
+#include "Core\DateTime\local_datetime.h"
+#include <basic_datetime.h>
+#include <core_math.h>
+#include <time_math.h>
 #include "Utils\StlPerfCounter.h"
 
 #include <rule_group.h>

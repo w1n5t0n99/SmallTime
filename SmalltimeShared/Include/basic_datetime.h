@@ -2,9 +2,9 @@
 #ifndef _BASICDATETIME_
 #define _BASICDATETIME_
 
-#include "CoreDecls.h"
-#include "TzDecls.h"
-#include "IsoChronology.h"
+#include "core_decls.h"
+#include "tz_decls.h"
+#include "iso_chronology.h"
 
 namespace smalltime
 {

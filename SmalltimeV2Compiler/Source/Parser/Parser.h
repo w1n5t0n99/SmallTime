@@ -2,8 +2,8 @@
 #ifndef _PARSER_
 #define _PARSER_
 
-#include <CoreDecls.h>
-#include "../CompDecls.h"
+#include <core_decls.h>
+#include "../comp_decls.h"
 
 #include <fstream>
 

@@ -2,7 +2,7 @@
 #ifndef _TZDECLS_
 #define _TZDECLS_
 
-#include "CoreDecls.h"
+#include "core_decls.h"
 #include <cinttypes>
 
 namespace smalltime

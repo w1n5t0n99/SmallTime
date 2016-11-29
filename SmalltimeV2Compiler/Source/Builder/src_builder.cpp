@@ -1,5 +1,5 @@
-#include "SrcBuilder.h"
-#include <MathUtils.h>
+#include "src_builder.h"
+#include <core_math.h>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -66,7 +66,7 @@ namespace smalltime
 			out_file << "#pragma once\n";
 			out_file << "#ifndef _TZDB_\n";
 			out_file << "#define _TZDB_\n";
-			out_file << "#include \"TzDecls.h\"\n";
+			out_file << "#include \"tz_decls.h\"\n";
 			out_file << "#include <cinttypes>\n";
 			out_file << "#include <array>\n";
 			out_file << "\nnamespace smalltime\n";
@@ -113,8 +113,8 @@ namespace smalltime
 			out_file << "\nstatic const int KMaxZoneSize = " << tzdb_meta.max_zone_size << ";";
 			out_file << "\nstatic const int KMaxRuleSize = " << tzdb_meta.max_rule_size << ";";
 
-			out_file << "\n\nthread_local static std::array<RD, KMaxZoneSize * 3> KZonePool;";
-			out_file << "\nthread_local static std::array<RD, KMaxRuleSize * 3> KRulePool;";
+			out_file << "\n\nthread_local static std::array<RD, KMaxZoneSize * 3> zone_pool;";
+			out_file << "\nthread_local static std::array<RD, KMaxRuleSize * 3> rule_pool;";
 
 			out_file << "\n\nstatic constexpr std::array<Zone," << vec_zone.size() << "> KZoneArray = {\n";
 			// Add zones

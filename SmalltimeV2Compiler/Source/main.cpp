@@ -4,11 +4,11 @@
 #include <vector>
 #include <memory>
 
-#include "CompDecls.h"
-#include "Parser\Parser.h"
-#include "Generator\Generator.h"
-#include "Builder\SrcBuilder.h"
-#include <BasicDateTime.h>
+#include "comp_decls.h"
+#include "Parser\parser.h"
+#include "Generator\generator.h"
+#include "Builder\src_builder.h"
+#include <basic_datetime.h>
 #include <itzdbconnector.h>
 #include "tzdb_raw_connector.h"
 

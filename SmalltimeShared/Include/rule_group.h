@@ -2,9 +2,9 @@
 #ifndef _RULEGROUP_
 #define _RULEGROUP_
 
-#include <CoreDecls.h>
-#include <TzDecls.h>
-#include <BasicDateTime.h>
+#include <core_decls.h>
+#include <tz_decls.h>
+#include <basic_datetime.h>
 #include <itzdbconnector.h>
 #include <memory>
 

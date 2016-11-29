@@ -19,32 +19,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SmalltimeShared\Source\CalMath.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\IsoChronology.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\MathUtils.cpp" />
+    <ClCompile Include="..\SmalltimeShared\Source\cal_math.cpp" />
+    <ClCompile Include="..\SmalltimeShared\Source\iso_chronology.cpp" />
+    <ClCompile Include="..\SmalltimeShared\Source\core_math.cpp" />
     <ClCompile Include="..\SmalltimeShared\Source\rule_group.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\TimeMath.cpp" />
-    <ClCompile Include="Source\Builder\SrcBuilder.cpp" />
-    <ClCompile Include="Source\Generator\Generator.cpp" />
+    <ClCompile Include="..\SmalltimeShared\Source\time_math.cpp" />
+    <ClCompile Include="Source\Builder\src_builder.cpp" />
+    <ClCompile Include="Source\Generator\generator.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Parser\Parser.cpp" />
+    <ClCompile Include="Source\Parser\parser.cpp" />
     <ClCompile Include="Source\tzdb_raw_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SmalltimeShared\Include\BasicDateTime.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\CalMath.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\ChronoDecls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\CoreDecls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\IsoChronology.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\basic_datetime.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\cal_math.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\chrono_decls.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\core_decls.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\core_math.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\iso_chronology.h" />
     <ClInclude Include="..\SmalltimeShared\Include\itzdbconnector.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\MathUtils.h" />
     <ClInclude Include="..\SmalltimeShared\Include\rule_group.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\TimeMath.h" />
+    <ClInclude Include="..\SmalltimeShared\Include\time_math.h" />
     <ClInclude Include="..\SmalltimeShared\Include\TzDecls.h" />
-    <ClInclude Include="Source\Builder\SrcBuilder.h" />
-    <ClInclude Include="Source\CompDecls.h" />
-    <ClInclude Include="Source\Generator\Generator.h" />
-    <ClInclude Include="Source\Parser\Parser.h" />
+    <ClInclude Include="Source\Builder\src_builder.h" />
+    <ClInclude Include="Source\comp_decls.h" />
+    <ClInclude Include="Source\Generator\generator.h" />
+    <ClInclude Include="Source\Parser\parser.h" />
     <ClInclude Include="Source\tzdb_raw_connector.h" />
   </ItemGroup>
   <ItemGroup>

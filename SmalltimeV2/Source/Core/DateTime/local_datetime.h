@@ -2,8 +2,8 @@
 #ifndef _LOCALDATETIME_
 #define _LOCALDATETIME_
 
-#include <CoreDecls.h>
-#include <IsoChronology.h>
+#include <core_decls.h>
+#include <iso_chronology.h>
 #include <smalltime_exceptions.h>
 
 #include <array>

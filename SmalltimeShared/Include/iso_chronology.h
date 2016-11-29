@@ -2,7 +2,7 @@
 #ifndef _ISOCHRONOLOGY_
 #define _ISOCHRONOLOGY_
 
-#include "CoreDecls.h"
+#include "core_decls.h"
 
 namespace smalltime
 {

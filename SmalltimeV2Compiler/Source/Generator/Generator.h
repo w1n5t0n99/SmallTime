@@ -2,12 +2,12 @@
 #ifndef _GENERATOR_
 #define _GENERATOR_
 
-#include <CoreDecls.h>
-#include <TzDecls.h>
-#include <BasicDateTime.h>
+#include <core_decls.h>
+#include <tz_decls.h>
+#include <basic_datetime.h>
 #include <itzdbconnector.h>
 #include <memory>
-#include "../CompDecls.h"
+#include "../comp_decls.h"
 
 namespace smalltime
 {

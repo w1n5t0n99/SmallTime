@@ -1,7 +1,7 @@
-#include "Generator.h"
-#include <BasicDateTime.h>
-#include <MathUtils.h>
-#include <TimeMath.h>
+#include "generator.h"
+#include <basic_datetime.h>
+#include <core_math.h>
+#include <time_math.h>
 #include <sstream>
 #include <array>
 #include <iomanip>

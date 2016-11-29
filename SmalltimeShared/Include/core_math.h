@@ -2,7 +2,7 @@
 #ifndef _MATHUTILS_
 #define _MATHUTILS_
 
-#include "CoreDecls.h"
+#include "core_decls.h"
 #include <cctype>
 #include <cmath>
 

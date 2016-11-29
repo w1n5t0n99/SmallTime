@@ -2,7 +2,7 @@
 #include "rule_group.h"
 #include "smalltime_exceptions.h"
 #include "floatutil.h"
-#include <TimeMath.h>
+#include <time_math.h>
 #include <iostream>
 #include <assert.h>
 #include <array>

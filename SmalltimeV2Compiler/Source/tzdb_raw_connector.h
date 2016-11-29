@@ -2,9 +2,9 @@
 #ifndef _TZDB_RAW_CONNECTOR_
 #define _TZDB_RAW_CONNECTOR_
 
-#include <CoreDecls.h>
-#include <TzDecls.h>
-#include "CompDecls.h"
+#include <core_decls.h>
+#include <tz_decls.h>
+#include "comp_decls.h"
 #include <itzdbconnector.h>
 #include <vector>
 #include <array>

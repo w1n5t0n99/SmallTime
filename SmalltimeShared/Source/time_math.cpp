@@ -1,5 +1,5 @@
-#include "../Include/TimeMath.h"
-#include "../Include/MathUtils.h"
+#include "../Include/time_math.h"
+#include "../Include/core_math.h"
 
 namespace smalltime
 {

@@ -1,6 +1,6 @@
 #include "tzdb_header_connector.h"
 #include "Tzdb.h"
-#include <MathUtils.h>
+#include <core_math.h>
 
 namespace smalltime
 {
@@ -44,9 +44,9 @@ namespace smalltime
 		RD* TzdbHeaderConnector::GetTransitionPool(const TransitionPool buffer_type)
 		{
 			if (buffer_type == TransitionPool::KRule)
-				return KRulePool.data();
+				return rule_pool.data();
 			else
-				return KZonePool.data();
+				return zone_pool.data();
 		}
 
 		//========================================
@@ -55,9 +55,9 @@ namespace smalltime
 		void TzdbHeaderConnector::FillTransitionPool(const TransitionPool buffer_type, const RD data)
 		{
 			if (buffer_type == TransitionPool::KRule)
-				std::fill(KRulePool.begin(), KRulePool.end(), data);
+				std::fill(rule_pool.begin(), rule_pool.end(), data);
 			else
-				std::fill(KZonePool.begin(), KZonePool.end(), data);
+				std::fill(zone_pool.begin(), zone_pool.end(), data);
 
 		}
 
@@ -67,9 +67,9 @@ namespace smalltime
 		void TzdbHeaderConnector::FillTransitionPool(const TransitionPool buffer_type, int size, const RD data)
 		{
 			if (buffer_type == TransitionPool::KRule)
-				std::fill(KRulePool.begin(), KRulePool.begin() + size, data);
+				std::fill(rule_pool.begin(), rule_pool.begin() + size, data);
 			else
-				std::fill(KZonePool.begin(), KZonePool.begin() + size, data);
+				std::fill(zone_pool.begin(), zone_pool.begin() + size, data);
 
 		}
 
@@ -79,9 +79,9 @@ namespace smalltime
 		void TzdbHeaderConnector::ClearTransitionPool(const TransitionPool buffer_type)
 		{
 			if (buffer_type == TransitionPool::KRule)
-				std::fill(KRulePool.begin(), KRulePool.end(), 0.0);
+				std::fill(rule_pool.begin(), rule_pool.end(), 0.0);
 			else
-				std::fill(KZonePool.begin(), KZonePool.end(), 0.0);
+				std::fill(zone_pool.begin(), zone_pool.end(), 0.0);
 
 		}
 
@@ -91,9 +91,9 @@ namespace smalltime
 		void TzdbHeaderConnector::ClearTransitionPool(const TransitionPool buffer_type, int size)
 		{
 			if (buffer_type == TransitionPool::KRule)
-				std::fill(KRulePool.begin(), KRulePool.begin() + size, 0.0);
+				std::fill(rule_pool.begin(), rule_pool.begin() + size, 0.0);
 			else
-				std::fill(KZonePool.begin(), KZonePool.begin() + size, 0.0);
+				std::fill(zone_pool.begin(), zone_pool.begin() + size, 0.0);
 
 		}
 

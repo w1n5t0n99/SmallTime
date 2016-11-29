@@ -2,7 +2,7 @@
 #ifndef _COMPDECLS_
 #define _COMPDECLS_
 
-#include <CoreDecls.h>
+#include <core_decls.h>
 #include <string>
 #include <vector>
 

@@ -1,5 +1,5 @@
 #include "tzdb_raw_connector.h"
-#include <MathUtils.h>
+#include <core_math.h>
 
 namespace smalltime
 {

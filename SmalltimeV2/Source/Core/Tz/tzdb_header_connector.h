@@ -2,8 +2,8 @@
 #ifndef _TZDBHEADERCONNECTOR_
 #define _TZDBHEADERCONNECTOR_
 
-#include <CoreDecls.h>
-#include <TzDecls.h>
+#include <core_decls.h>
+#include <tz_decls.h>
 #include <itzdbconnector.h>
 
 namespace smalltime

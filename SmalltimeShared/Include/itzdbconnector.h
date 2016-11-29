@@ -2,8 +2,8 @@
 #ifndef _ITZDBCONNECTOR_
 #define _ITZDBCONNECTOR_
 
-#include "CoreDecls.h"
-#include "TzDecls.h"
+#include "core_decls.h"
+#include "tz_decls.h"
 
 namespace smalltime
 {

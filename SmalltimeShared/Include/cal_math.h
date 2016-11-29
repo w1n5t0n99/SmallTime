@@ -2,8 +2,8 @@
 #ifndef _CALMATH_
 #define _CALMATH_
 
-#include "CoreDecls.h"
-#include "MathUtils.h"
+#include "core_decls.h"
+#include "core_math.h"
 
 namespace smalltime
 {

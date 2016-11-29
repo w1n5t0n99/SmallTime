@@ -2,7 +2,7 @@
 #ifndef _CHRONODECLS_
 #define _CHRONODECLS_
 
-#include "CoreDecls.h"
+#include "core_decls.h"
 #include <array>
 
 namespace smalltime
