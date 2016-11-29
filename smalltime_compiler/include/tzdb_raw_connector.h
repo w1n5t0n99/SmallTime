@@ -5,7 +5,7 @@
 #include <core_decls.h>
 #include <tz_decls.h>
 #include "comp_decls.h"
-#include <itzdbconnector.h>
+#include <tzdb_connector_interface.h>
 #include <vector>
 #include <array>
 
@@ -13,7 +13,7 @@ namespace smalltime
 {
 	namespace comp
 	{
-		class TzdbRawConnector : public tz::ITzdbConnector
+		class TzdbRawConnector : public tz::TzdbConnectorInterface
 		{
 		public:
 			TzdbRawConnector(const MetaData& tzdb_meta, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Rule>& vec_rule,

@@ -14,7 +14,7 @@ namespace smalltime
 		//=======================================
 		// Ctor
 		//======================================
-		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<ITzdbConnector> tzdb_connector) : zone_(zone),
+		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) : zone_(zone),
 			rules_(tzdb_connector->FindRules(rule_id)), rule_arr_(tzdb_connector->GetRuleHandle()), current_year_(0), primary_year_(0),
 			previous_year_(0), next_year_(0), primary_ptr_(nullptr), previous_ptr_(nullptr), next_ptr_(nullptr), 
 			tzdb_connector_(tzdb_connector)

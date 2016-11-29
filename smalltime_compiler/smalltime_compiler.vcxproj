@@ -26,10 +26,10 @@
     <ClInclude Include="..\smalltime_core\include\core_math.h" />
     <ClInclude Include="..\smalltime_core\include\float_util.h" />
     <ClInclude Include="..\smalltime_core\include\iso_chronology.h" />
-    <ClInclude Include="..\smalltime_core\include\itzdbconnector.h" />
     <ClInclude Include="..\smalltime_core\include\rule_group.h" />
     <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h" />
     <ClInclude Include="..\smalltime_core\include\time_math.h" />
+    <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h" />
     <ClInclude Include="..\smalltime_core\include\tz_decls.h" />
     <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h" />
     <ClInclude Include="..\smalltime_core\include\zone_group.h" />

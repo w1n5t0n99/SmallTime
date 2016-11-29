@@ -13,7 +13,7 @@ namespace smalltime
 		//=============================================
 		// Ctor
 		//=============================================
-		ZoneGroup::ZoneGroup(Zones zones, std::shared_ptr<ITzdbConnector> tzdb_connector) : tzdb_connector_(tzdb_connector),  zones_(zones),
+		ZoneGroup::ZoneGroup(Zones zones, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) : tzdb_connector_(tzdb_connector),  zones_(zones),
 			zone_arr_(tzdb_connector->GetZoneHandle())
 		{
 

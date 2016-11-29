@@ -5,7 +5,7 @@
 #include "core_decls.h"
 #include "tz_decls.h"
 #include "basic_datetime.h"
-#include "itzdbconnector.h"
+#include "tzdb_connector_interface.h"
 #include <memory>
 
 namespace smalltime
@@ -15,7 +15,7 @@ namespace smalltime
 		class RuleGroup
 		{
 		public:
-			RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<ITzdbConnector> tzdb_connector);
+			RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
 
@@ -42,7 +42,7 @@ namespace smalltime
 			const Zone* const zone_;
 			int current_year_, primary_year_, previous_year_, next_year_;
 			RD* primary_ptr_, *previous_ptr_, *next_ptr_;
-			std::shared_ptr<ITzdbConnector> tzdb_connector_;
+			std::shared_ptr<TzdbConnectorInterface> tzdb_connector_;
 		};
 
 	}

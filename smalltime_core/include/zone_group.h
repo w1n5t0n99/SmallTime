@@ -5,7 +5,7 @@
 #include "core_decls.h"
 #include "tz_decls.h"
 #include "basic_datetime.h"
-#include "itzdbconnector.h"
+#include "tzdb_connector_interface.h"
 #include <memory>
 
 namespace smalltime
@@ -15,7 +15,7 @@ namespace smalltime
 		class ZoneGroup
 		{
 		public:
-			ZoneGroup(Zones zones, std::shared_ptr<ITzdbConnector> tzdb_connector);
+			ZoneGroup(Zones zones, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
 
 			const Zone* const FindActiveZone(BasicDateTime<> cur_dt, Choose choose);
 
@@ -27,7 +27,7 @@ namespace smalltime
 		private:
 			const Zone* const zone_arr_;
 			const Zones zones_;
-			std::shared_ptr<ITzdbConnector> tzdb_connector_;
+			std::shared_ptr<TzdbConnectorInterface> tzdb_connector_;
 
 		};
 	}

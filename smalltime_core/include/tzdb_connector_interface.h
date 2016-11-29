@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _ITZDBCONNECTOR_
-#define _ITZDBCONNECTOR_
+#ifndef _TZDB_CONNECTOR_INTERFACE_
+#define _TZDB_CONNECTOR_INTERFACE_
 
 #include "core_decls.h"
 #include "tz_decls.h"
@@ -15,7 +15,7 @@ namespace smalltime
 			KZone,
 		};
 
-		class ITzdbConnector
+		class TzdbConnectorInterface
 		{
 		public:
 			virtual const Rule* GetRuleHandle() = 0;

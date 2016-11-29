@@ -9,7 +9,7 @@
 #include "..\include\generator.h"
 #include "..\include\src_builder.h"
 #include <basic_datetime.h>
-#include <itzdbconnector.h>
+#include <tzdb_connector_interface.h>
 #include "..\include\tzdb_raw_connector.h"
 
 using namespace smalltime;

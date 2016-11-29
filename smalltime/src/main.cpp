@@ -11,7 +11,7 @@
 #include <rule_group.h>
 #include <zone_group.h>
 #include "../include/tzdb_header_connector.h"
-#include <itzdbconnector.h>
+#include <tzdb_connector_interface.h>
 #include <memory>
 #include <float_util.h>
 #include <inttypes.h>
@@ -35,8 +35,8 @@ int main()
 	std::cout << "Rules ID: " << rules.rule_id << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
 	std::cout << "Zones ID: " << zones.zone_id << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
 
-	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
-	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::ITzdbConnector, tz::TzdbHeaderConnector>(tzdb_connector));
+	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
+	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
 
 
 //	BasicDateTime<> dt0(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);

@@ -4,13 +4,13 @@
 
 #include <core_decls.h>
 #include <tz_decls.h>
-#include <itzdbconnector.h>
+#include <tzdb_connector_interface.h>
 
 namespace smalltime
 {
 	namespace tz
 	{
-		class TzdbHeaderConnector : public ITzdbConnector
+		class TzdbHeaderConnector : public TzdbConnectorInterface
 		{
 		public:
 			virtual const Rule* GetRuleHandle() override;

@@ -277,7 +277,7 @@ namespace smalltime
 		//=======================================================
 		// Process zone transition times
 		//=======================================================
-		bool Generator::PostProcessZones(std::vector<tz::Zone>& vec_zone, std::shared_ptr<tz::ITzdbConnector> tzdb_connector)
+		bool Generator::PostProcessZones(std::vector<tz::Zone>& vec_zone, std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector)
 		{
 			// util_wall stores temp until 
 			//until_utc stores temp rule offset

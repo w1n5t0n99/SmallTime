@@ -51,9 +51,6 @@
     <ClInclude Include="include\local_datetime.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\smalltime_core\include\itzdbconnector.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\smalltime_core\include\iso_chronology.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -80,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h">
       <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
