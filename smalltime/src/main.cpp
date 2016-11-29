@@ -2,18 +2,18 @@
 #include <vector>
 #include <array>
 
-#include "Core\DateTime\local_datetime.h"
+#include "../include/local_datetime.h"
 #include <basic_datetime.h>
 #include <core_math.h>
 #include <time_math.h>
-#include "Utils\StlPerfCounter.h"
+#include <util/stl_perf_counter.h>
 
 #include <rule_group.h>
 #include <zone_group.h>
-#include "Core\\Tz\tzdb_header_connector.h"
+#include "../include/tzdb_header_connector.h"
 #include <itzdbconnector.h>
 #include <memory>
-#include <FloatUtil.h>
+#include <float_util.h>
 #include <inttypes.h>
 
 using namespace smalltime;

@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="include\util">
+      <UniqueIdentifier>{7d4ba2ba-e87f-4dc0-ad0c-ce105f3a22ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{a010302e-cd07-4ff8-8ba0-79abd6763db2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\smalltime_core\include\basic_datetime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\cal_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\chrono_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\core_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\core_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\float_util.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\iso_chronology.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\itzdbconnector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\rule_group.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\time_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\tz_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\zone_group.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\comp_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Generator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Parser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\src_builder.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tzdb_raw_connector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\smalltime_core\src\cal_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\core_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\rule_group.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\time_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\zone_group.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Generator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Parser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\src_builder.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tzdb_raw_connector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

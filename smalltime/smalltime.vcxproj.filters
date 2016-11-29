@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\smalltime_core\src\cal_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\core_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\rule_group.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\time_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tzdb_header_connector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\zone_group.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\smalltime_core\include\chrono_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\cal_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\basic_datetime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\core_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\core_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\float_util.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\local_datetime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\itzdbconnector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\iso_chronology.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\time_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Tzdb.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\rule_group.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tzdb_header_connector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\zone_group.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\tz_decls.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{03680087-f80e-46aa-8803-9262d4a1e319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{2898a694-b827-45bf-ba49-3a67d9edb422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\util">
+      <UniqueIdentifier>{2c911448-470a-4ff3-9e60-f21ff9dbd360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{74c96f00-3888-4f54-ac28-ef9346ce7b36}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

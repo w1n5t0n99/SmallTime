@@ -1,7 +1,7 @@
-#include "..\Include\iso_chronology.h"
-#include "..\Include\chrono_decls.h"
-#include "..\Include\cal_math.h"
-#include "..\Include\time_math.h"
+#include "../include/iso_chronology.h"
+#include "../include/chrono_decls.h"
+#include "../include/cal_math.h"
+#include "../include/time_math.h"
 
 namespace smalltime
 {

@@ -1,8 +1,8 @@
 
-#include "rule_group.h"
-#include "smalltime_exceptions.h"
-#include "floatutil.h"
-#include <time_math.h>
+#include "../include/rule_group.h"
+#include "../include/smalltime_exceptions.h"
+#include "../include/float_util.h"
+#include "../include/time_math.h"
 #include <iostream>
 #include <assert.h>
 #include <array>

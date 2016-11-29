@@ -19,39 +19,40 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SmalltimeShared\Source\cal_math.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\core_math.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\iso_chronology.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\rule_group.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\time_math.cpp" />
-    <ClCompile Include="..\SmalltimeShared\Source\zone_group.cpp" />
-    <ClCompile Include="Source\Core\Tz\tzdb_header_connector.cpp" />
-    <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Utils\StlPerfCounter.cpp" />
+    <ClCompile Include="..\smalltime_core\src\cal_math.cpp" />
+    <ClCompile Include="..\smalltime_core\src\core_math.cpp" />
+    <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp" />
+    <ClCompile Include="..\smalltime_core\src\rule_group.cpp" />
+    <ClCompile Include="..\smalltime_core\src\time_math.cpp" />
+    <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp" />
+    <ClCompile Include="..\smalltime_core\src\zone_group.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\tzdb_header_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SmalltimeShared\Include\basic_datetime.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\cal_math.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\chrono_decls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\core_decls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\floatutil.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\smalltime_exceptions.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\iso_chronology.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\itzdbconnector.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\core_math.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\rule_group.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\time_math.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\tz_decls.h" />
-    <ClInclude Include="..\SmalltimeShared\Include\zone_group.h" />
-    <ClInclude Include="Source\Core\DateTime\local_datetime.h" />
-    <ClInclude Include="Source\Core\Tz\Tzdb.h" />
-    <ClInclude Include="Source\Core\Tz\tzdb_header_connector.h" />
-    <ClInclude Include="Source\Utils\StlPerfCounter.h" />
+    <ClInclude Include="..\smalltime_core\include\basic_datetime.h" />
+    <ClInclude Include="..\smalltime_core\include\cal_math.h" />
+    <ClInclude Include="..\smalltime_core\include\chrono_decls.h" />
+    <ClInclude Include="..\smalltime_core\include\core_decls.h" />
+    <ClInclude Include="..\smalltime_core\include\core_math.h" />
+    <ClInclude Include="..\smalltime_core\include\float_util.h" />
+    <ClInclude Include="..\smalltime_core\include\iso_chronology.h" />
+    <ClInclude Include="..\smalltime_core\include\itzdbconnector.h" />
+    <ClInclude Include="..\smalltime_core\include\rule_group.h" />
+    <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h" />
+    <ClInclude Include="..\smalltime_core\include\time_math.h" />
+    <ClInclude Include="..\smalltime_core\include\tz_decls.h" />
+    <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h" />
+    <ClInclude Include="..\smalltime_core\include\zone_group.h" />
+    <ClInclude Include="include\local_datetime.h" />
+    <ClInclude Include="include\Tzdb.h" />
+    <ClInclude Include="include\tzdb_header_connector.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{17FADA86-730A-4A65-9EFB-EA7E3005D4CA}</ProjectGuid>
     <RootNamespace>SmalltimeV2</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>smalltime</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -99,12 +100,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)..\..\..\SmalltimeShared\Include;C:\Users\relam\Documents\Visual Studio 2015\Projects\SmalltimeV2Master\SmalltimeShared;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\..\..\SmalltimeShared\Source;C:\Users\relam\Documents\Visual Studio 2015\Projects\SmalltimeV2Master\SmalltimeShared;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\include;$(ProjectDir)..\smalltime_core\include;C:\Users\relam\Documents\Visual Studio 2015\Projects\SmalltimeV2Master\SmalltimeShared;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\smalltime_core\src;C:\Users\relam\Documents\Visual Studio 2015\Projects\SmalltimeV2Master\SmalltimeShared;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\SmalltimeShared\Include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\SmalltimeShared\Source;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\smalltime_core\include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\smalltime_core\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)..\..\..\SmalltimeShared\Include;$(IncludePath)</IncludePath>

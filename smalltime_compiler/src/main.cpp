@@ -4,13 +4,13 @@
 #include <vector>
 #include <memory>
 
-#include "comp_decls.h"
-#include "Parser\parser.h"
-#include "Generator\generator.h"
-#include "Builder\src_builder.h"
+#include "..\include\comp_decls.h"
+#include "..\include\Parser.h"
+#include "..\include\generator.h"
+#include "..\include\src_builder.h"
 #include <basic_datetime.h>
 #include <itzdbconnector.h>
-#include "tzdb_raw_connector.h"
+#include "..\include\tzdb_raw_connector.h"
 
 using namespace smalltime;
 
