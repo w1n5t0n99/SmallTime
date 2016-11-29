@@ -4,7 +4,7 @@
 
 #include <core_decls.h>
 #include <tz_decls.h>
-#include "../comp_decls.h"
+#include "comp_decls.h"
 
 #include <vector>
 #include <fstream>

@@ -7,7 +7,7 @@
 #include <basic_datetime.h>
 #include <itzdbconnector.h>
 #include <memory>
-#include "../comp_decls.h"
+#include "comp_decls.h"
 
 namespace smalltime
 {

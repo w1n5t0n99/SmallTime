@@ -3,7 +3,7 @@
 #define _PARSER_
 
 #include <core_decls.h>
-#include "../comp_decls.h"
+#include "comp_decls.h"
 
 #include <fstream>
 

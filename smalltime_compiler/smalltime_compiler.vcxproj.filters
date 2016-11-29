@@ -62,16 +62,16 @@
     <ClInclude Include="include\comp_decls.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Generator.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Parser.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\src_builder.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\tzdb_raw_connector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\generator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\parser.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -97,19 +97,19 @@
     <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="src\Generator.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parser.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\src_builder.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\tzdb_raw_connector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parser.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

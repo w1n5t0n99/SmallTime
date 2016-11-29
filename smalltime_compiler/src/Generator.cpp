@@ -1,4 +1,4 @@
-#include "generator.h"
+#include "../include/generator.h"
 #include <basic_datetime.h>
 #include <core_math.h>
 #include <time_math.h>
