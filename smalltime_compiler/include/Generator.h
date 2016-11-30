@@ -31,13 +31,13 @@ namespace smalltime
 		protected:
 
 			std::array<int, 4> ConvertTimeStrToFields(std::string str);
-			RD ConvertTimeStrToRd(std::string tmStr);
+			RD ConvertTimeStrToRd(std::string time_str);
 			BasicDateTime<> ConvertZoneUntil(std::string str);
 			RD ConvertToZoneRuleOffset(std::string str);
 			uint32_t ConvertToZoneRuleId(std::string str);
 			int ConvertToMonth(const std::string& str);
 
-			tz::TimeType CheckTimeSuffix(const std::string& tmStr);
+			tz::TimeType CheckTimeSuffix(const std::string& time_str);
 			tz::DayType CheckDayType(const std::string& str);
 
 		};

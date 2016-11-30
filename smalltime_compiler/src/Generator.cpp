@@ -34,8 +34,8 @@ namespace smalltime
 		bool Generator::ProccessUtc(std::vector<tz::Zone>& vec_zone)
 		{
 			// Set a UTC entry
-			tz::Zone utcZone = { math::GetUniqueID("UTC") , 0, 0.0, tz::DMAX, tz::KTimeType_Wall, 0.0, math::Pack8Chars("UTC") };
-			vec_zone.push_back(utcZone);
+			tz::Zone utc_zone = { math::GetUniqueID("UTC") , 0, 0.0, tz::DMAX, tz::KTimeType_Wall, 0.0, math::Pack8Chars("UTC") };
+			vec_zone.push_back(utc_zone);
 
 			return true;
 		}
@@ -46,41 +46,41 @@ namespace smalltime
 		bool Generator::ProcessRules(std::vector<tz::Rule>& vec_rule, const std::vector<RuleData>& vec_ruledata)
 		{
 			//iterate through all rule tokens and convert
-			for (const auto& ruleData : vec_ruledata)
+			for (const auto& rule_data : vec_ruledata)
 			{
 				tz::Rule rule;
-				rule.rule_id = math::GetUniqueID(ruleData.name);
-				rule.from_year = atoi(ruleData.from.c_str());
+				rule.rule_id = math::GetUniqueID(rule_data.name);
+				rule.from_year = atoi(rule_data.from.c_str());
 
 				//check if thier is  a "TO" year
-				if (ruleData.to == "only")
+				if (rule_data.to == "only")
 					rule.to_year = rule.from_year;
-				else if (ruleData.to == "max")
+				else if (rule_data.to == "max")
 					rule.to_year = tz::MAX;
 				else
-					rule.to_year = atoi(ruleData.to.c_str());
+					rule.to_year = atoi(rule_data.to.c_str());
 
 				// Month
-				rule.month = ConvertToMonth(ruleData.in);
+				rule.month = ConvertToMonth(rule_data.in);
 
 				//check if "ON" is day of month or not
-				rule.day_type = CheckDayType(ruleData.on);
+				rule.day_type = CheckDayType(rule_data.on);
 				//rule.onType = onType;
 				if (rule.day_type == tz::KDayType_Dom)
-					rule.day = atoi(ruleData.on.c_str());
+					rule.day = atoi(rule_data.on.c_str());
 				else if (rule.day_type == tz::KDayType_SunGE)
-					rule.day = atoi(ruleData.on.substr(5, ruleData.on.size() - 1).c_str());
+					rule.day = atoi(rule_data.on.substr(5, rule_data.on.size() - 1).c_str());
 				else if (rule.day_type == tz::KDayType_LastSun)
 					rule.day = 0;
 				else
 					rule.from_year = 0;
 
 				//check if "AT" is wall clock or something else
-				rule.at_type = CheckTimeSuffix(ruleData.at);
-				rule.at_time = ConvertTimeStrToRd(ruleData.at);
+				rule.at_type = CheckTimeSuffix(rule_data.at);
+				rule.at_time = ConvertTimeStrToRd(rule_data.at);
 
-				rule.offset = ConvertTimeStrToRd(ruleData.save);
-				rule.letter = math::Pack4Chars(ruleData.letters);
+				rule.offset = ConvertTimeStrToRd(rule_data.save);
+				rule.letter = math::Pack4Chars(rule_data.letters);
 
 				vec_rule.push_back(rule);
 			}
@@ -400,9 +400,9 @@ namespace smalltime
 		//=========================================================
 		// Convert time string to fixed
 		//=======================================================
-		RD Generator::ConvertTimeStrToRd(std::string tmStr)
+		RD Generator::ConvertTimeStrToRd(std::string time_str)
 		{
-			auto tp = ConvertTimeStrToFields(tmStr);
+			auto tp = ConvertTimeStrToFields(time_str);
 
 			return math::FixedFromTime(tp[0], tp[1], tp[2], tp[3]);
 		}
@@ -554,9 +554,9 @@ namespace smalltime
 		//================================================================
 		// Check time type suffix from time string
 		//=================================================================
-		tz::TimeType Generator::CheckTimeSuffix(const std::string& tmStr)
+		tz::TimeType Generator::CheckTimeSuffix(const std::string& time_str)
 		{
-			char lastChar = tmStr.back();
+			char lastChar = time_str.back();
 			tz::TimeType tmType;
 
 			switch (lastChar)

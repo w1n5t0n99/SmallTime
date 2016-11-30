@@ -105,39 +105,39 @@ namespace smalltime
 		//===========================================================
 		bool Parser::ExtractZone(std::vector<ZoneData>& vec_zonedata, const std::string& line_str)
 		{
-			static std::string currZoneName = "";
+			static std::string cur_zone_name = "";
 
 
 			LineType lt = GetLineType(line_str);
 			if (lt != LineType::KZoneHead && lt != LineType::KZoneBody)
 				return false;
 
-			std::string fmtLineStr = FormatZoneLine(line_str);
-			std::stringstream lineStream(fmtLineStr);
+			std::string fmt_line_str = FormatZoneLine(line_str);
+			std::stringstream line_stream(fmt_line_str);
 			std::string fw;
 
 			// extract the zone name from head line
 			if (lt == LineType::KZoneHead)
 			{
 				//discard label
-				lineStream >> fw;
+				line_stream >> fw;
 				//get zone name
-				lineStream >> fw;
-				currZoneName = fw;
+				line_stream >> fw;
+				cur_zone_name = fw;
 
 			}
 
 			// zone name removed we can extract zone data
 			ZoneData iz;
-			iz.name = currZoneName;
+			iz.name = cur_zone_name;
 			// extract gmt offset
-			lineStream >> iz.gmt_offset;
+			line_stream >> iz.gmt_offset;
 			// extract rules
-			lineStream >> iz.rule;
+			line_stream >> iz.rule;
 			// extract format
-			lineStream >> iz.format;
+			line_stream >> iz.format;
 			// extract remaining line since "until" is a variable length
-			std::getline(lineStream, iz.until);
+			std::getline(line_stream, iz.until);
 
 			vec_zonedata.push_back(iz);
 			return true;
@@ -152,14 +152,14 @@ namespace smalltime
 			if (GetLineType(line_str) != LineType::KLink)
 				return false;
 
-			std::stringstream lineStream(line_str);
+			std::stringstream line_stream(line_str);
 
 			LinkData il;
 			// extract label 
-			lineStream >> il.target_zone_name;
+			line_stream >> il.target_zone_name;
 			// extract link 
-			lineStream >> il.target_zone_name;
-			lineStream >> il.ref_zone_name;
+			line_stream >> il.target_zone_name;
+			line_stream >> il.ref_zone_name;
 
 			vec_linkdata.push_back(il);
 			return true;
@@ -172,9 +172,9 @@ namespace smalltime
 		Parser::LineType Parser::GetLineType(const std::string& line_str)
 		{
 			std::string fw;
-			std::stringstream lineStream(line_str);
+			std::stringstream line_stream(line_str);
 			// check first text to see line type
-			lineStream >> fw;
+			line_stream >> fw;
 
 			//check if comment line
 			//lines are commented by single start # or whole line delimeter ################
@@ -200,27 +200,27 @@ namespace smalltime
 		//========================================================
 		std::string Parser::FormatZoneLine(const std::string line_str)
 		{
-			static const std::string whiteSpaceStr = " \t";
+			static const std::string white_space = " \t";
 
 			// remove whitespace padding
-			const auto strBegin = line_str.find_first_not_of(whiteSpaceStr);
-			if (strBegin == std::string::npos)
+			const auto begin_str = line_str.find_first_not_of(white_space);
+			if (begin_str == std::string::npos)
 				return "";
 
-			const auto strEnd = line_str.find_last_not_of(whiteSpaceStr);
-			const auto strRange = strEnd - strBegin + 1;
+			const auto end_str = line_str.find_last_not_of(white_space);
+			const auto range_str = end_str - begin_str + 1;
 
-			std::string formattedStr = line_str.substr(strBegin, strRange);
+			std::string formatted_str = line_str.substr(begin_str, range_str);
 
 			// remove ending comments
 			bool cmtFound = false;
-			formattedStr.erase(std::remove_if(formattedStr.begin(), formattedStr.end(), [&](char c) {
+			formatted_str.erase(std::remove_if(formatted_str.begin(), formatted_str.end(), [&](char c) {
 				if (c == '#') { cmtFound = true; return true; }
 				else if (cmtFound == true) { return true; }
 				else { return false; }
-			}), formattedStr.end());
+			}), formatted_str.end());
 
-			return formattedStr;
+			return formatted_str;
 		}
 	}
 }

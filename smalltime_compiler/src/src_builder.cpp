@@ -11,31 +11,31 @@ namespace smalltime
 		//==============================================
 		// Overload of stream operator for time type
 		//==============================================
-		std::ostream& operator<<(std::ostream& outStream, const tz::TimeType tmType)
+		std::ostream& operator<<(std::ostream& out_stream, const tz::TimeType time_type)
 		{
-			if (tmType == tz::KTimeType_Wall)
-				outStream << "KTimeType_Wall";
-			else if(tmType == tz::KTimeType_Utc)
-				outStream << "KTimeType_Utc";
+			if (time_type == tz::KTimeType_Wall)
+				out_stream << "KTimeType_Wall";
+			else if(time_type == tz::KTimeType_Utc)
+				out_stream << "KTimeType_Utc";
 			else
-				outStream << "KTimeType_Std";
+				out_stream << "KTimeType_Std";
 
-			return outStream;
+			return out_stream;
 		}
 
 		//================================================
 		// Overload of stream operator for day type
 		//================================================
-		std::ostream& operator<<(std::ostream& outStream, const tz::DayType day_type)
+		std::ostream& operator<<(std::ostream& out_stream, const tz::DayType day_type)
 		{
 			if (day_type == tz::KDayType_Dom)
-				outStream << "KDayType_Dom";
+				out_stream << "KDayType_Dom";
 			else if (day_type == tz::KDayType_LastSun)
-				outStream << "KDayType_LastSun";
+				out_stream << "KDayType_LastSun";
 			else
-				outStream << "KDayType_SunGE";
+				out_stream << "KDayType_SunGE";
 			
-			return outStream;
+			return out_stream;
 		}
 
 		//=========================================================
