@@ -18,6 +18,7 @@ namespace smalltime
 			RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
+			const Rule* const FindActiveRuleNoCheck(BasicDateTime<> cur_dt);
 
 			std::pair<const Rule* const, int> FindPreviousRule(BasicDateTime<> cur_rule);
 			std::pair<const Rule* const, int> FindNextRule(BasicDateTime<> cur_rule);
@@ -31,8 +32,9 @@ namespace smalltime
 			void InitTransitionData(int year);
 			void BuildTransitionData(RD* buffer, int year);
 
-			BasicDateTime<> CalcTransitionWallOrUtc(const Rule* const rule, int year, TimeType time_type);
+			BasicDateTime<> CalcTransitionAny(const Rule* const rule, int year, TimeType time_type);
 			BasicDateTime<> CalcTransitionWall(const Rule* const rule, int year);
+			BasicDateTime<> CalcTransitionStd(const Rule* const rule, int year);
 			BasicDateTime<> CalcTransitionUtc(const Rule* const rule, int year);
 			BasicDateTime<> CalcTransitionFast(const Rule* const rule, int year, TimeType time_type = KTimeType_Wall);
 		

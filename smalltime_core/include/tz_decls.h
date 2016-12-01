@@ -54,6 +54,7 @@ namespace smalltime
 			uint32_t rule_id;
 			RD until_wall;
 			RD until_utc;
+			RD until_diff;
 			TimeType until_type;
 			RD zone_offset;
 			uint64_t abbrev;

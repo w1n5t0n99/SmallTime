@@ -74,6 +74,9 @@
     <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\zone_post_generator.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp">
@@ -110,6 +113,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\parser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zone_post_generator.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

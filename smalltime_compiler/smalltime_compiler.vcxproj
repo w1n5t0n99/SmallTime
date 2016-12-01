@@ -38,6 +38,7 @@
     <ClInclude Include="include\parser.h" />
     <ClInclude Include="include\src_builder.h" />
     <ClInclude Include="include\tzdb_raw_connector.h" />
+    <ClInclude Include="include\zone_post_generator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp" />
@@ -52,6 +53,7 @@
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\src_builder.cpp" />
     <ClCompile Include="src\tzdb_raw_connector.cpp" />
+    <ClCompile Include="src\zone_post_generator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0E1E1A78-58C1-4DF5-8D7F-431D1916042D}</ProjectGuid>
