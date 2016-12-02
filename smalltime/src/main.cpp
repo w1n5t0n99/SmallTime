@@ -39,12 +39,13 @@ int main()
 	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
 
 
-//	BasicDateTime<> dt0(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);
-	BasicDateTime<> dt0(1967, 1, 1, 0, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+	BasicDateTime<> dt0(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);
+	BasicDateTime<> dt1(1967, 1, 1, 0, 0, 0, 0, tz::TimeType::KTimeType_Wall);
 
 	BasicDateTime<> dt(2016, 4, 5, 16, 59, 59, 999, tz::TimeType::KTimeType_Utc);
 
-	
+	//std::cout << Double_t(dt0.GetFixed()).i << " -- " << Double_t(dt1.GetFixed()).i << std::endl;
+		
 	try
 	{
 		auto ar = ru.FindActiveRule(dt, Choose::KError);

@@ -1,10 +1,13 @@
 #include "../include/zone_group.h"
-#include "../include/smalltime_exceptions.h"
-#include "../include/float_util.h"
-#include <time_math.h>
+
 #include <iostream>
 #include <assert.h>
 #include <array>
+
+#include "../include/smalltime_exceptions.h"
+#include "../include/float_util.h"
+#include <time_math.h>
+#include <smalltime_exceptions.h>
 
 namespace smalltime
 {
@@ -26,23 +29,31 @@ namespace smalltime
 		{
 			const Zone* cur_zone = nullptr;
 			int cur_zone_index = 0;
+			int last_zone_index = zones_.first + zones_.size - 1;
 
 			if (cur_dt.GetType() == KTimeType_Wall)
 			{
-				for (int i = zones_.first; i < zones_.first + zones_.size; ++i)
+				for (int i = zones_.first; i <= last_zone_index; ++i)
 				{
 					cur_zone_index = i;
-					if (cur_dt.GetFixed() < zone_arr_[i].until_wall || AlmostEqualUlps(cur_dt.GetFixed(), zone_arr_[i].until_wall, 11))
-						return &zone_arr_[i];
+
+					if (cur_dt.GetFixed() < zone_arr_[i].until_wall || cur_zone_index == last_zone_index)
+					{
+						cur_zone = &zone_arr_[i];
+						break;
+					}
 				}
 			}
 			else if (cur_dt.GetType() == KTimeType_Utc)
 			{
-				for (int i = zones_.first; i < zones_.first + zones_.size; ++i)
+				for (int i = zones_.first; i <= last_zone_index; ++i)
 				{
 					cur_zone_index = i;
-					if (cur_dt.GetFixed() < zone_arr_[i].until_utc || AlmostEqualUlps(cur_dt.GetFixed(), zone_arr_[i].until_utc, 11))
-						return &zone_arr_[i];
+					if (cur_dt.GetFixed() < zone_arr_[i].until_utc || cur_zone_index == last_zone_index)
+					{
+						cur_zone = &zone_arr_[i];
+						break;
+					}
 				}
 			}
 
@@ -59,30 +70,45 @@ namespace smalltime
 		const Zone* const ZoneGroup::CorrectForAmbigWallOrUtc(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
 		{
 			auto cur_zone = &zone_arr_[cur_zone_index];
-			auto prev_zone = FindPreviousZone(cur_zone_index);
+			auto next_zone = FindNextZone(cur_zone_index);
 
+			auto next_zone_inst = 0.0;
+			if(cur_dt.GetType() == KTimeType_Wall)
+				next_zone_inst = cur_zone->until_wall + cur_zone->until_diff;
+			else if(cur_dt.GetType() == KTimeType_Utc)
+				next_zone_inst = cur_zone->until_wall - cur_zone->until_diff;
+
+			if (cur_dt.GetFixed() > next_zone_inst || AlmostEqualUlps(cur_dt.GetFixed(), next_zone_inst, 11))
+			{
+				// Ambigiuous local time gap
+				if (choose == Choose::KEarliest)
+				{
+					return cur_zone;
+				}
+				else if (choose == Choose::KLatest)
+				{
+					return next_zone;
+				}
+				else
+				{
+					if (cur_dt.GetType() == KTimeType_Wall)
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->until_wall, KTimeType_Wall), BasicDateTime<>(next_zone_inst, KTimeType_Wall));
+					else if (cur_dt.GetType() == KTimeType_Utc)
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->until_utc, KTimeType_Utc), BasicDateTime<>(next_zone_inst, KTimeType_Utc));
+				}
+			}
+
+			// check for ambiguousness with previous active zone
+			auto prev_zone = FindPreviousZone(cur_zone_index);
 			if (prev_zone)
 			{
-				RD offset_diff = 0.0;
-				RD cur_zone_rd = 0.0;
+				auto prev_zone_inst = 0.0;
 				if (cur_dt.GetType() == KTimeType_Wall)
-				{
-					cur_zone_rd = cur_zone->until_wall;
-					offset_diff = cur_zone_rd - prev_zone->until_wall;
-				}
+					prev_zone_inst = prev_zone->until_wall + prev_zone->until_diff;
 				else if (cur_dt.GetType() == KTimeType_Utc)
-				{
-					cur_zone_rd = cur_zone->until_utc;
-					offset_diff = cur_zone_rd - prev_zone->until_utc;
-				}
+					prev_zone_inst = prev_zone->until_utc - prev_zone->until_diff;
 
-				RD cur_zone_inst = 0.0;
-				if (cur_dt.GetType() == KTimeType_Wall)
-					cur_zone_inst = cur_zone_rd + offset_diff;
-				else if (cur_dt.GetType() == KTimeType_Utc)
-					cur_zone_inst = cur_zone_rd - offset_diff;
-
-				if ((cur_dt.GetFixed() >= cur_zone_rd || AlmostEqualUlps(cur_dt.GetFixed(), cur_zone_rd, 11)) && cur_dt.GetFixed() < cur_zone_inst)
+				if (cur_dt.GetFixed() < prev_zone_inst)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -96,38 +122,14 @@ namespace smalltime
 					else
 					{
 						if (cur_dt.GetType() == KTimeType_Wall)
-							throw TimeZoneAmbigNoneException(BasicDateTime<>(cur_zone_rd, KTimeType_Wall), BasicDateTime<>(cur_zone_inst - math::MSEC(), KTimeType_Wall));
+							throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone_inst, KTimeType_Wall));
 						else if (cur_dt.GetType() == KTimeType_Utc)
-							throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone_rd, KTimeType_Utc), BasicDateTime<>(cur_zone_inst - math::MSEC(), KTimeType_Utc));
+							throw TimeZoneAmbigMultiException(BasicDateTime<>(prev_zone->until_utc, KTimeType_Utc), BasicDateTime<>(prev_zone_inst, KTimeType_Utc));
 					}
 				}
 			}
-			// check for ambiguousness with next active rule
-			auto next_zone = FindNextZone(cur_zone_index);
-			if (next_zone)
-			{
-				RD offset_diff = 0.0;
-				RD next_zone_rd = 0.0;
-				if (cur_dt.GetType() == KTimeType_Wall)
-				{
-					next_zone_rd = next_zone->until_wall;
-					offset_diff = next_zone_rd - cur_zone->until_wall;
-					RD next_zone_inst = next_zone_rd + offset_diff;
-
-					if ((cur_dt.GetFixed() >= next_zone_inst || AlmostEqualUlps(cur_dt.GetFixed(), next_zone_inst, 11)) && cur_dt.GetFixed() < next_zone_rd)
-					{
-						// Ambiguous multiple local times
-						if (choose == Choose::KEarliest)
-							return cur_zone;
-						else if (choose == Choose::KLatest)
-							return next_zone;
-						else
-							throw TimeZoneAmbigMultiException(BasicDateTime<>(next_zone_inst, KTimeType_Wall), BasicDateTime<>(next_zone_rd - math::MSEC(), KTimeType_Wall));
-					}
-				}
-			}
-				
-			return nullptr;
+			
+			return cur_zone;
 		}
 
 		//=============================================
