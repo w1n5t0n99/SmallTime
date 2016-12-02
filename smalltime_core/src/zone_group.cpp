@@ -36,7 +36,6 @@ namespace smalltime
 				for (int i = zones_.first; i <= last_zone_index; ++i)
 				{
 					cur_zone_index = i;
-
 					if (cur_dt.GetFixed() < zone_arr_[i].until_wall || cur_zone_index == last_zone_index)
 					{
 						cur_zone = &zone_arr_[i];

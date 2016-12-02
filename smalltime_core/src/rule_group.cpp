@@ -555,7 +555,7 @@ namespace smalltime
 			else if (rule->day_type == KDayType_SunGE)
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::KSunOnOrAfter, time_type);
 			else
-				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::KLastSun, time_type);
+				return BasicDateTime<>(year, rule->month, 1, hms[0], hms[1], hms[2], hms[3], RelSpec::KLastSun, time_type);
 		}
 	}
 }
