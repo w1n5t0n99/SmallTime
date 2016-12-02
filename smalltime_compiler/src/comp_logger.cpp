@@ -33,7 +33,7 @@ namespace smalltime
 				else
 					zone_name = vec_zonedata[i].name;
 
-				stream << zone_name << " Wall Until - " << wall_dt.GetYear() << "/" << wall_dt.GetMonth() << "/" << wall_dt.GetDay() << " " << wall_dt.GetHour() << ":"
+				stream << zone_name << " - " << vec_zone[i].zone_id << " Wall Until - " << wall_dt.GetYear() << "/" << wall_dt.GetMonth() << "/" << wall_dt.GetDay() << " " << wall_dt.GetHour() << ":"
 					<< wall_dt.GetMinute() << ":" << wall_dt.GetSecond() << ":" << wall_dt.GetMillisecond() << " Until Diff - " << zone_diff << "\n";
 
 			}
