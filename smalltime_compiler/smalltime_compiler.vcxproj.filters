@@ -77,6 +77,9 @@
     <ClInclude Include="include\zone_post_generator.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\comp_logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp">
@@ -116,6 +119,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\zone_post_generator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\comp_logger.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

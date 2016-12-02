@@ -8,11 +8,16 @@
 #include "..\include\Parser.h"
 #include "..\include\generator.h"
 #include "..\include\src_builder.h"
+#include "..\include\zone_post_generator.h"
+#include "..\include\comp_logger.h"
+
 #include <basic_datetime.h>
 #include <tzdb_connector_interface.h>
 #include "..\include\tzdb_raw_connector.h"
 
 using namespace smalltime;
+
+static bool log_transition_data = false;
 
 int main()
 {
@@ -31,7 +36,7 @@ int main()
 
 	comp::Parser parser;
 	comp::Generator generator;
-	comp::SrcBuilder srcBuilder;
+	comp::SrcBuilder src_builder;
 
 	std::ifstream inf;
 	for (const auto& src : vSrc)
@@ -75,18 +80,22 @@ int main()
 	std::cout << "Metadata processed ..." << std::endl;
 
 	std::shared_ptr<comp::TzdbRawConnector> tzdb_connector = std::make_shared<comp::TzdbRawConnector>(tzdb_meta, vec_zone, vec_rule, vec_zone_lookup, vec_rule_lookup);
+	comp::ZonePostGenerator zone_post_generator(tzdb_connector);
 
-	generator.PostProcessZones(vec_zone, tzdb_connector);
+
+	zone_post_generator.ProcessZones(vec_zone);
 	std::cout << "Zone post-processed ..." << std::endl;
 
-
 	std::ofstream outf("Tzdb.h", std::ofstream::trunc);
-	srcBuilder.BuildHead(outf);
-	srcBuilder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
-	srcBuilder.BuildTail(outf);
+	src_builder.BuildHead(outf);
+	src_builder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
+	src_builder.BuildTail(outf);
 
 	outf.close();
 	std::cout << "Source compiled ..." << std::endl;
+
+	comp::CompLogger comp_logger;
+	comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
 
 
 	std::cin.get();

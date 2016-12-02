@@ -10,6 +10,7 @@ namespace smalltime
 {
 	namespace comp
 	{
+
 		struct RuleData
 		{
 			std::string name;

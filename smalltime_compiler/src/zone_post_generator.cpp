@@ -4,6 +4,8 @@
 #include <rule_group.h>
 #include <time_math.h>
 
+#include <iostream>
+
 namespace smalltime
 {
 	namespace comp
@@ -20,54 +22,61 @@ namespace smalltime
 		//=====================================================
 		// Process zones - add transition data
 		//=====================================================
-		bool ZonePostGenerator::ProcessZones()
+		bool ZonePostGenerator::ProcessZones(std::vector<tz::Zone>& vec_zone)
 		{
 			// util_wall stores temp until 
 			//until_utc stores temp rule offset
-			auto zone_arr = tzdb_connector_->GetZoneHandle();
-			auto zone_arr_size = sizeof(zone_arr) / sizeof(*zone_arr);
+			auto zone_arr_size = vec_zone.size();
 
 			for (int i = 0; i < zone_arr_size; ++i)
 			{
+				auto wall_transition = GetWallTransition(i, vec_zone);
+				auto utc_transition = GetUtcTransition(i, vec_zone);
 
-
+				vec_zone[i].until_wall = wall_transition.first;
+				vec_zone[i].until_utc = utc_transition.first;
+				vec_zone[i].until_diff = wall_transition.second;
 			}
 
+			return true;
 		}
 
 		//====================================================
 		// Calculate zone transition in wall time
 		//====================================================
-		std::pair<RD, RD> ZonePostGenerator::GetWallTransition(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size)
+		std::pair<RD, RD> ZonePostGenerator::GetWallTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
-			const auto& cur_zone = zone_arr[cur_zone_index];
-			auto next_zone = GetNextZoneInGroup(cur_zone_index, zone_arr, zone_arr_size);
+			const auto& cur_zone = vec_zone[cur_zone_index];
+			auto next_zone_index = GetNextZoneInGroup(cur_zone_index, vec_zone);
+
 			// the last zone is ongoing
-			if (next_zone == nullptr)
+			if (next_zone_index < 0)
 				return std::make_pair(tz::DMAX, 0.0);
+
+			const auto& next_zone = vec_zone[next_zone_index];
 
 			// Calc offset at transition
 			//---------------------------------------------------------------------
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
 			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
 			//the next zone hasnt been altered yet so until_utc still stores zone save
-			auto until_zone_offset = next_zone->zone_offset;
-			auto until_rule_offset = next_zone->until_utc;
+			auto until_zone_offset = next_zone.zone_offset;
+			auto until_rule_offset = next_zone.until_utc;
 
 			// get next rule offset if any
-			if (next_zone->rule_id > 0)
+			if (next_zone.rule_id > 0)
 			{
 				// find the rule offset if active
-				tz::RuleGroup rg(next_zone->rule_id, next_zone, tzdb_connector_);
+				tz::RuleGroup rg(next_zone.rule_id, &next_zone, tzdb_connector_);
 				auto rule = rg.FindActiveRuleNoCheck(until_dt);
 				if (rule != nullptr)
 					until_rule_offset += rule->offset;
 			}
 
+			auto total_until_offset = until_zone_offset + until_rule_offset;
+
 			// Calc offset moment before transition
 			//-------------------------------------------------------------
-			auto total_until_offset = until_zone_offset + until_rule_offset;
-			// calculate the offset diff
 			auto cur_zone_offset = cur_zone.zone_offset;
 			auto cur_rule_offset = cur_zone.until_utc;
 			// find the rule offset if active
@@ -102,27 +111,30 @@ namespace smalltime
 		//====================================================
 		// Calculate zone transition in utc time
 		//====================================================
-		std::pair<RD, RD> ZonePostGenerator::GetUtcTransition(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size)
+		std::pair<RD, RD> ZonePostGenerator::GetUtcTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
-			const auto& cur_zone = zone_arr[cur_zone_index];
-			auto next_zone = GetNextZoneInGroup(cur_zone_index, zone_arr, zone_arr_size);
+			const auto& cur_zone = vec_zone[cur_zone_index];
+			auto next_zone_index = GetNextZoneInGroup(cur_zone_index, vec_zone);
+
 			// the last zone is ongoing
-			if (next_zone == nullptr)
+			if (next_zone_index < 0)
 				return std::make_pair(tz::DMAX, 0.0);
+			
+			const auto& next_zone = vec_zone[next_zone_index];
 
 			// Calc offset at transition
 			//---------------------------------------------------------------------
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
 			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
 			//the next zone hasnt been altered yet so until_utc still stores zone save
-			auto until_zone_offset = next_zone->zone_offset;
-			auto until_rule_offset = next_zone->until_utc;
+			auto until_zone_offset = next_zone.zone_offset;
+			auto until_rule_offset = next_zone.until_utc;
 
 			// get next rule offset if any
-			if (next_zone->rule_id > 0)
+			if (next_zone.rule_id > 0)
 			{
 				// find the rule offset if active
-				tz::RuleGroup rg(next_zone->rule_id, next_zone, tzdb_connector_);
+				tz::RuleGroup rg(next_zone.rule_id, &next_zone, tzdb_connector_);
 				auto rule = rg.FindActiveRuleNoCheck(until_dt);
 				if (rule != nullptr)
 					until_rule_offset += rule->offset;
@@ -166,19 +178,21 @@ namespace smalltime
 		//=================================================
 		// Find next zone of same group in any
 		//=================================================
-		tz::Zone const * const ZonePostGenerator::GetNextZoneInGroup(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size)
+		int ZonePostGenerator::GetNextZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
-			if ((cur_zone_index + 1) < zone_arr_size)
+			if ((cur_zone_index + 1) < vec_zone.size())
 			{
-				auto cur_zone = zone_arr[cur_zone_index];
-				auto next_zone = zone_arr[cur_zone_index + 1];
+				auto cur_zone = vec_zone[cur_zone_index];
+				auto next_zone = vec_zone[cur_zone_index + 1];
 
 				if (cur_zone.zone_id == next_zone.zone_id)
-					return &next_zone;
+					return cur_zone_index + 1;
+				else
+					return -1;
 			}
 			else
 			{
-				return nullptr;
+				return -1;
 			}
 		}
 

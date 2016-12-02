@@ -28,7 +28,6 @@ namespace smalltime
 			const Zone* const zone_arr_;
 			const Zones zones_;
 			std::shared_ptr<TzdbConnectorInterface> tzdb_connector_;
-
 		};
 	}
 }

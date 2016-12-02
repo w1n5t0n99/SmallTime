@@ -18,13 +18,13 @@ namespace smalltime
 		public:
 			ZonePostGenerator(std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector);
 
-			bool ProcessZones();
+			bool ProcessZones(std::vector<tz::Zone>& vec_zone);
 
 		private:
-			std::pair<RD, RD> GetWallTransition(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size);
-			std::pair<RD, RD> GetUtcTransition(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size);
+			std::pair<RD, RD> GetWallTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
+			std::pair<RD, RD> GetUtcTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
-			tz::Zone const * const GetNextZoneInGroup(int cur_zone_index, tz::Zone const * const zone_arr, int zone_arr_size);
+			int GetNextZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
 			std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector_;
 
