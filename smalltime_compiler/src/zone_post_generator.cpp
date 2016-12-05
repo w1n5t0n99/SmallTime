@@ -33,6 +33,19 @@ namespace smalltime
 				auto wall_transition = GetWallTransition(i, vec_zone);
 				auto utc_transition = GetUtcTransition(i, vec_zone);
 
+				auto transition_data = CalcZoneData(i, vec_zone);
+				auto& mb_rd = std::get<KTransitionType_MomentBeforeWall>(transition_data);
+				auto& fi_rd = std::get<KTransitionType_FirstInstWall>(transition_data);
+
+				BasicDateTime<> mb_dt(mb_rd, tz::KTimeType_Wall);
+				BasicDateTime<> fi_dt(fi_rd, tz::KTimeType_Wall);
+
+				auto& cr = mb_dt;
+				printf("Zone %d - MB => %d/%d/%d %d:%d:%d:%d  FI =>",vec_zone[i].zone_id, cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+				printf(" %d/%d/%d %d:%d:%d:%d\n", fi_dt.GetYear(), fi_dt.GetMonth(), fi_dt.GetDay(), fi_dt.GetHour(), fi_dt.GetMinute(), fi_dt.GetSecond(), fi_dt.GetMillisecond());
+
+
+
 				vec_zone[i].until_wall = wall_transition.first;
 				vec_zone[i].until_utc = utc_transition.first;
 				vec_zone[i].until_diff = wall_transition.second;
@@ -111,7 +124,7 @@ namespace smalltime
 		//====================================================
 		// Calculate zone transition data
 		//====================================================
-		std::tuple<RD, RD, RD> ZonePostGenerator::CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
+		std::tuple<RD, RD, RD, RD> ZonePostGenerator::CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
 			//ZoneDate - last_moment_utc, last_moment_wall, transition_wall, first_inst_wall
 
@@ -120,7 +133,7 @@ namespace smalltime
 
 			// the last zone is ongoing
 			if (next_zone_index < 0)
-				return std::make_tuple(tz::DMAX, tz::DMAX, 0.0);
+				return std::make_tuple(tz::DMAX, tz::DMAX, tz::DMAX, tz::DMAX);
 
 			const auto& next_zone = vec_zone[next_zone_index];
 
@@ -155,8 +168,41 @@ namespace smalltime
 					cur_rule_offset += rule->offset;
 			}
 
+			auto moment_before_utc_dt = GetUtcTime(mb_until_dt, cur_zone_offset, cur_rule_offset);
+			auto moment_before_wall_dt = GetWallTime(mb_until_dt, cur_zone_offset, cur_rule_offset);
+			auto transition_wall_dt = GetWallTime(until_dt, next_zone_offset, next_rule_offset);
+			auto first_inst_wall_dt = GetWallTime(BasicDateTime<>(moment_before_utc_dt.GetFixed() + math::MSEC(), tz::KTimeType_Utc), next_zone_offset, next_rule_offset);
 
+			return std::make_tuple(moment_before_utc_dt.GetFixed(),
+				moment_before_wall_dt.GetFixed(),
+				transition_wall_dt.GetFixed(),
+				first_inst_wall_dt.GetFixed());
+		}
 
+		//=======================================================
+		// Convert given datetime to utc time
+		//=======================================================
+		BasicDateTime<> ZonePostGenerator::GetUtcTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset)
+		{
+			if (dt.GetType() == tz::KTimeType_Utc)
+				return dt;
+			else if (dt.GetType() == tz::KTimeType_Std)
+				return BasicDateTime<>(dt.GetFixed() - zone_offset, tz::KTimeType_Utc);
+			else
+				return BasicDateTime<>(dt.GetFixed() - zone_offset - rule_offset, tz::KTimeType_Utc);
+		}
+
+		//=======================================================
+		// Convert given datetime to utc time
+		//=======================================================
+		BasicDateTime<> ZonePostGenerator::GetWallTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset)
+		{
+			if (dt.GetType() == tz::KTimeType_Wall)
+				return dt;
+			else if (dt.GetType() == tz::KTimeType_Std)
+				return BasicDateTime<>(dt.GetFixed() + rule_offset, tz::KTimeType_Wall);
+			else
+				return BasicDateTime<>(dt.GetFixed() + zone_offset + rule_offset, tz::KTimeType_Wall);
 		}
 
 		//====================================================
