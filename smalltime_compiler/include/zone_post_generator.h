@@ -24,6 +24,10 @@ namespace smalltime
 			std::pair<RD, RD> GetWallTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 			std::pair<RD, RD> GetUtcTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
+			std::tuple<RD, RD, RD> CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
+			RD GetUtcTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset);
+			RD GetWallTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset);
+
 			int GetNextZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
 			std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector_;

@@ -109,6 +109,57 @@ namespace smalltime
 		}
 
 		//====================================================
+		// Calculate zone transition data
+		//====================================================
+		std::tuple<RD, RD, RD> ZonePostGenerator::CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
+		{
+			//ZoneDate - last_moment_utc, last_moment_wall, transition_wall, first_inst_wall
+
+			const auto& cur_zone = vec_zone[cur_zone_index];
+			auto next_zone_index = GetNextZoneInGroup(cur_zone_index, vec_zone);
+
+			// the last zone is ongoing
+			if (next_zone_index < 0)
+				return std::make_tuple(tz::DMAX, tz::DMAX, 0.0);
+
+			const auto& next_zone = vec_zone[next_zone_index];
+
+			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
+			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
+			// find the current offset and the next offset
+			//the next zone hasnt been altered yet so until_utc still stores zone save
+			auto next_zone_offset = next_zone.zone_offset;
+			auto next_rule_offset = next_zone.until_utc;
+		
+			// get next rule offset if any
+			if (next_zone.rule_id > 0)
+			{
+				// find the rule offset if active
+				tz::RuleGroup rg(next_zone.rule_id, &next_zone, tzdb_connector_);
+				auto rule = rg.FindActiveRuleNoCheck(until_dt);
+				if (rule != nullptr)
+					next_rule_offset += rule->offset;
+			}
+
+			auto cur_zone_offset = cur_zone.zone_offset;
+			auto cur_rule_offset = cur_zone.until_utc;
+			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
+			BasicDateTime<> mb_until_dt(cur_zone.until_wall - math::MSEC(), cur_zone.until_type);
+			// get current rule offset at moment before transition if any
+			if (cur_zone.rule_id > 0)
+			{
+				// find the rule offset if active
+				tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, tzdb_connector_);
+				auto rule = rg.FindActiveRuleNoCheck(mb_until_dt);
+				if (rule != nullptr)
+					cur_rule_offset += rule->offset;
+			}
+
+
+
+		}
+
+		//====================================================
 		// Calculate zone transition in utc time
 		//====================================================
 		std::pair<RD, RD> ZonePostGenerator::GetUtcTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
