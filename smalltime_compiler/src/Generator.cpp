@@ -173,7 +173,7 @@ namespace smalltime
 
 			// add links
 			std::vector<tz::Zones> vec_link_lookup = {};
-			for (const auto& zl : vec_link_lookup)
+			for (const auto& zl : vec_zone_lookup)
 			{
 				for (const auto& link : vec_link)
 				{
@@ -270,79 +270,6 @@ namespace smalltime
 			{
 				if (rules.size > tzdb_meta.max_rule_size)
 					tzdb_meta.max_rule_size = rules.size;
-			}
-
-			return true;
-		}
-
-		//=======================================================
-		// Process zone transition times
-		//=======================================================
-		bool Generator::PostProcessZones(std::vector<tz::Zone>& vec_zone, std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector)
-		{
-			// util_wall stores temp until 
-			//until_utc stores temp rule offset
-			RD utc = 0.0;
-			RD wall = 0.0;
-			for (auto& z : vec_zone)
-			{
-				// create wall transition
-				if (z.until_type == tz::KTimeType_Wall)
-				{
-					wall = z.until_wall - math::MSEC();
-
-					RD rule_offset = z.until_utc;
-					if (z.rule_id != 0)
-					{
-						try
-						{
-							tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-							auto r = rg.FindActiveRule(BasicDateTime<>(wall, tz::KTimeType_Wall), Choose::KLatest);
-							if (r)
-								rule_offset = r->offset;
-						}
-						catch (const std::exception& e)
-						{
-							
-							std::cout << e.what() << std::endl;
-						}
-					}
-
-					utc = wall - z.zone_offset - rule_offset;
-				}
-				else if (z.until_type == tz::KTimeType_Std)
-				{
-					utc = z.until_wall - z.zone_offset - math::MSEC();
-
-					RD rule_offset = z.until_utc;
-					if (z.rule_id != 0)
-					{
-						tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::KLatest);
-						if (r)
-							rule_offset = r->offset;
-					}
-
-					wall = z.until_wall + rule_offset;
-				}
-				else
-				{
-					utc = z.until_wall - math::MSEC();
-
-					RD rule_offset = z.until_utc;
-					if (z.rule_id != 0)
-					{
-						tz::RuleGroup rg(z.rule_id, &z, tzdb_connector);
-						auto r = rg.FindActiveRule(BasicDateTime<>(utc, tz::KTimeType_Utc), Choose::KLatest);
-						if (r)
-							rule_offset = r->offset;
-					}
-
-					wall = z.until_wall + z.zone_offset + rule_offset;
-				}
-
-				z.until_wall = wall;
-				z.until_utc = utc;
 			}
 
 			return true;

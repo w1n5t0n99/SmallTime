@@ -26,8 +26,6 @@ namespace smalltime
 			bool ProcessMeta(MetaData& tzdb_meta, const std::vector<tz::Zone>& vec_zone, const std::vector<tz::Rule>& vec_rule,
 				const std::vector<tz::Zones>& vec_zone_lookup, const std::vector<tz::Rules>& vec_rule_lookup);
 
-			bool PostProcessZones(std::vector<tz::Zone>& vec_zone, std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector);
-
 		protected:
 
 			std::array<int, 4> ConvertTimeStrToFields(std::string str);
