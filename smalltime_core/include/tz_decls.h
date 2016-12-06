@@ -52,9 +52,10 @@ namespace smalltime
 		{
 			uint32_t zone_id;
 			uint32_t rule_id;
+			RD mb_until_wall;
+			RD mb_until_utc;
 			RD until_wall;
-			RD until_utc;
-			RD until_diff;
+			RD first_inst_wall;
 			TimeType until_type;
 			RD zone_offset;
 			uint64_t abbrev;

@@ -34,21 +34,15 @@ namespace smalltime
 				auto utc_transition = GetUtcTransition(i, vec_zone);
 
 				auto transition_data = CalcZoneData(i, vec_zone);
-				auto& mb_rd = std::get<KTransitionType_MomentBeforeWall>(transition_data);
-				auto& fi_rd = std::get<KTransitionType_FirstInstWall>(transition_data);
+				auto& mb_utc_rd = std::get<KTransition_MomentBeforeWall>(transition_data);
+				auto& mb_wall_rd = std::get<KTransition_MomentBeforeWall>(transition_data);
+				auto& trans_wall_rd = std::get<KTransition_TransitionWall>(transition_data);
+				auto& fi_rd = std::get<KTransition_FirstInstWall>(transition_data);
 
-				BasicDateTime<> mb_dt(mb_rd, tz::KTimeType_Wall);
-				BasicDateTime<> fi_dt(fi_rd, tz::KTimeType_Wall);
-
-				auto& cr = mb_dt;
-				printf("Zone %d - MB => %d/%d/%d %d:%d:%d:%d  FI =>",vec_zone[i].zone_id, cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
-				printf(" %d/%d/%d %d:%d:%d:%d\n", fi_dt.GetYear(), fi_dt.GetMonth(), fi_dt.GetDay(), fi_dt.GetHour(), fi_dt.GetMinute(), fi_dt.GetSecond(), fi_dt.GetMillisecond());
-
-
-
-				vec_zone[i].until_wall = wall_transition.first;
-				vec_zone[i].until_utc = utc_transition.first;
-				vec_zone[i].until_diff = wall_transition.second;
+				vec_zone[i].mb_until_wall = mb_wall_rd;
+				vec_zone[i].mb_until_utc = mb_utc_rd;
+				vec_zone[i].until_wall = trans_wall_rd;
+				vec_zone[i].first_inst_wall = fi_rd;
 			}
 
 			return true;
@@ -71,10 +65,10 @@ namespace smalltime
 			// Calc offset at transition
 			//---------------------------------------------------------------------
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
-			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
+			BasicDateTime<> until_dt(cur_zone.mb_until_wall, cur_zone.until_type);
 			//the next zone hasnt been altered yet so until_utc still stores zone save
 			auto until_zone_offset = next_zone.zone_offset;
-			auto until_rule_offset = next_zone.until_utc;
+			auto until_rule_offset = next_zone.mb_until_utc;
 
 			// get next rule offset if any
 			if (next_zone.rule_id > 0)
@@ -91,9 +85,9 @@ namespace smalltime
 			// Calc offset moment before transition
 			//-------------------------------------------------------------
 			auto cur_zone_offset = cur_zone.zone_offset;
-			auto cur_rule_offset = cur_zone.until_utc;
+			auto cur_rule_offset = cur_zone.mb_until_utc;
 			// find the rule offset if active
-			BasicDateTime<> cur_dt(cur_zone.until_wall - math::MSEC(), cur_zone.until_type);
+			BasicDateTime<> cur_dt(cur_zone.mb_until_wall - math::MSEC(), cur_zone.until_type);
 			tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, tzdb_connector_);
 			auto rule = rg.FindActiveRuleNoCheck(cur_dt);
 			if (rule != nullptr)
@@ -106,15 +100,15 @@ namespace smalltime
 			std::pair<RD, RD> ret_val = std::make_pair(0.0, 0.0);
 			if (cur_zone.until_type == tz::KTimeType_Wall)
 			{
-				ret_val = std::make_pair(cur_zone.until_wall, total_until_offset -  total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall, total_until_offset -  total_cur_offset);
 			}
 			else if (cur_zone.until_type == tz::KTimeType_Std)
 			{
-				ret_val = std::make_pair(cur_zone.until_wall + until_rule_offset, total_until_offset - total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall + until_rule_offset, total_until_offset - total_cur_offset);
 			}
 			else
 			{
-				ret_val = std::make_pair(cur_zone.until_wall + until_zone_offset + until_rule_offset, total_until_offset - total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall + until_zone_offset + until_rule_offset, total_until_offset - total_cur_offset);
 			}
 
 			return ret_val;
@@ -138,11 +132,11 @@ namespace smalltime
 			const auto& next_zone = vec_zone[next_zone_index];
 
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
-			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
+			BasicDateTime<> until_dt(cur_zone.mb_until_wall, cur_zone.until_type);
 			// find the current offset and the next offset
 			//the next zone hasnt been altered yet so until_utc still stores zone save
 			auto next_zone_offset = next_zone.zone_offset;
-			auto next_rule_offset = next_zone.until_utc;
+			auto next_rule_offset = next_zone.mb_until_utc;
 		
 			// get next rule offset if any
 			if (next_zone.rule_id > 0)
@@ -155,9 +149,9 @@ namespace smalltime
 			}
 
 			auto cur_zone_offset = cur_zone.zone_offset;
-			auto cur_rule_offset = cur_zone.until_utc;
+			auto cur_rule_offset = cur_zone.mb_until_utc;
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
-			BasicDateTime<> mb_until_dt(cur_zone.until_wall - math::MSEC(), cur_zone.until_type);
+			BasicDateTime<> mb_until_dt(cur_zone.mb_until_wall - math::MSEC(), cur_zone.until_type);
 			// get current rule offset at moment before transition if any
 			if (cur_zone.rule_id > 0)
 			{
@@ -222,10 +216,10 @@ namespace smalltime
 			// Calc offset at transition
 			//---------------------------------------------------------------------
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
-			BasicDateTime<> until_dt(cur_zone.until_wall, cur_zone.until_type);
+			BasicDateTime<> until_dt(cur_zone.mb_until_wall, cur_zone.until_type);
 			//the next zone hasnt been altered yet so until_utc still stores zone save
 			auto until_zone_offset = next_zone.zone_offset;
-			auto until_rule_offset = next_zone.until_utc;
+			auto until_rule_offset = next_zone.mb_until_utc;
 
 			// get next rule offset if any
 			if (next_zone.rule_id > 0)
@@ -242,9 +236,9 @@ namespace smalltime
 			auto total_until_offset = until_zone_offset + until_rule_offset;
 			// calculate the offset diff
 			auto cur_zone_offset = cur_zone.zone_offset;
-			auto cur_rule_offset = cur_zone.until_utc;
+			auto cur_rule_offset = cur_zone.mb_until_utc;
 			// find the rule offset if active
-			BasicDateTime<> cur_dt(cur_zone.until_wall - math::MSEC(), cur_zone.until_type);
+			BasicDateTime<> cur_dt(cur_zone.mb_until_wall - math::MSEC(), cur_zone.until_type);
 			tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, tzdb_connector_);
 			auto rule = rg.FindActiveRuleNoCheck(cur_dt);
 			if (rule != nullptr)
@@ -257,15 +251,15 @@ namespace smalltime
 			std::pair<RD, RD> ret_val = std::make_pair(0.0, 0.0);
 			if (cur_zone.until_type == tz::KTimeType_Utc)
 			{
-				ret_val = std::make_pair(cur_zone.until_wall, total_until_offset - total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall, total_until_offset - total_cur_offset);
 			}
 			else if (cur_zone.until_type == tz::KTimeType_Std)
 			{
-				ret_val = std::make_pair(cur_zone.until_wall - until_zone_offset, total_until_offset - total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall - until_zone_offset, total_until_offset - total_cur_offset);
 			}
 			else
 			{
-				ret_val = std::make_pair(cur_zone.until_wall - until_zone_offset - until_rule_offset, total_until_offset - total_cur_offset);
+				ret_val = std::make_pair(cur_zone.mb_until_wall - until_zone_offset - until_rule_offset, total_until_offset - total_cur_offset);
 			}
 
 			return ret_val;

@@ -2,6 +2,8 @@
 #ifndef _BASICDATETIME_
 #define _BASICDATETIME_
 
+#include <ostream>
+
 #include "core_decls.h"
 #include "tz_decls.h"
 #include "iso_chronology.h"
@@ -38,6 +40,16 @@ namespace smalltime
 		static T KCHRONOLOGY;
 			
 	};
+
+	//=============================================
+	// Stream operator overload
+	//==============================================
+	template <typename T>
+	std::ostream& operator<< (std::ostream& stream, const BasicDateTime<T> rhs)
+	{
+		return stream << rhs.GetYear() << '/' << rhs.GetMonth() << '/' << rhs.GetDay() << 'T' << rhs.GetHour() << ':' << rhs.GetMinute()
+			<< ':' << rhs.GetSecond() << ':' << rhs.GetMillisecond();
+	}
 
 	//==================================
 	// Init static member

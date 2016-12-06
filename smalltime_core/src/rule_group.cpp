@@ -104,7 +104,7 @@ namespace smalltime
 			}
 
 			if (closest_rule)
-				return CorrectForAmbigWallOrUtc(cur_dt, closest_rule_dt, closest_rule, choose);
+				return CorrectForAmbigAny(cur_dt, closest_rule_dt, closest_rule, choose);
 			else
 				return closest_rule;
 
@@ -260,12 +260,13 @@ namespace smalltime
 		//==========================================================================
 		// check if the cur date time is within an ambiguous range in wall time
 		//==========================================================================
-		const Rule* const RuleGroup::CorrectForAmbigWallOrUtc(const BasicDateTime<>& cur_dt, const BasicDateTime<>& cur_rule_dt, const Rule* const cur_rule, Choose choose)
+		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, const BasicDateTime<>& cur_rule_dt, const Rule* const cur_rule, Choose choose)
 		{
 			// Check with previous offset for ambiguousness
 			auto prev_rule = FindPreviousRule(cur_rule_dt);
 			if (prev_rule.first)
 			{
+
 				auto offset_diff = cur_rule->offset - prev_rule.first->offset;
 
 				RD cur_rule_inst = 0.0;

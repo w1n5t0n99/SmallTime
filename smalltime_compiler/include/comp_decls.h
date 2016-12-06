@@ -10,12 +10,12 @@ namespace smalltime
 {
 	namespace comp
 	{
-		enum TransitionType
+		enum Transition
 		{
-			KTransitionType_MomentBeforeUtc = 0,
-			KTransitionType_MomentBeforeWall = 1,
-			KTransitionType_TransitionWall = 2,
-			KTransitionType_FirstInstWall = 3
+			KTransition_MomentBeforeUtc = 0,
+			KTransition_MomentBeforeWall = 1,
+			KTransition_TransitionWall = 2,
+			KTransition_FirstInstWall = 3
 		};
 
 		struct RuleData

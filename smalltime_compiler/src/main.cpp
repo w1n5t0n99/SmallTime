@@ -21,6 +21,7 @@ static bool log_transition_data = false;
 
 int main()
 {
+	
 	std::vector<std::string> vSrc = { "iana\\northamerica", "iana\\southamerica", "iana\\asia", "iana\\africa", "iana\\australasia", "iana\\antarctica", "iana\\europe" };
 	std::vector<comp::ZoneData> vec_zonedata = {};
 	std::vector<comp::RuleData> vec_ruledata = {};

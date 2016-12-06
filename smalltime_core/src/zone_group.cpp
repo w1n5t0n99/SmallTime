@@ -8,6 +8,7 @@
 #include "../include/float_util.h"
 #include <time_math.h>
 #include <smalltime_exceptions.h>
+#include <rule_group.h>
 
 namespace smalltime
 {
@@ -48,7 +49,7 @@ namespace smalltime
 				for (int i = zones_.first; i <= last_zone_index; ++i)
 				{
 					cur_zone_index = i;
-					if (cur_dt.GetFixed() < zone_arr_[i].until_utc || cur_zone_index == last_zone_index)
+					if (cur_dt.GetFixed() < (zone_arr_[i].mb_until_utc + math::MSEC()) || cur_zone_index == last_zone_index)
 					{
 						cur_zone = &zone_arr_[i];
 						break;
@@ -59,75 +60,164 @@ namespace smalltime
 			if (cur_zone == nullptr)
 				return cur_zone;
 
-			return CorrectForAmbigWallOrUtc(cur_dt, cur_zone_index, choose);
+			return CorrectForAmbigAny(cur_dt, cur_zone_index, choose);
 
+		}
+
+		//========================================================
+		// Correct for ambigousness between zones
+		//========================================================
+		const Zone* const ZoneGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
+		{
+			if (cur_dt.GetType() == KTimeType_Wall)
+				return CorrectForAmbigWall(cur_dt, cur_zone_index, choose);
+			else if (cur_dt.GetType() == KTimeType_Std)
+				return CorrectForAmbigStd(cur_dt, cur_zone_index, choose);
+			else
+				return CorrectForAmbigUtc(cur_dt, cur_zone_index, choose);
 		}
 
 		//======================================================
 		// Check if the cur dt is within an ambiguous range
 		//======================================================
-		const Zone* const ZoneGroup::CorrectForAmbigWallOrUtc(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
+		const Zone* const ZoneGroup::CorrectForAmbigWall(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
 		{
 			auto cur_zone = &zone_arr_[cur_zone_index];
 			auto next_zone = FindNextZone(cur_zone_index);
 
-			auto next_zone_inst = 0.0;
-			if(cur_dt.GetType() == KTimeType_Wall)
-				next_zone_inst = cur_zone->until_wall + cur_zone->until_diff;
-			else if(cur_dt.GetType() == KTimeType_Utc)
-				next_zone_inst = cur_zone->until_wall - cur_zone->until_diff;
 
-			if (cur_dt.GetFixed() > next_zone_inst || AlmostEqualUlps(cur_dt.GetFixed(), next_zone_inst, 11))
+			if ((cur_zone->first_inst_wall <= cur_dt.GetFixed() || AlmostEqualUlps(cur_zone->first_inst_wall, cur_dt.GetFixed(), 11)) && 
+				(cur_dt.GetFixed() <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_dt.GetFixed(), 11)))
 			{
 				// Ambigiuous local time gap
 				if (choose == Choose::KEarliest)
-				{
 					return cur_zone;
-				}
 				else if (choose == Choose::KLatest)
-				{
 					return next_zone;
-				}
 				else
-				{
-					if (cur_dt.GetType() == KTimeType_Wall)
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->until_wall, KTimeType_Wall), BasicDateTime<>(next_zone_inst, KTimeType_Wall));
-					else if (cur_dt.GetType() == KTimeType_Utc)
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->until_utc, KTimeType_Utc), BasicDateTime<>(next_zone_inst, KTimeType_Utc));
-				}
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
 			}
 
 			// check for ambiguousness with previous active zone
 			auto prev_zone = FindPreviousZone(cur_zone_index);
 			if (prev_zone)
 			{
-				auto prev_zone_inst = 0.0;
-				if (cur_dt.GetType() == KTimeType_Wall)
-					prev_zone_inst = prev_zone->until_wall + prev_zone->until_diff;
-				else if (cur_dt.GetType() == KTimeType_Utc)
-					prev_zone_inst = prev_zone->until_utc - prev_zone->until_diff;
-
-				if (cur_dt.GetFixed() < prev_zone_inst)
+				if ((prev_zone->mb_until_wall <= cur_dt.GetFixed() || AlmostEqualUlps(prev_zone->first_inst_wall, cur_dt.GetFixed(), 11)) &&
+					cur_dt.GetFixed() < prev_zone->first_inst_wall )
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
-					{
 						return prev_zone;
-					}
 					else if (choose == Choose::KLatest)
-					{
 						return cur_zone;
-					}
 					else
-					{
-						if (cur_dt.GetType() == KTimeType_Wall)
-							throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone_inst, KTimeType_Wall));
-						else if (cur_dt.GetType() == KTimeType_Utc)
-							throw TimeZoneAmbigMultiException(BasicDateTime<>(prev_zone->until_utc, KTimeType_Utc), BasicDateTime<>(prev_zone_inst, KTimeType_Utc));
-					}
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
 				}
 			}
 			
+			return cur_zone;
+		}
+
+		//======================================================
+		// Check if the cur dt is within an ambiguous range
+		//======================================================
+		const Zone* const ZoneGroup::CorrectForAmbigUtc(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
+		{
+			auto cur_zone = &zone_arr_[cur_zone_index];
+			auto next_zone = FindNextZone(cur_zone_index);
+
+			// ambiguousness only occurs in wall time, so cur_dt must be converted to wall time to check
+			RD zone_offset = cur_zone->zone_offset;
+			RD rule_offset = 0.0;
+			if (cur_zone->rule_id > 0)
+			{
+				RuleGroup rg(cur_zone->rule_id, cur_zone, tzdb_connector_);
+				auto r = rg.FindActiveRule(cur_dt, Choose::KError);
+				rule_offset += r->offset;
+			}
+
+			auto cur_wall_rd = cur_dt.GetFixed() + zone_offset + rule_offset;
+
+			if ((cur_zone->first_inst_wall <= cur_wall_rd || AlmostEqualUlps(cur_zone->first_inst_wall, cur_wall_rd, 11)) &&
+				(cur_wall_rd <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_wall_rd, 11)))
+			{
+				// Ambigiuous local time gap
+				if (choose == Choose::KEarliest)
+					return cur_zone;
+				else if (choose == Choose::KLatest)
+					return next_zone;
+				else
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
+			}
+
+			// check for ambiguousness with previous active zone
+			auto prev_zone = FindPreviousZone(cur_zone_index);
+			if (prev_zone)
+			{
+				if ((prev_zone->mb_until_wall <= cur_wall_rd || AlmostEqualUlps(prev_zone->first_inst_wall, cur_wall_rd, 11)) &&
+					cur_wall_rd < prev_zone->first_inst_wall)
+				{
+					// Ambigiuous local time gap
+					if (choose == Choose::KEarliest)
+						return prev_zone;
+					else if (choose == Choose::KLatest)
+						return cur_zone;
+					else
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
+				}
+			}
+
+			return cur_zone;
+		}
+
+		//======================================================
+		// Check if the cur dt is within an ambiguous range
+		//======================================================
+		const Zone* const ZoneGroup::CorrectForAmbigStd(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
+		{
+			auto cur_zone = &zone_arr_[cur_zone_index];
+			auto next_zone = FindNextZone(cur_zone_index);
+
+			// ambiguousness only occurs in wall time, so cur_dt must be converted to wall time to check
+			RD rule_offset = 0.0;
+			if (cur_zone->rule_id > 0)
+			{
+				RuleGroup rg(cur_zone->rule_id, cur_zone, tzdb_connector_);
+				auto r = rg.FindActiveRule(cur_dt, Choose::KError);
+				rule_offset += r->offset;
+			}
+
+			auto cur_wall_rd = cur_dt.GetFixed() + rule_offset;
+
+			if ((cur_zone->first_inst_wall <= cur_wall_rd || AlmostEqualUlps(cur_zone->first_inst_wall, cur_wall_rd, 11)) &&
+				(cur_wall_rd <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_wall_rd, 11)))
+			{
+				// Ambigiuous local time gap
+				if (choose == Choose::KEarliest)
+					return cur_zone;
+				else if (choose == Choose::KLatest)
+					return next_zone;
+				else
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
+			}
+
+			// check for ambiguousness with previous active zone
+			auto prev_zone = FindPreviousZone(cur_zone_index);
+			if (prev_zone)
+			{
+				if ((prev_zone->mb_until_wall <= cur_wall_rd || AlmostEqualUlps(prev_zone->first_inst_wall, cur_wall_rd, 11)) &&
+					cur_wall_rd < prev_zone->first_inst_wall)
+				{
+					// Ambigiuous local time gap
+					if (choose == Choose::KEarliest)
+						return prev_zone;
+					else if (choose == Choose::KLatest)
+						return cur_zone;
+					else
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
+				}
+			}
+
 			return cur_zone;
 		}
 

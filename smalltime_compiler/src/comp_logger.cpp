@@ -22,10 +22,12 @@ namespace smalltime
 			for (int i = 0; i < vec_zone.size(); ++i)
 			{
 				auto zone_offset = math::HmsFromFixed(vec_zone[i].zone_offset);
-				auto zone_diff = vec_zone[i].until_diff;
+				auto zone_diff = vec_zone[i].until_wall;
 
-				BasicDateTime<> wall_dt(vec_zone[i].until_wall, tz::KTimeType_Wall);
-				BasicDateTime<> until_dt(vec_zone[i].until_utc, tz::KTimeType_Utc);
+				BasicDateTime<> mb_wall_dt(vec_zone[i].mb_until_wall, tz::KTimeType_Wall);
+				BasicDateTime<> fi_wall_dt(vec_zone[i].first_inst_wall, tz::KTimeType_Wall);
+				BasicDateTime<> until_wall_dt(vec_zone[i].until_wall, tz::KTimeType_Wall);
+
 
 				std::string zone_name = "";
 				if (i == vec_zone.size() - 1)
@@ -33,8 +35,7 @@ namespace smalltime
 				else
 					zone_name = vec_zonedata[i].name;
 
-				stream << zone_name << " - " << vec_zone[i].zone_id << " Wall Until - " << wall_dt.GetYear() << "/" << wall_dt.GetMonth() << "/" << wall_dt.GetDay() << " " << wall_dt.GetHour() << ":"
-					<< wall_dt.GetMinute() << ":" << wall_dt.GetSecond() << ":" << wall_dt.GetMillisecond() << " Until Diff - " << zone_diff << "\n";
+				stream << zone_name << "Moment Before " << mb_wall_dt << " First Instant " << fi_wall_dt << " Until Wall " << until_wall_dt << std::endl;
 
 			}
 		}
