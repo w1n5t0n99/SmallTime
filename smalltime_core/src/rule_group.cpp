@@ -85,6 +85,7 @@ namespace smalltime
 					auto r = &rule_arr_[rules_.first + i];
 
 					transition_data = CalcRuleData(r, primary_year_);
+
 					if (cur_dt.GetType() == KTimeType_Wall)
 					{
 						mb_any_rd = std::get<KTransition_MomentBeforeWall>(transition_data);
@@ -98,7 +99,6 @@ namespace smalltime
 						mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data);
 					}
 
-					//auto cur_rule_dt = CalcTransitionAny(r, primary_year_, cur_dt.GetType());
 					diff = cur_dt.GetFixed() - mb_any_rd;
 					if (diff > 0.0  && diff < closest_diff )
 					{
@@ -133,7 +133,6 @@ namespace smalltime
 							mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data);
 						}
 
-						//auto cur_rule_dt = CalcTransitionAny(r, primary_year_, cur_dt.GetType());
 						diff = cur_dt.GetFixed() - mb_any_rd;
 						if (diff > 0.0  && diff < closest_diff)
 						{
@@ -394,6 +393,12 @@ namespace smalltime
 		//==========================================================================
 		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, const std::tuple<RD, RD, RD, RD, RD, RD>& closest_rule_data, const Rule* const cur_rule, Choose choose)
 		{
+			// if the rule transition and zone transtion are exact same time,
+			// the the zone transition should do the check
+			auto rule_transition_wall = std::get<KTransition_TransitionWall>(closest_rule_data);
+			if (AlmostEqualUlps(rule_transition_wall, zone_->until_wall, 11))
+				return cur_rule;
+
 			// Check with current offset for ambiguousness
 			RD cur_wall_rd = 0.0;
 			if (cur_dt.GetType() == KTimeType_Wall)
@@ -402,9 +407,7 @@ namespace smalltime
 				cur_wall_rd = cur_dt.GetFixed() + cur_rule->offset;
 			else
 				cur_wall_rd = cur_dt.GetFixed() + zone_->zone_offset + cur_rule->offset;
-			
-			auto rule_transition_wall = std::get<KTransition_TransitionWall>(closest_rule_data);
-			
+						
 			auto prev_rule = FindPreviousRule(rule_transition_wall);
 			if (prev_rule.first)
 			{

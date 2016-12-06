@@ -44,7 +44,7 @@ int main()
 	BasicDateTime<> dt1(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);
 	BasicDateTime<> dt0(1983, 10, 30, 1, 0, 0, 0, tz::TimeType::KTimeType_Wall);
 
-	BasicDateTime<> dt(2016, 11, 6, 1, 0, 0, 0, tz::TimeType::KTimeType_Utc);
+	BasicDateTime<> dt(2016, 3, 13, 7, 1, 0, 0, tz::TimeType::KTimeType_Utc);
 
 	/*
 	for (int i = zones.first; i < zones.first + zones.size; ++i)
