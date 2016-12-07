@@ -29,52 +29,83 @@ namespace smalltime
 		const Zone* const ZoneGroup::FindActiveZone(BasicDateTime<> cur_dt, Choose choose)
 		{
 			const Zone* cur_zone = nullptr;
-			int cur_zone_index = 0;
+			int closest_zone_index = 0;
 			int last_zone_index = zones_.first + zones_.size - 1;
 
-			if (cur_dt.GetType() == KTimeType_Wall)
+			for (int i = zones_.first; i <= last_zone_index; ++i)
 			{
-				for (int i = zones_.first; i <= last_zone_index; ++i)
+				ZoneTransition zt(zone_arr_[i].mb_until_utc, zone_arr_[i].zone_offset, zone_arr_[i].next_zone_offset, zone_arr_[i].mb_rule_offset, zone_arr_[i].trans_rule_offset);
+
+				RD trans_any = 0.0;
+				switch (cur_dt.GetType())
 				{
-					cur_zone_index = i;
-					if (cur_dt.GetFixed() < zone_arr_[i].mb_rule_offset || cur_zone_index == last_zone_index)
-					{
-						cur_zone = &zone_arr_[i];
-						break;
-					}
+				case KTimeType_Wall:
+					trans_any = zt.trans_wall_;
+					break;
+				case KTimeType_Std:
+					trans_any = zt.trans_std_;
+					break;
+				case KTimeType_Utc:
+					trans_any = zt.trans_utc_;
+					break;
 				}
-			}
-			else if (cur_dt.GetType() == KTimeType_Utc)
-			{
-				for (int i = zones_.first; i <= last_zone_index; ++i)
+
+				if (cur_dt.GetFixed() < trans_any || i == last_zone_index)
 				{
-					cur_zone_index = i;
-					if (cur_dt.GetFixed() < (zone_arr_[i].mb_until_utc + math::MSEC()) || cur_zone_index == last_zone_index)
-					{
-						cur_zone = &zone_arr_[i];
-						break;
-					}
+					cur_zone = &zone_arr_[i];
+					closest_zone_index = i;
+					break;
 				}
+
 			}
 
+		
 			if (cur_zone == nullptr)
 				return cur_zone;
 
-			return CorrectForAmbigAny(cur_dt, cur_zone_index, choose);
+			return CorrectForAmbigAny(cur_dt, closest_zone_index, choose);
 
 		}
 
 		//========================================================
 		// Correct for ambigousness between zones
 		//========================================================
-		const Zone* const ZoneGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose)
+		const Zone* const ZoneGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, const ZoneTransition& cur_zone_transition, Choose choose)
 		{
+			/*
 			if (cur_dt.GetType() == KTimeType_Wall)
 				return CorrectForAmbigWall(cur_dt, cur_zone_index, choose);
 			else if (cur_dt.GetType() == KTimeType_Std)
 				return CorrectForAmbigStd(cur_dt, cur_zone_index, choose);
 			else
 				return CorrectForAmbigUtc(cur_dt, cur_zone_index, choose);
+				*/
+
+			auto cur_zone = &zone_arr_[cur_zone_index];
+			auto next_zone = FindNextZone(cur_zone_index);
+
+			RD cur_mb_any = 0.0;
+			RD cur_fi_any = 0.0;
+
+			switch (cur_dt.GetType())
+			{
+			case KTimeType_Wall:
+				cur_mb_any = cur_zone_transition.mb_trans_wall_;
+				cur_fi_any = cur_zone_transition.first_inst_wall_;
+				break;
+			case KTimeType_Std:
+				cur_mb_any = cur_zone_transition.mb_trans_std_;
+				cur_fi_any = cur_zone_transition.first_inst_std_;
+				break;
+			case KTimeType_Utc:
+				cur_mb_any = cur_zone_transition.mb_trans_utc_;
+				cur_fi_any = cur_zone_transition.trans_utc_;
+				break;
+			}
+
+			// check for mu
+
+
 		}
 
 		//======================================================

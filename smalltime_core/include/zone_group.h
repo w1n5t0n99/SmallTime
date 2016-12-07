@@ -22,7 +22,7 @@ namespace smalltime
 			const Zone* const FindPreviousZone(int cur_zone_index);
 			const Zone* const FindNextZone(int cur_zone_index);
 
-			const Zone* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
+			const Zone* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, const ZoneTransition& cur_zone_transition, Choose choose);
 
 			const Zone* const CorrectForAmbigWall(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
 			const Zone* const CorrectForAmbigStd(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
