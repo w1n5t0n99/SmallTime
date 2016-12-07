@@ -31,10 +31,11 @@ namespace smalltime
 			const Zone* cur_zone = nullptr;
 			int closest_zone_index = 0;
 			int last_zone_index = zones_.first + zones_.size - 1;
+			ZoneTransition zt(0.0, 0.0, 0.0, 0.0, 0.0);
 
 			for (int i = zones_.first; i <= last_zone_index; ++i)
 			{
-				ZoneTransition zt(zone_arr_[i].mb_until_utc, zone_arr_[i].zone_offset, zone_arr_[i].next_zone_offset, zone_arr_[i].mb_rule_offset, zone_arr_[i].trans_rule_offset);
+				zt.Reset(zone_arr_[i].mb_until_utc, zone_arr_[i].zone_offset, zone_arr_[i].next_zone_offset, zone_arr_[i].mb_rule_offset, zone_arr_[i].trans_rule_offset);
 
 				RD trans_any = 0.0;
 				switch (cur_dt.GetType())
@@ -63,7 +64,7 @@ namespace smalltime
 			if (cur_zone == nullptr)
 				return cur_zone;
 
-			return CorrectForAmbigAny(cur_dt, closest_zone_index, choose);
+			return CorrectForAmbigAny(cur_dt, closest_zone_index, zt, choose);
 
 		}
 
@@ -84,26 +85,84 @@ namespace smalltime
 			auto cur_zone = &zone_arr_[cur_zone_index];
 			auto next_zone = FindNextZone(cur_zone_index);
 
-			RD cur_mb_any = 0.0;
-			RD cur_fi_any = 0.0;
+			RD mb_any = 0.0;
+			RD fi_any = 0.0;
+			TimeType time_type = KTimeType_Wall;
 
 			switch (cur_dt.GetType())
 			{
 			case KTimeType_Wall:
-				cur_mb_any = cur_zone_transition.mb_trans_wall_;
-				cur_fi_any = cur_zone_transition.first_inst_wall_;
+				mb_any = cur_zone_transition.mb_trans_wall_;
+				fi_any = cur_zone_transition.first_inst_wall_;
+				time_type = KTimeType_Wall;
 				break;
 			case KTimeType_Std:
-				cur_mb_any = cur_zone_transition.mb_trans_std_;
-				cur_fi_any = cur_zone_transition.first_inst_std_;
+				mb_any = cur_zone_transition.mb_trans_std_;
+				fi_any = cur_zone_transition.first_inst_std_;
+				time_type = KTimeType_Std;
 				break;
 			case KTimeType_Utc:
-				cur_mb_any = cur_zone_transition.mb_trans_utc_;
-				cur_fi_any = cur_zone_transition.trans_utc_;
+				mb_any = cur_zone_transition.mb_trans_utc_;
+				fi_any = cur_zone_transition.trans_utc_;
+				time_type = KTimeType_Utc;
 				break;
 			}
 
-			// check for mu
+			// check for ambig with current and next zone
+			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualUlps(fi_any, cur_dt.GetFixed(), 11)) &&
+				(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
+			{
+				// Ambigiuous local time gap
+				if (choose == Choose::KEarliest)
+					return cur_zone;
+				else if (choose == Choose::KLatest)
+					return next_zone;
+				else
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(fi_any, time_type), BasicDateTime<>(mb_any, time_type));
+			}
+
+			// check for ambig with previous zone and current zone
+			auto prev_zone = FindPreviousZone(cur_zone_index);
+			if (!prev_zone)
+				return cur_zone;
+
+			ZoneTransition prev_zone_transition(prev_zone->mb_until_utc, prev_zone->zone_offset, prev_zone->next_zone_offset, prev_zone->mb_rule_offset, prev_zone->trans_rule_offset);
+
+			mb_any = 0.0;
+			fi_any = 0.0;
+			time_type = KTimeType_Wall;
+
+			switch (cur_dt.GetType())
+			{
+			case KTimeType_Wall:
+				mb_any = prev_zone_transition.mb_trans_wall_;
+				fi_any = prev_zone_transition.first_inst_wall_;
+				time_type = KTimeType_Wall;
+				break;
+			case KTimeType_Std:
+				mb_any = prev_zone_transition.mb_trans_std_;
+				fi_any = prev_zone_transition.first_inst_std_;
+				time_type = KTimeType_Std;
+				break;
+			case KTimeType_Utc:
+				mb_any = prev_zone_transition.mb_trans_utc_;
+				fi_any = prev_zone_transition.trans_utc_;
+				time_type = KTimeType_Utc;
+				break;
+			}
+
+			if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
+			{
+				// Ambigiuous local time gap
+				if (choose == Choose::KEarliest)
+					return prev_zone;
+				else if (choose == Choose::KLatest)
+					return cur_zone;
+				else
+					throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_any, time_type), BasicDateTime<>(fi_any, time_type));
+			}
+
+			return cur_zone;
 
 
 		}

@@ -64,13 +64,13 @@ int main()
 	
 	try
 	{
-		auto ar = ru.FindActiveRule(dt, Choose::KError);
-	//	auto z = zu.FindActiveZone(dt0, Choose::KError);
-		printf("AR From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
+		//auto ar = ru.FindActiveRule(dt, Choose::KError);
+		auto z = zu.FindActiveZone(dt, Choose::KError);
+		//printf("AR From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
 
 
-	//	BasicDateTime<> cr(z->until_wall, z->until_type);
-	//	printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+		BasicDateTime<> cr(z->mb_until_utc, z->until_type);
+		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
 
 	}
 	catch (const std::exception& e)
