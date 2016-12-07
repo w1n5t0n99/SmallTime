@@ -3,6 +3,7 @@
 #define _TZDECLS_
 
 #include "core_decls.h"
+#include "time_math.h"
 #include <cinttypes>
 
 namespace smalltime
@@ -52,12 +53,12 @@ namespace smalltime
 		{
 			uint32_t zone_id;
 			uint32_t rule_id;
-			RD mb_until_wall;
 			RD mb_until_utc;
-			RD until_wall;
-			RD first_inst_wall;
 			TimeType until_type;
 			RD zone_offset;
+			RD next_zone_offset;
+			RD mb_rule_offset;
+			RD trans_rule_offset;
 			uint64_t abbrev;
 		};
 
@@ -81,6 +82,102 @@ namespace smalltime
 			int size;
 		};
 
+		class ZoneTransition
+		{
+		public:
+			ZoneTransition(RD mb_trans_utc, RD cur_zoffset, RD next_zoffset, RD cur_roffset, RD next_roffset) :
+				mb_trans_utc_(mb_trans_utc), cur_zoffset_(cur_zoffset), next_zoffset_(next_zoffset), cur_roffset_(cur_roffset),
+				next_roffset_(next_roffset), mb_trans_wall_(mb_trans_utc_ + cur_zoffset_ + cur_roffset_), mb_trans_std_(mb_trans_utc_ + cur_zoffset_),
+				trans_wall_(mb_trans_wall_ + math::MSEC()), trans_std_(mb_trans_std_ + math::MSEC()), trans_utc_(mb_trans_utc_ + math::MSEC()),
+				first_inst_std_(trans_utc_ + next_zoffset_), first_inst_wall_(first_inst_std_ + next_roffset_)
+			{
+
+			}
+
+			void Reset(RD mb_trans_utc, RD cur_zoffset, RD next_zoffset, RD cur_roffset, RD next_roffset)
+			{
+				cur_zoffset_ = cur_zoffset;
+				next_zoffset_ = next_zoffset;
+				cur_roffset_ = cur_roffset;
+				next_roffset_ = next_roffset;
+
+				mb_trans_utc_ = mb_trans_utc;
+				mb_trans_std_ = mb_trans_utc_ + cur_zoffset_;
+				mb_trans_wall_ = mb_trans_std_ + cur_roffset_;
+
+				trans_utc_ = mb_trans_utc_ + math::MSEC();
+				trans_std_ = trans_utc_ + cur_zoffset_;
+				trans_wall_ = trans_std_ + cur_roffset_;
+
+				first_inst_std_ = trans_utc_ + next_zoffset_;
+				first_inst_wall_ = first_inst_std_ + next_roffset_;
+
+			}
+
+			RD mb_trans_wall_;
+			RD mb_trans_std_;
+			RD mb_trans_utc_;
+
+			RD trans_wall_;
+			RD trans_std_;
+			RD trans_utc_;
+
+			RD first_inst_wall_;
+			RD first_inst_std_;
+
+			RD cur_zoffset_;
+			RD cur_roffset_;
+			RD next_zoffset_;
+			RD next_roffset_;
+
+		};
+
+		class RuleTransition
+		{
+		public:
+			RuleTransition(RD mb_trans_utc, RD zoffset, RD cur_roffset, RD prev_roffset) :
+				mb_trans_utc_(mb_trans_utc), zoffset_(zoffset), cur_roffset_(cur_roffset),
+				prev_roffset_(prev_roffset), mb_trans_std_(mb_trans_utc_ + zoffset_), mb_trans_wall_(mb_trans_std_ + prev_roffset_),
+				trans_utc_(mb_trans_utc_ + math::MSEC()), trans_std_(mb_trans_std_ + math::MSEC()), trans_wall_(mb_trans_wall_ + math::MSEC()),
+				first_inst_std_(trans_utc_ + zoffset), first_inst_wall_(first_inst_std_ + cur_roffset_)
+			{
+
+			}
+
+			void Reset(RD mb_trans_utc, RD zoffset, RD cur_roffset, RD prev_roffset)
+			{
+				zoffset_ = zoffset;
+				cur_roffset_ = cur_roffset;
+				prev_roffset_ = prev_roffset;
+
+				mb_trans_utc_ = mb_trans_utc;
+				mb_trans_std_ = mb_trans_utc_ + zoffset_;
+				mb_trans_wall_ = mb_trans_std_ + prev_roffset_;
+
+				trans_utc_ = mb_trans_utc_ + math::MSEC();
+				trans_std_ = trans_utc_ + zoffset_;
+				trans_wall_ = trans_std_ + prev_roffset_;
+
+				first_inst_std_ = trans_utc_ + zoffset_;
+				first_inst_wall_ = first_inst_std_ + cur_roffset_;
+			}
+
+			RD mb_trans_wall_;
+			RD mb_trans_std_;
+			RD mb_trans_utc_;
+
+			RD trans_wall_;
+			RD trans_std_;
+			RD trans_utc_;
+
+			RD first_inst_wall_;
+			RD first_inst_std_;
+
+			RD zoffset_;
+			RD cur_roffset_;
+			RD prev_roffset_;
+
+		};
 
 	}
 }

@@ -396,7 +396,7 @@ namespace smalltime
 			// if the rule transition and zone transtion are exact same time,
 			// the the zone transition should do the check
 			auto rule_transition_wall = std::get<KTransition_TransitionWall>(closest_rule_data);
-			if (AlmostEqualUlps(rule_transition_wall, zone_->until_wall, 11))
+			if (AlmostEqualUlps(rule_transition_wall, zone_->mb_rule_offset, 11))
 				return cur_rule;
 
 			// Check with current offset for ambiguousness
@@ -411,11 +411,11 @@ namespace smalltime
 			auto prev_rule = FindPreviousRule(rule_transition_wall);
 			if (prev_rule.first)
 			{
-				auto first_inst_wall = std::get<KTransition_FirstInstWall>(closest_rule_data);
+				auto trans_rule_offset = std::get<KTransition_FirstInstWall>(closest_rule_data);
 				auto mb_rule_wall = std::get<KTransition_MomentBeforeWall>(closest_rule_data);
 
-				if ((mb_rule_wall <= cur_wall_rd || AlmostEqualUlps(first_inst_wall, cur_wall_rd, 11)) &&
-					cur_wall_rd < first_inst_wall)
+				if ((mb_rule_wall <= cur_wall_rd || AlmostEqualUlps(trans_rule_offset, cur_wall_rd, 11)) &&
+					cur_wall_rd < trans_rule_offset)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -423,7 +423,7 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return cur_rule;
 					else
-						throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_rule_wall, KTimeType_Wall), BasicDateTime<>(first_inst_wall, KTimeType_Wall));
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_rule_wall, KTimeType_Wall), BasicDateTime<>(trans_rule_offset, KTimeType_Wall));
 				}
 			}
 
@@ -432,10 +432,10 @@ namespace smalltime
 			{
 				auto next_rule_data = CalcRuleData(next_rule.first, next_rule.second);
 
-				auto first_inst_wall = std::get<KTransition_FirstInstWall>(next_rule_data);
+				auto trans_rule_offset = std::get<KTransition_FirstInstWall>(next_rule_data);
 				auto mb_rule_wall = std::get<KTransition_MomentBeforeWall>(next_rule_data);
 
-				if ((first_inst_wall <= cur_wall_rd || AlmostEqualUlps(first_inst_wall, cur_wall_rd, 11)) &&
+				if ((trans_rule_offset <= cur_wall_rd || AlmostEqualUlps(trans_rule_offset, cur_wall_rd, 11)) &&
 					(cur_wall_rd <= mb_rule_wall || AlmostEqualUlps(mb_rule_wall, cur_wall_rd, 11)))
 				{
 					// Ambigiuous local time gap
@@ -444,7 +444,7 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return next_rule.first;
 					else
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(first_inst_wall, KTimeType_Wall), BasicDateTime<>(mb_rule_wall, KTimeType_Wall));
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(trans_rule_offset, KTimeType_Wall), BasicDateTime<>(mb_rule_wall, KTimeType_Wall));
 				}
 
 			}

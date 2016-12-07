@@ -34,7 +34,7 @@ namespace smalltime
 		bool Generator::ProccessUtc(std::vector<tz::Zone>& vec_zone)
 		{
 			// Set a UTC entry
-			tz::Zone utc_zone = { math::GetUniqueID("UTC") , 0, tz::DMAX, tz::DMAX, tz::DMAX, tz::DMAX, tz::KTimeType_Wall, 0.0, math::Pack8Chars("UTC") };
+			tz::Zone utc_zone = { math::GetUniqueID("UTC") , 0, tz::DMAX, tz::KTimeType_Wall, tz::DMAX, tz::DMAX, tz::DMAX, tz::DMAX, math::Pack8Chars("UTC") };
 			vec_zone.push_back(utc_zone);
 
 			return true;
@@ -101,16 +101,16 @@ namespace smalltime
 				//	fzl.rule = HashString(zl.rule);   //TODO: Rule can also be null "-" or a time offser e.g. 2:00
 
 				fzl.rule_id = ConvertToZoneRuleId(zl.rule);
-				fzl.mb_until_utc = ConvertToZoneRuleOffset(zl.rule);
+				fzl.mb_rule_offset = ConvertToZoneRuleOffset(zl.rule);
+				fzl.trans_rule_offset = 0.0;
 
 				fzl.zone_offset = ConvertTimeStrToRd(zl.gmt_offset);
+				fzl.next_zone_offset = 0.0;
 				fzl.abbrev = math::Pack8Chars(zl.format);
 
 				auto untilDt = ConvertZoneUntil(zl.until);
-				fzl.mb_until_wall = untilDt.GetFixed();
+				fzl.mb_until_utc = untilDt.GetFixed();
 				fzl.until_type = untilDt.GetType();
-				fzl.until_wall = 0.0;
-				fzl.first_inst_wall = 0.0;
 
 				vec_zone.push_back(fzl);
 

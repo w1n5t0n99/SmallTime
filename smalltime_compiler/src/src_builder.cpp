@@ -173,7 +173,7 @@ namespace smalltime
 			// 17 digits should be enough to round trip double
 			out_file << std::setprecision(17);
 
-			out_file << "Zone {" << zone.zone_id << ", " << zone.rule_id << ", " << zone.mb_until_wall << ", " << zone.mb_until_utc << ", " << zone.until_wall << ", " << zone.first_inst_wall << ", " << zone.until_type << ", " << zone.zone_offset << ", " << zone.abbrev << "}";
+			out_file << "Zone {" << zone.zone_id << ", " << zone.rule_id << ", " << zone.mb_until_utc << ", "  << zone.until_type << ", " << zone.zone_offset << ", " << zone.next_zone_offset << ", " << zone.mb_rule_offset << ", " << zone.trans_rule_offset << ", " << zone.abbrev << "}";
 			out_file << ",\n";
 
 			return true;

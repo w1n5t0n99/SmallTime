@@ -37,7 +37,7 @@ namespace smalltime
 				for (int i = zones_.first; i <= last_zone_index; ++i)
 				{
 					cur_zone_index = i;
-					if (cur_dt.GetFixed() < zone_arr_[i].until_wall || cur_zone_index == last_zone_index)
+					if (cur_dt.GetFixed() < zone_arr_[i].mb_rule_offset || cur_zone_index == last_zone_index)
 					{
 						cur_zone = &zone_arr_[i];
 						break;
@@ -86,8 +86,8 @@ namespace smalltime
 			auto next_zone = FindNextZone(cur_zone_index);
 
 
-			if ((cur_zone->first_inst_wall <= cur_dt.GetFixed() || AlmostEqualUlps(cur_zone->first_inst_wall, cur_dt.GetFixed(), 11)) && 
-				(cur_dt.GetFixed() <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_dt.GetFixed(), 11)))
+			if ((cur_zone->trans_rule_offset <= cur_dt.GetFixed() || AlmostEqualUlps(cur_zone->trans_rule_offset, cur_dt.GetFixed(), 11)) && 
+				(cur_dt.GetFixed() <= cur_zone->next_zone_offset || AlmostEqualUlps(cur_zone->next_zone_offset, cur_dt.GetFixed(), 11)))
 			{
 				// Ambigiuous local time gap
 				if (choose == Choose::KEarliest)
@@ -95,15 +95,15 @@ namespace smalltime
 				else if (choose == Choose::KLatest)
 					return next_zone;
 				else
-					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->trans_rule_offset, KTimeType_Wall), BasicDateTime<>(cur_zone->next_zone_offset, KTimeType_Wall));
 			}
 
 			// check for ambiguousness with previous active zone
 			auto prev_zone = FindPreviousZone(cur_zone_index);
 			if (prev_zone)
 			{
-				if ((prev_zone->mb_until_wall <= cur_dt.GetFixed() || AlmostEqualUlps(prev_zone->first_inst_wall, cur_dt.GetFixed(), 11)) &&
-					cur_dt.GetFixed() < prev_zone->first_inst_wall )
+				if ((prev_zone->next_zone_offset <= cur_dt.GetFixed() || AlmostEqualUlps(prev_zone->trans_rule_offset, cur_dt.GetFixed(), 11)) &&
+					cur_dt.GetFixed() < prev_zone->trans_rule_offset )
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -111,7 +111,7 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return cur_zone;
 					else
-						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->next_zone_offset, KTimeType_Wall), BasicDateTime<>(prev_zone->trans_rule_offset, KTimeType_Wall));
 				}
 			}
 			
@@ -138,8 +138,8 @@ namespace smalltime
 
 			auto cur_wall_rd = cur_dt.GetFixed() + zone_offset + rule_offset;
 
-			if ((cur_zone->first_inst_wall <= cur_wall_rd || AlmostEqualUlps(cur_zone->first_inst_wall, cur_wall_rd, 11)) &&
-				(cur_wall_rd <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_wall_rd, 11)))
+			if ((cur_zone->trans_rule_offset <= cur_wall_rd || AlmostEqualUlps(cur_zone->trans_rule_offset, cur_wall_rd, 11)) &&
+				(cur_wall_rd <= cur_zone->next_zone_offset || AlmostEqualUlps(cur_zone->next_zone_offset, cur_wall_rd, 11)))
 			{
 				// Ambigiuous local time gap
 				if (choose == Choose::KEarliest)
@@ -147,15 +147,15 @@ namespace smalltime
 				else if (choose == Choose::KLatest)
 					return next_zone;
 				else
-					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->trans_rule_offset, KTimeType_Wall), BasicDateTime<>(cur_zone->next_zone_offset, KTimeType_Wall));
 			}
 
 			// check for ambiguousness with previous active zone
 			auto prev_zone = FindPreviousZone(cur_zone_index);
 			if (prev_zone)
 			{
-				if ((prev_zone->mb_until_wall <= cur_wall_rd || AlmostEqualUlps(prev_zone->first_inst_wall, cur_wall_rd, 11)) &&
-					cur_wall_rd < prev_zone->first_inst_wall)
+				if ((prev_zone->next_zone_offset <= cur_wall_rd || AlmostEqualUlps(prev_zone->trans_rule_offset, cur_wall_rd, 11)) &&
+					cur_wall_rd < prev_zone->trans_rule_offset)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -163,7 +163,7 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return cur_zone;
 					else
-						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->next_zone_offset, KTimeType_Wall), BasicDateTime<>(prev_zone->trans_rule_offset, KTimeType_Wall));
 				}
 			}
 
@@ -189,8 +189,8 @@ namespace smalltime
 
 			auto cur_wall_rd = cur_dt.GetFixed() + rule_offset;
 
-			if ((cur_zone->first_inst_wall <= cur_wall_rd || AlmostEqualUlps(cur_zone->first_inst_wall, cur_wall_rd, 11)) &&
-				(cur_wall_rd <= cur_zone->mb_until_wall || AlmostEqualUlps(cur_zone->mb_until_wall, cur_wall_rd, 11)))
+			if ((cur_zone->trans_rule_offset <= cur_wall_rd || AlmostEqualUlps(cur_zone->trans_rule_offset, cur_wall_rd, 11)) &&
+				(cur_wall_rd <= cur_zone->next_zone_offset || AlmostEqualUlps(cur_zone->next_zone_offset, cur_wall_rd, 11)))
 			{
 				// Ambigiuous local time gap
 				if (choose == Choose::KEarliest)
@@ -198,15 +198,15 @@ namespace smalltime
 				else if (choose == Choose::KLatest)
 					return next_zone;
 				else
-					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->first_inst_wall, KTimeType_Wall), BasicDateTime<>(cur_zone->mb_until_wall, KTimeType_Wall));
+					throw TimeZoneAmbigMultiException(BasicDateTime<>(cur_zone->trans_rule_offset, KTimeType_Wall), BasicDateTime<>(cur_zone->next_zone_offset, KTimeType_Wall));
 			}
 
 			// check for ambiguousness with previous active zone
 			auto prev_zone = FindPreviousZone(cur_zone_index);
 			if (prev_zone)
 			{
-				if ((prev_zone->mb_until_wall <= cur_wall_rd || AlmostEqualUlps(prev_zone->first_inst_wall, cur_wall_rd, 11)) &&
-					cur_wall_rd < prev_zone->first_inst_wall)
+				if ((prev_zone->next_zone_offset <= cur_wall_rd || AlmostEqualUlps(prev_zone->trans_rule_offset, cur_wall_rd, 11)) &&
+					cur_wall_rd < prev_zone->trans_rule_offset)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -214,7 +214,7 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return cur_zone;
 					else
-						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->mb_until_wall, KTimeType_Wall), BasicDateTime<>(prev_zone->first_inst_wall, KTimeType_Wall));
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(prev_zone->next_zone_offset, KTimeType_Wall), BasicDateTime<>(prev_zone->trans_rule_offset, KTimeType_Wall));
 				}
 			}
 

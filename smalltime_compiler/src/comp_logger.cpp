@@ -22,11 +22,13 @@ namespace smalltime
 			for (int i = 0; i < vec_zone.size(); ++i)
 			{
 				auto zone_offset = math::HmsFromFixed(vec_zone[i].zone_offset);
-				auto zone_diff = vec_zone[i].until_wall;
+				auto zone_diff = vec_zone[i].mb_rule_offset;
 
-				BasicDateTime<> mb_wall_dt(vec_zone[i].mb_until_wall, tz::KTimeType_Wall);
-				BasicDateTime<> fi_wall_dt(vec_zone[i].first_inst_wall, tz::KTimeType_Wall);
-				BasicDateTime<> until_wall_dt(vec_zone[i].until_wall, tz::KTimeType_Wall);
+				tz::ZoneTransition zt(vec_zone[i].mb_until_utc, vec_zone[i].zone_offset, vec_zone[i].next_zone_offset, vec_zone[i].mb_rule_offset, vec_zone[i].trans_rule_offset);
+
+				BasicDateTime<> mb_wall_dt(zt.mb_trans_wall_, tz::KTimeType_Wall);
+				BasicDateTime<> fi_wall_dt(zt.first_inst_wall_, tz::KTimeType_Wall);
+				BasicDateTime<> until_wall_dt(zt.trans_wall_, tz::KTimeType_Wall);
 
 
 				std::string zone_name = "";
@@ -35,7 +37,7 @@ namespace smalltime
 				else
 					zone_name = vec_zonedata[i].name;
 
-				stream << zone_name << "Moment Before " << mb_wall_dt << " First Instant " << fi_wall_dt << " Until Wall " << until_wall_dt << std::endl;
+				stream << zone_name << " Moment Before " << mb_wall_dt << " First Instant " << fi_wall_dt << " Until Wall " << until_wall_dt << std::endl;
 
 			}
 		}
