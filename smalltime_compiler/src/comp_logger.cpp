@@ -21,8 +21,6 @@ namespace smalltime
 			assert(vec_zone.size() == vec_zonedata.size() + 1);
 			for (int i = 0; i < vec_zone.size(); ++i)
 			{
-				auto zone_offset = math::HmsFromFixed(vec_zone[i].zone_offset);
-				auto zone_diff = vec_zone[i].mb_rule_offset;
 
 				tz::ZoneTransition zt(vec_zone[i].mb_until_utc, vec_zone[i].zone_offset, vec_zone[i].next_zone_offset, vec_zone[i].mb_rule_offset, vec_zone[i].trans_rule_offset);
 

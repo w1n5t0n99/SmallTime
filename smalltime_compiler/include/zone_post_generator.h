@@ -21,13 +21,8 @@ namespace smalltime
 
 			bool ProcessZones(std::vector<tz::Zone>& vec_zone);
 
-		private:
-			std::pair<RD, RD> GetWallTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
-			std::pair<RD, RD> GetUtcTransition(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
-
+		//private:
 			tz::ZoneTransition CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
-			BasicDateTime<> GetUtcTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset);
-			BasicDateTime<> GetWallTime(BasicDateTime<> dt, RD zone_offset, RD rule_offset);
 
 			int GetNextZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 

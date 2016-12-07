@@ -86,10 +86,18 @@ namespace smalltime
 		{
 		public:
 			ZoneTransition(RD mb_trans_utc, RD cur_zoffset, RD next_zoffset, RD cur_roffset, RD next_roffset) :
-				mb_trans_utc_(mb_trans_utc), cur_zoffset_(cur_zoffset), next_zoffset_(next_zoffset), cur_roffset_(cur_roffset),
-				next_roffset_(next_roffset), mb_trans_wall_(mb_trans_utc_ + cur_zoffset_ + cur_roffset_), mb_trans_std_(mb_trans_utc_ + cur_zoffset_),
-				trans_wall_(mb_trans_wall_ + math::MSEC()), trans_std_(mb_trans_std_ + math::MSEC()), trans_utc_(mb_trans_utc_ + math::MSEC()),
-				first_inst_std_(trans_utc_ + next_zoffset_), first_inst_wall_(first_inst_std_ + next_roffset_)
+				mb_trans_utc_(mb_trans_utc),
+				cur_zoffset_(cur_zoffset),
+				next_zoffset_(next_zoffset),
+				cur_roffset_(cur_roffset),
+				next_roffset_(next_roffset),
+				mb_trans_wall_(mb_trans_utc + cur_zoffset + cur_roffset), 
+				mb_trans_std_(mb_trans_utc + cur_zoffset),
+				trans_wall_(mb_trans_utc + cur_zoffset + cur_roffset + math::MSEC()),
+				trans_std_(mb_trans_utc + cur_zoffset + math::MSEC()),
+				trans_utc_(mb_trans_utc + math::MSEC()),
+				first_inst_std_(mb_trans_utc + math::MSEC() + next_zoffset),
+				first_inst_wall_(mb_trans_utc + math::MSEC() + next_zoffset + next_roffset)
 			{
 
 			}
@@ -136,10 +144,17 @@ namespace smalltime
 		{
 		public:
 			RuleTransition(RD mb_trans_utc, RD zoffset, RD cur_roffset, RD prev_roffset) :
-				mb_trans_utc_(mb_trans_utc), zoffset_(zoffset), cur_roffset_(cur_roffset),
-				prev_roffset_(prev_roffset), mb_trans_std_(mb_trans_utc_ + zoffset_), mb_trans_wall_(mb_trans_std_ + prev_roffset_),
-				trans_utc_(mb_trans_utc_ + math::MSEC()), trans_std_(mb_trans_std_ + math::MSEC()), trans_wall_(mb_trans_wall_ + math::MSEC()),
-				first_inst_std_(trans_utc_ + zoffset), first_inst_wall_(first_inst_std_ + cur_roffset_)
+				mb_trans_utc_(mb_trans_utc),
+				zoffset_(zoffset),
+				cur_roffset_(cur_roffset),
+				prev_roffset_(prev_roffset),
+				mb_trans_std_(mb_trans_utc + zoffset),
+				mb_trans_wall_(mb_trans_utc + zoffset + prev_roffset),
+				trans_utc_(mb_trans_utc + math::MSEC()),
+				trans_std_(mb_trans_utc + zoffset + math::MSEC()),
+				trans_wall_(mb_trans_utc + zoffset + prev_roffset + math::MSEC()),
+				first_inst_std_(mb_trans_utc + math::MSEC() + zoffset),
+				first_inst_wall_(mb_trans_utc + math::MSEC() + zoffset + cur_roffset)
 			{
 
 			}
