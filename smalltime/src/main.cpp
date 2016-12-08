@@ -43,7 +43,7 @@ int main()
 	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
 
 	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
-	BasicDateTime<> dt(2016, 3, 13, 3, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+	BasicDateTime<> dt(2016, 3, 13, 3, 59, 59, 999, tz::TimeType::KTimeType_Wall);
 
 	tz::ZoneGroup zu1(adak_zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
 	BasicDateTime<> dt1(1867, 10, 18, 0, 0, 0, 0, tz::TimeType::KTimeType_Std);
@@ -67,9 +67,9 @@ int main()
 	
 	try
 	{
-	//	auto ar = ru.FindActiveRule(dt, Choose::KError);
-		auto z = zu1.FindActiveZone(dt1, Choose::KError);
-	//	printf("CLOSEST RULE From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
+		auto ar = ru.FindActiveRule(dt, Choose::KError);
+		auto z = zu.FindActiveZone(dt, Choose::KError);
+		printf("CLOSEST RULE From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
 		BasicDateTime<> cr(z->mb_until_utc, z->until_type);
 		printf("CLOSEST ZONE - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
 
