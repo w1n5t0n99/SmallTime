@@ -32,6 +32,33 @@ namespace smalltime
 		std::string except_msg_;
 	};
 
+	class InvalidTimeZoneException : public std::runtime_error
+	{
+	public:
+		//============================================
+		// Ctor
+		//============================================
+		InvalidTimeZoneException(const std::string& name) : std::runtime_error("Timezone name not found: "), except_msg_("Timezone name not found: "), name_(name)
+		{
+			std::stringstream sstr;
+
+			sstr << except_msg_ << name;
+			except_msg_ = sstr.str();
+		}
+
+		//=========================================
+		// return error message
+		//==========================================
+		virtual const char* what() const
+		{
+			return except_msg_.c_str();
+		}
+
+	private:
+		std::string except_msg_;
+		std::string name_;
+	};
+
 	class TimeZoneAmbigMultiException : public std::runtime_error
 	{
 	public:

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <assert.h>
 #include <array>
+#include <iomanip>
 
 namespace smalltime
 {
@@ -15,9 +16,18 @@ namespace smalltime
 		//=======================================
 		// Ctor
 		//======================================
-		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) : zone_(zone),
-			rules_(tzdb_connector->FindRules(rule_id)), rule_arr_(tzdb_connector->GetRuleHandle()), current_year_(0), primary_year_(0),
-			previous_year_(0), next_year_(0), primary_ptr_(nullptr), previous_ptr_(nullptr), next_ptr_(nullptr), 
+		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) :
+			zone_(zone),
+			rules_(tzdb_connector->FindRules(rule_id)),
+			rule_arr_(tzdb_connector->GetRuleHandle()), 
+			current_year_(0),
+			primary_year_(0),
+			previous_year_(0),
+			next_year_(0),
+			primary_ptr_(nullptr),
+			previous_ptr_(nullptr),
+			next_ptr_(nullptr), 
+			zone_transition_(zone->mb_until_utc, zone->zone_offset, zone->next_zone_offset, zone->mb_rule_offset, zone->trans_rule_offset),
 			tzdb_connector_(tzdb_connector)
 		{
 
@@ -418,7 +428,7 @@ namespace smalltime
 		//==========================================================================
 		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose)
 		{
-
+	
 			auto prev_rule = FindPreviousRule(cur_rule_transition.trans_wall_);
 			if (prev_rule.first)
 			{
@@ -448,13 +458,16 @@ namespace smalltime
 				// check for ambig with previous rule and current rule
 				if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
 				{
+					switch (choose)
+					{
 					// Ambigiuous local time gap
-					if (choose == Choose::KEarliest)
+					case Choose::KEarliest:
 						return prev_rule.first;
-					else if (choose == Choose::KLatest)
+					case Choose::KLatest:
 						return cur_rule;
-					else
+					case Choose::KError:
 						throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_any, time_type), BasicDateTime<>(fi_any, time_type));
+					}
 				}
 			}
 
@@ -465,6 +478,7 @@ namespace smalltime
 				RD mb_any = 0.0;
 				RD fi_any = 0.0;
 				TimeType time_type = KTimeType_Wall;
+
 				RuleTransition next_rule_transition = CalcRuleData(next_rule.first, next_rule.second);
 
 				switch (cur_dt.GetType())
@@ -491,12 +505,15 @@ namespace smalltime
 					(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
 				{
 					// Ambigiuous local time gap
-					if (choose == Choose::KEarliest)
+					switch (choose)
+					{
+					case Choose::KEarliest:
 						return cur_rule;
-					else if (choose == Choose::KLatest)
+					case Choose::KLatest:
 						return next_rule.first;
-					else
+					case Choose::KError:
 						throw TimeZoneAmbigMultiException(BasicDateTime<>(fi_any, time_type), BasicDateTime<>(mb_any, time_type));
+					}
 				}
 			}
 
@@ -649,12 +666,15 @@ namespace smalltime
 			HMS hms = math::HmsFromFixed(rule->at_time);
 			TimeType time_type = rule->at_type;
 
-			if (rule->day_type == KDayType_Dom)
+			switch (rule->day_type)
+			{
+			case KDayType_Dom:
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], time_type);
-			else if (rule->day_type == KDayType_SunGE)
+			case KDayType_SunGE:
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], RelSpec::KSunOnOrAfter, time_type);
-			else
+			case KDayType_LastSun:
 				return BasicDateTime<>(year, rule->month, 1, hms[0], hms[1], hms[2], hms[3], RelSpec::KLastSun, time_type);
+			}
 		}
 	}
 }

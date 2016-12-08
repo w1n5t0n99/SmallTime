@@ -104,13 +104,16 @@ namespace smalltime
 			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualUlps(fi_any, cur_dt.GetFixed(), 11)) &&
 				(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
 			{
+				switch (choose)
+				{
 				// Ambigiuous local time gap
-				if (choose == Choose::KEarliest)
+				case Choose::KEarliest:
 					return cur_zone;
-				else if (choose == Choose::KLatest)
+				case Choose::KLatest:
 					return next_zone;
-				else
+				case Choose::KError:
 					throw TimeZoneAmbigMultiException(BasicDateTime<>(fi_any, time_type), BasicDateTime<>(mb_any, time_type));
+				}
 			}
 
 			// check for ambig with previous zone and current zone
@@ -145,13 +148,16 @@ namespace smalltime
 
 			if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
 			{
+				switch (choose)
+				{
 				// Ambigiuous local time gap
-				if (choose == Choose::KEarliest)
+				case Choose::KEarliest:
 					return prev_zone;
-				else if (choose == Choose::KLatest)
+				case Choose::KLatest:
 					return cur_zone;
-				else
+				case Choose::KError:
 					throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_any, time_type), BasicDateTime<>(fi_any, time_type));
+				}
 			}
 
 			return cur_zone;
