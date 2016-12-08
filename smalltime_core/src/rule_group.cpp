@@ -11,17 +11,6 @@ namespace smalltime
 {
 	namespace tz
 	{
-		enum Transition
-		{
-			KTransition_MomentBeforeUtc = 0,
-			KTransition_MomentBeforeWall = 1,
-			KTransition_TransitionWall = 2,
-			KTransition_FirstInstWall = 3,
-			KTransition_PrevOffset = 4,
-			KTransition_CurOffset = 5
-		};
-
-		using TransitionData = std::tuple<RD, RD, RD, RD, RD, RD>;
 
 		//=======================================
 		// Ctor
@@ -69,12 +58,13 @@ namespace smalltime
 			InitTransitionData(cur_dt.GetYear());
 
 			const Rule* closest_rule = nullptr;
-			BasicDateTime<> closest_rule_dt(0.0, TimeType::KTimeType_Wall);
-			TransitionData closest_rule_data;
+			RuleTransition closest_rule_transition(0.0, 0.0, 0.0, 0.0);
+
 			RD closest_diff = DMAX;
 			RD diff = 0.0;
-			TransitionData transition_data;
-			RD mb_any_rd = 0.0;
+
+			//RuleTransition cur_rule_transition(0.0, 0.0, 0.0, 0.0);
+			RD trans_any = 0.0;
 
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
@@ -83,72 +73,74 @@ namespace smalltime
 				if (*(primary_ptr_ + i) > 0.0)
 				{
 					auto r = &rule_arr_[rules_.first + i];
+					auto  cur_rule_transition = CalcRuleData(r, primary_year_);
 
-					transition_data = CalcRuleData(r, primary_year_);
-
-					if (cur_dt.GetType() == KTimeType_Wall)
+					switch (cur_dt.GetType())
 					{
-						mb_any_rd = std::get<KTransition_MomentBeforeWall>(transition_data);
-					}
-					else if (cur_dt.GetType() == KTimeType_Std)
-					{
-						mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data) + zone_->zone_offset;
-					}
-					else
-					{
-						mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data);
+					case KTimeType_Wall:
+						trans_any = cur_rule_transition.trans_wall_;
+						break;
+					case KTimeType_Std:
+						trans_any = cur_rule_transition.trans_std_;
+						break;
+					case KTimeType_Utc:
+						trans_any = cur_rule_transition.trans_utc_;
+						break;
 					}
 
-					diff = cur_dt.GetFixed() - mb_any_rd;
-					if (diff > 0.0  && diff < closest_diff )
+					diff = cur_dt.GetFixed() - trans_any;
+					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
 					{
-						closest_rule_data = transition_data;
+						closest_rule_transition = cur_rule_transition;
 						closest_diff = diff;
 						closest_rule = r;
 					}
-				}
-			}
-			// if none found in primary pool check previous
-			if (closest_rule == nullptr)
-			{
-				diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
-				{
-					// rule transition is not null 
-					if (*(previous_ptr_ + i) > 0.0)
-					{
-						auto r = &rule_arr_[rules_.first + i];
 
-						transition_data = CalcRuleData(r, previous_year_);
-						if (cur_dt.GetType() == KTimeType_Wall)
-						{
-							mb_any_rd = std::get<KTransition_MomentBeforeWall>(transition_data);
-						}
-						else if (cur_dt.GetType() == KTimeType_Std)
-						{
-							mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data) + zone_->zone_offset;
-						}
-						else
-						{
-							mb_any_rd = std::get<KTransition_MomentBeforeUtc>(transition_data);
-						}
-
-						diff = cur_dt.GetFixed() - mb_any_rd;
-						if (diff > 0.0  && diff < closest_diff)
-						{
-							closest_rule_data = transition_data;
-							closest_diff = diff;
-							closest_rule = r;
-						}
-					}
 				}
 			}
 
 			if (closest_rule)
-				return CorrectForAmbigAny(cur_dt, closest_rule_data, closest_rule, choose);
+				return CorrectForAmbigAny(cur_dt, closest_rule_transition, closest_rule, choose);
+
+			// Closest rule not found, check previous
+			diff = 0.0;
+			// check the previous pool for an active rule 
+			for (int i = 0; i < rules_.size; ++i)
+			{
+				// rule transition is not null 
+				if (*(previous_ptr_ + i) > 0.0)
+				{
+					auto r = &rule_arr_[rules_.first + i];
+					auto  cur_rule_transition = CalcRuleData(r, previous_year_);
+
+					switch (cur_dt.GetType())
+					{
+					case KTimeType_Wall:
+						trans_any = cur_rule_transition.trans_wall_;
+						break;
+					case KTimeType_Std:
+						trans_any = cur_rule_transition.trans_std_;
+						break;
+					case KTimeType_Utc:
+						trans_any = cur_rule_transition.trans_utc_;
+						break;
+					}
+
+					diff = cur_dt.GetFixed() - trans_any;
+					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+					{
+						closest_rule_transition = cur_rule_transition;
+						closest_diff = diff;
+						closest_rule = r;
+					}
+
+				}
+			}
+
+			if (closest_rule)
+				return CorrectForAmbigAny(cur_dt, closest_rule_transition, closest_rule, choose);
 			else
 				return closest_rule;
-
 		}
 
 		//==============================================================
@@ -159,9 +151,14 @@ namespace smalltime
 			InitTransitionData(cur_dt.GetYear());
 
 			const Rule* closest_rule = nullptr;
-			BasicDateTime<> closest_rule_dt(0.0, TimeType::KTimeType_Wall);
+			RuleTransition closest_rule_transition(0.0, 0.0, 0.0, 0.0);
+
 			RD closest_diff = DMAX;
 			RD diff = 0.0;
+
+			//RuleTransition cur_rule_transition(0.0, 0.0, 0.0, 0.0);
+			RD trans_any = 0.0;
+
 			// check the primary pool for an active rule 
 			for (int i = 0; i < rules_.size; ++i)
 			{
@@ -169,39 +166,67 @@ namespace smalltime
 				if (*(primary_ptr_ + i) > 0.0)
 				{
 					auto r = &rule_arr_[rules_.first + i];
+					auto  cur_rule_transition = CalcRuleData(r, primary_year_);
 
-					auto cur_rule_dt = CalcTransitionAny(r, primary_year_, cur_dt.GetType());
-					diff = cur_dt.GetFixed() - cur_rule_dt.GetFixed();
-					if ((diff >= 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), cur_rule_dt.GetFixed(), 11)) && diff < closest_diff)
+					switch (cur_dt.GetType())
 					{
-						closest_rule_dt = cur_rule_dt;
+					case KTimeType_Wall:
+						trans_any = cur_rule_transition.trans_wall_;
+						break;
+					case KTimeType_Std:
+						trans_any = cur_rule_transition.trans_std_;
+						break;
+					case KTimeType_Utc:
+						trans_any = cur_rule_transition.trans_utc_;
+						break;
+					}
+
+					diff = cur_dt.GetFixed() - trans_any;
+					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+					{
+						closest_rule_transition = cur_rule_transition;
 						closest_diff = diff;
 						closest_rule = r;
 					}
+
 				}
 			}
-			// if none found in primary pool check previous
-			if (closest_rule == nullptr)
+
+			if (closest_rule)
+				return closest_rule;
+
+			// Closest rule not found, check previous
+			diff = 0.0;
+			// check the previous pool for an active rule 
+			for (int i = 0; i < rules_.size; ++i)
 			{
-				diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
+				// rule transition is not null 
+				if (*(previous_ptr_ + i) > 0.0)
 				{
-					// rule transition is not null 
-					if (*(previous_ptr_ + i) > 0.0)
+					auto r = &rule_arr_[rules_.first + i];
+					auto  cur_rule_transition = CalcRuleData(r, previous_year_);
+
+					switch (cur_dt.GetType())
 					{
-						diff = cur_dt.GetFixed() - previous_ptr_[i];
-						const tz::Rule* r = &rule_arr_[rules_.first + i];
-
-						auto cur_rule_dt = CalcTransitionAny(r, previous_year_, cur_dt.GetType());
-						diff = cur_dt.GetFixed() - cur_rule_dt.GetFixed();
-
-						if ((diff >= 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), cur_rule_dt.GetFixed(), 11)) && diff < closest_diff)
-						{
-							closest_rule_dt = cur_rule_dt;
-							closest_diff = diff;
-							closest_rule = r;
-						}
+					case KTimeType_Wall:
+						trans_any = cur_rule_transition.trans_wall_;
+						break;
+					case KTimeType_Std:
+						trans_any = cur_rule_transition.trans_std_;
+						break;
+					case KTimeType_Utc:
+						trans_any = cur_rule_transition.trans_utc_;
+						break;
 					}
+
+					diff = cur_dt.GetFixed() - trans_any;
+					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+					{
+						closest_rule_transition = cur_rule_transition;
+						closest_diff = diff;
+						closest_rule = r;
+					}
+
 				}
 			}
 
@@ -391,31 +416,37 @@ namespace smalltime
 		//==========================================================================
 		// check if the cur date time is within an ambiguous range in wall time
 		//==========================================================================
-		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, const std::tuple<RD, RD, RD, RD, RD, RD>& closest_rule_data, const Rule* const cur_rule, Choose choose)
+		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose)
 		{
-			// if the rule transition and zone transtion are exact same time,
-			// the the zone transition should do the check
-			auto rule_transition_wall = std::get<KTransition_TransitionWall>(closest_rule_data);
-			if (AlmostEqualUlps(rule_transition_wall, zone_->mb_rule_offset, 11))
-				return cur_rule;
 
-			// Check with current offset for ambiguousness
-			RD cur_wall_rd = 0.0;
-			if (cur_dt.GetType() == KTimeType_Wall)
-				cur_wall_rd = cur_dt.GetFixed();
-			else if (cur_dt.GetType() == KTimeType_Std)
-				cur_wall_rd = cur_dt.GetFixed() + cur_rule->offset;
-			else
-				cur_wall_rd = cur_dt.GetFixed() + zone_->zone_offset + cur_rule->offset;
-						
-			auto prev_rule = FindPreviousRule(rule_transition_wall);
+			auto prev_rule = FindPreviousRule(cur_rule_transition.trans_wall_);
 			if (prev_rule.first)
 			{
-				auto trans_rule_offset = std::get<KTransition_FirstInstWall>(closest_rule_data);
-				auto mb_rule_wall = std::get<KTransition_MomentBeforeWall>(closest_rule_data);
+				RD mb_any = 0.0;
+				RD fi_any = 0.0;
+				TimeType time_type = KTimeType_Wall;
 
-				if ((mb_rule_wall <= cur_wall_rd || AlmostEqualUlps(trans_rule_offset, cur_wall_rd, 11)) &&
-					cur_wall_rd < trans_rule_offset)
+				switch (cur_dt.GetType())
+				{
+				case KTimeType_Wall:
+					mb_any = cur_rule_transition.mb_trans_wall_;
+					fi_any = cur_rule_transition.first_inst_wall_;
+					time_type = KTimeType_Wall;
+					break;
+				case KTimeType_Std:
+					mb_any = cur_rule_transition.mb_trans_std_;
+					fi_any = cur_rule_transition.first_inst_std_;
+					time_type = KTimeType_Std;
+					break;
+				case KTimeType_Utc:
+					mb_any = cur_rule_transition.mb_trans_utc_;
+					fi_any = cur_rule_transition.trans_utc_;
+					time_type = KTimeType_Utc;
+					break;
+				}
+
+				// check for ambig with previous rule and current rule
+				if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -423,20 +454,41 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return cur_rule;
 					else
-						throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_rule_wall, KTimeType_Wall), BasicDateTime<>(trans_rule_offset, KTimeType_Wall));
+						throw TimeZoneAmbigNoneException(BasicDateTime<>(mb_any, time_type), BasicDateTime<>(fi_any, time_type));
 				}
 			}
 
-			auto next_rule = FindNextRule(rule_transition_wall);
+			// check for ambig with previous zone and current zone
+			auto next_rule = FindNextRule(cur_rule_transition.trans_wall_);
 			if (next_rule.first)
 			{
-				auto next_rule_data = CalcRuleData(next_rule.first, next_rule.second);
+				RD mb_any = 0.0;
+				RD fi_any = 0.0;
+				TimeType time_type = KTimeType_Wall;
+				RuleTransition next_rule_transition = CalcRuleData(next_rule.first, next_rule.second);
 
-				auto trans_rule_offset = std::get<KTransition_FirstInstWall>(next_rule_data);
-				auto mb_rule_wall = std::get<KTransition_MomentBeforeWall>(next_rule_data);
+				switch (cur_dt.GetType())
+				{
+				case KTimeType_Wall:
+					mb_any = next_rule_transition.mb_trans_wall_;
+					fi_any = next_rule_transition.first_inst_wall_;
+					time_type = KTimeType_Wall;
+					break;
+				case KTimeType_Std:
+					mb_any = next_rule_transition.mb_trans_std_;
+					fi_any = next_rule_transition.first_inst_std_;
+					time_type = KTimeType_Std;
+					break;
+				case KTimeType_Utc:
+					mb_any = next_rule_transition.mb_trans_utc_;
+					fi_any = next_rule_transition.trans_utc_;
+					time_type = KTimeType_Utc;
+					break;
+				}
 
-				if ((trans_rule_offset <= cur_wall_rd || AlmostEqualUlps(trans_rule_offset, cur_wall_rd, 11)) &&
-					(cur_wall_rd <= mb_rule_wall || AlmostEqualUlps(mb_rule_wall, cur_wall_rd, 11)))
+				// check for ambig with current and next rule
+				if ((fi_any <= cur_dt.GetFixed() || AlmostEqualUlps(fi_any, cur_dt.GetFixed(), 11)) &&
+					(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
 				{
 					// Ambigiuous local time gap
 					if (choose == Choose::KEarliest)
@@ -444,9 +496,8 @@ namespace smalltime
 					else if (choose == Choose::KLatest)
 						return next_rule.first;
 					else
-						throw TimeZoneAmbigMultiException(BasicDateTime<>(trans_rule_offset, KTimeType_Wall), BasicDateTime<>(mb_rule_wall, KTimeType_Wall));
+						throw TimeZoneAmbigMultiException(BasicDateTime<>(fi_any, time_type), BasicDateTime<>(mb_any, time_type));
 				}
-
 			}
 
 			return cur_rule;
@@ -550,28 +601,16 @@ namespace smalltime
 
 		}
 
-		//=======================================================
-		// Calculate wall transition in given time type
-		//=========================================================
-		BasicDateTime<> RuleGroup::CalcTransitionAny(const Rule* const rule, int year, TimeType time_type)
-		{
-			if (time_type == TimeType::KTimeType_Wall)
-				return CalcTransitionWall(rule, year);
-			else if (time_type == TimeType::KTimeType_Utc)
-				return CalcTransitionUtc(rule, year);
-			else
-				return CalcTransitionStd(rule, year);
-		}
-
 		//============================================
 		// Calculate neccesary rule data
 		//============================================
-		std::tuple<RD, RD, RD, RD, RD, RD> RuleGroup::CalcRuleData(const Rule* const rule, int year)
+		RuleTransition RuleGroup::CalcRuleData(const Rule* const rule, int year)
 		{
 			auto rule_transition = CalcTransitionFast(rule, year);
 			if (rule_transition.GetFixed() == 0.0)
-				return std::make_tuple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+				return RuleTransition(0.0, 0.0, 0.0, 0.0);
 
+			RD zone_offset = zone_->zone_offset;
 			RD cur_rule_offset = rule->offset;
 			RD prev_rule_offset = 0.0;
 
@@ -579,162 +618,36 @@ namespace smalltime
 			if (pr.first)
 				prev_rule_offset = pr.first->offset;
 
-			//Calc moment before data
-			RD mb_wall_rd = 0.0;
-			RD mb_utc_rd = 0.0;
-			auto mb_any_rd = rule_transition.GetFixed() - math::MSEC();
+			RD mb_trans_utc = 0.0;
 
-			if (rule->at_type == KTimeType_Wall)
+			switch (rule_transition.GetType())
 			{
-				mb_wall_rd = mb_any_rd;
-				mb_utc_rd = mb_any_rd - zone_->zone_offset - prev_rule_offset;
-			}
-			else if (rule->at_type == KTimeType_Std)
-			{
-				mb_wall_rd = mb_any_rd + prev_rule_offset;;
-				mb_utc_rd = mb_any_rd - zone_->zone_offset;
-			}
-			else
-			{
-				mb_wall_rd = mb_any_rd + zone_->zone_offset + prev_rule_offset;
-				mb_utc_rd = mb_any_rd;
+			case KTimeType_Wall:
+				mb_trans_utc = rule_transition.GetFixed() - prev_rule_offset - zone_offset - math::MSEC();
+				break;
+			case KTimeType_Std:
+				mb_trans_utc = rule_transition.GetFixed() - zone_offset - math::MSEC();
+				break;
+			case KTimeType_Utc:
+				mb_trans_utc =  math::MSEC();
+				break;
 			}
 
-			// Calc transition and first instant data
-			RD transition_wall_rd = 0.0;
-			RD first_inst_rd = (mb_utc_rd + math::MSEC()) + zone_->zone_offset + cur_rule_offset;
-			auto transition_any_rd = rule_transition.GetFixed();
-
-			if (rule->at_type == KTimeType_Wall)
-				transition_wall_rd = transition_any_rd;
-			else if (rule->at_type == KTimeType_Std)
-				transition_wall_rd = transition_any_rd + prev_rule_offset;	
-			else
-				transition_wall_rd = transition_any_rd + zone_->zone_offset + prev_rule_offset;
-
-			return std::make_tuple(mb_utc_rd, mb_wall_rd, transition_wall_rd, first_inst_rd, prev_rule_offset, cur_rule_offset);
-
-		}
-
-		//==================================================
-		// Calculates rule transtion in wall time
-		//==================================================
-		BasicDateTime<> RuleGroup::CalcTransitionWall(const Rule* const rule, int year)
-		{
-			auto rule_transition = CalcTransitionFast(rule, year);
-			if (rule_transition.GetFixed() == 0.0)
-				return rule_transition;
-
-			//InitTransitionData(year);
-
-			if (rule->at_type == KTimeType_Wall)
-			{
-				return rule_transition;
-			}
-			else if (rule->at_type == KTimeType_Std)
-			{
-				RD save = 0.0;
-				auto pr = FindPreviousRule(rule_transition);
-
-				if (pr.first)
-					save = pr.first->offset;
-
-				RD wall_rule_transition = rule_transition.GetFixed() + save;
-				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
-
-			}
-			else
-			{
-				RD save = 0.0;
-				auto pr = FindPreviousRule(rule_transition);
-
-				if (pr.first)
-					save = pr.first->offset;
-
-				RD wall_rule_transition = rule_transition.GetFixed() + zone_->zone_offset + save;
-				return BasicDateTime<>(wall_rule_transition, KTimeType_Wall);
-			}
-		}
-
-		//============================================
-		// Calculate rule transition in std time
-		//=============================================
-		BasicDateTime<> RuleGroup::CalcTransitionStd(const Rule* const rule, int year)
-		{
-			auto rule_transition = CalcTransitionFast(rule, year);
-			if (rule_transition.GetFixed() == 0.0)
-				return rule_transition;
-
-			//InitTransitionData(year);
-
-			if (rule->at_type == KTimeType_Std)
-			{
-				return rule_transition;
-			}
-			else if (rule->at_type == KTimeType_Std)
-			{
-				RD save = 0.0;
-				auto pr = FindPreviousRule(rule_transition);
-
-				if (pr.first)
-					save = pr.first->offset;
-
-				RD std_rule_transition = rule_transition.GetFixed() - save;
-				return BasicDateTime<>(std_rule_transition, KTimeType_Std);
-
-			}
-			else
-			{
-
-				RD std_rule_transition = rule_transition.GetFixed() + zone_->zone_offset;
-				return BasicDateTime<>(std_rule_transition, KTimeType_Std);
-			}
-		}
-
-		//======================================================
-		// Calculate rule transition in utc time
-		//======================================================
-		BasicDateTime<> RuleGroup::CalcTransitionUtc(const Rule* const rule, int year)
-		{
-			auto rule_transition = CalcTransitionFast(rule, year, KTimeType_Utc);
-			if (rule_transition.GetFixed() == 0.0)
-				return rule_transition;
-
-			//InitTransitionData(year);
-			if (rule->at_type == KTimeType_Utc)
-			{
-				return rule_transition;
-			}
-			else if (rule->at_type == KTimeType_Std)
-			{
-				RD utc_rule_transition = rule_transition.GetFixed() - zone_->zone_offset;
-				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
-
-			}
-			else
-			{
-				RD save = 0.0;
-				auto pr = FindPreviousRule(rule_transition);
-
-				if (pr.first)
-					save = pr.first->offset;
-
-				RD utc_rule_transition = rule_transition.GetFixed() - zone_->zone_offset - save;
-				return BasicDateTime<>(utc_rule_transition, KTimeType_Utc);
-			}
+			return RuleTransition(mb_trans_utc, zone_offset, cur_rule_offset, prev_rule_offset);
 
 		}
 
 		//===========================================================
 		// Calculate rule transiton without time type checking
 		//===========================================================
-		BasicDateTime<> RuleGroup::CalcTransitionFast(const Rule* const rule, int year, TimeType time_type)
+		BasicDateTime<> RuleGroup::CalcTransitionFast(const Rule* const rule, int year)
 		{
 			if (year < rule->from_year || year > rule->to_year)
-				return BasicDateTime<>(0.0, time_type);
+				return BasicDateTime<>(0.0, rule->at_type);
 
 			//HMS hms = { 0, 0, 0, 0 };
 			HMS hms = math::HmsFromFixed(rule->at_time);
+			TimeType time_type = rule->at_type;
 
 			if (rule->day_type == KDayType_Dom)
 				return BasicDateTime<>(year, rule->month, rule->day, hms[0], hms[1], hms[2], hms[3], time_type);

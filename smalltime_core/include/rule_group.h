@@ -26,7 +26,7 @@ namespace smalltime
 			std::pair<const Rule* const, int> FindNextRule(BasicDateTime<> cur_rule);
 			std::pair<const Rule* const, int> FindNextRule(RD cur_rule);
 
-			const Rule* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, const std::tuple<RD, RD, RD, RD, RD, RD>& closest_rule_data, const Rule* const cur_rule, Choose choose);
+			const Rule* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose);
 
 			int FindClosestActiveYear(int year);
 			int FindPreviousActiveYear(int year);
@@ -35,14 +35,8 @@ namespace smalltime
 			void InitTransitionData(int year);
 			void BuildTransitionData(RD* buffer, int year);
 
-			BasicDateTime<> CalcTransitionAny(const Rule* const rule, int year, TimeType time_type);
-			BasicDateTime<> CalcTransitionWall(const Rule* const rule, int year);
-			BasicDateTime<> CalcTransitionStd(const Rule* const rule, int year);
-			BasicDateTime<> CalcTransitionUtc(const Rule* const rule, int year);
-			BasicDateTime<> CalcTransitionFast(const Rule* const rule, int year, TimeType time_type = KTimeType_Wall);
-
-			std::tuple<RD, RD, RD, RD, RD, RD> CalcRuleData(const Rule* const rule, int year);
-
+			BasicDateTime<> CalcTransitionFast(const Rule* const rule, int year);
+			RuleTransition CalcRuleData(const Rule* const rule, int year);
 		
 		private:
 			const Rule* rule_arr_;

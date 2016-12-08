@@ -33,44 +33,46 @@ int main()
 	//auto zones = tzdb_connector->FindZones("America/Anchorage");
 	auto zones = tzdb_connector->FindZones("America/New_York");
 
+	auto adak_zones = tzdb_connector->FindZones("America/Anchorage");
+
+
 
 	std::cout << "Rules ID: " << rules.rule_id << " Rules first: " << rules.first << " Rules size: " << rules.size << std::endl;
 	std::cout << "Zones ID: " << zones.zone_id << " Zones first: " << zones.first << " Zones size: " << zones.size << std::endl;
 
 	tz::RuleGroup ru(rule_id, &zoneHandle[zones.first + zones.size - 1], std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
+
 	tz::ZoneGroup zu(zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
+	BasicDateTime<> dt(2016, 3, 13, 3, 0, 0, 0, tz::TimeType::KTimeType_Wall);
+
+	tz::ZoneGroup zu1(adak_zones, std::dynamic_pointer_cast<tz::TzdbConnectorInterface, tz::TzdbHeaderConnector>(tzdb_connector));
+	BasicDateTime<> dt1(1867, 10, 18, 0, 0, 0, 0, tz::TimeType::KTimeType_Std);
 
 
-	BasicDateTime<> dt1(1966, 12, 31, 23, 59, 59, 999, tz::TimeType::KTimeType_Wall);
-	BasicDateTime<> dt0(1983, 10, 30, 1, 0, 0, 0, tz::TimeType::KTimeType_Wall);
 
-	BasicDateTime<> dt(2016, 3, 13, 7, 1, 0, 0, tz::TimeType::KTimeType_Utc);
-
-	/*
-	for (int i = zones.first; i < zones.first + zones.size; ++i)
+	
+	for (int i = adak_zones.first; i < adak_zones.first + adak_zones.size; ++i)
 	{
 		auto z = zoneHandle[i];
-		BasicDateTime<> cr(z.until_wall, z.until_type);
-		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+		BasicDateTime<> cr(z.mb_until_utc, z.until_type);
+		printf("Zones ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
 	}
 
 	for (int i = rules.first; i < rules.first + rules.size; ++i)
 	{
-		auto z = rule_handle[i];
-		BasicDateTime<> cr = ru.CalcTransitionWall(&z, 1983);
-		printf("RT ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+		auto ar = rule_handle[i];
+		printf("Rules From - %d  To - %d  In - %d  On - %d\n", ar.from_year, ar.to_year, ar.month, ar.day);
 	}
-	*/
+	
 	
 	try
 	{
-		//auto ar = ru.FindActiveRule(dt, Choose::KError);
-		auto z = zu.FindActiveZone(dt, Choose::KError);
-		//printf("AR From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
-
-
+	//	auto ar = ru.FindActiveRule(dt, Choose::KError);
+		auto z = zu1.FindActiveZone(dt1, Choose::KError);
+	//	printf("CLOSEST RULE From - %d  To - %d  In - %d  On - %d\n", ar->from_year, ar->to_year, ar->month, ar->day);
 		BasicDateTime<> cr(z->mb_until_utc, z->until_type);
-		printf("CR ############## - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+		printf("CLOSEST ZONE - %d/%d/%d %d:%d:%d:%d\n", cr.GetYear(), cr.GetMonth(), cr.GetDay(), cr.GetHour(), cr.GetMinute(), cr.GetSecond(), cr.GetMillisecond());
+
 
 	}
 	catch (const std::exception& e)
