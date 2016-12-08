@@ -46,7 +46,7 @@
     <ClInclude Include="..\smalltime_core\include\tz_decls.h" />
     <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h" />
     <ClInclude Include="..\smalltime_core\include\zone_group.h" />
-    <ClInclude Include="include\DateTime.h" />
+    <ClInclude Include="include\datetime.h" />
     <ClInclude Include="include\local_datetime.h" />
     <ClInclude Include="include\Tzdb.h" />
     <ClInclude Include="include\tzdb_header_connector.h" />

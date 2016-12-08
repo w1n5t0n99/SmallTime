@@ -15,7 +15,7 @@
 #include <memory>
 #include <float_util.h>
 #include <inttypes.h>
-#include "../include/DateTime.h"
+#include "../include/datetime.h"
 
 using namespace smalltime;
 

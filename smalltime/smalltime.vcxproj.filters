@@ -87,7 +87,7 @@
     <ClInclude Include="..\smalltime_core\include\timezone.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\DateTime.h">
+    <ClInclude Include="include\datetime.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
