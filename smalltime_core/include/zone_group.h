@@ -24,10 +24,6 @@ namespace smalltime
 
 			const Zone* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, const ZoneTransition& cur_zone_transition, Choose choose);
 
-			const Zone* const CorrectForAmbigWall(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
-			const Zone* const CorrectForAmbigStd(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
-			const Zone* const CorrectForAmbigUtc(const BasicDateTime<>& cur_dt, int cur_zone_index, Choose choose);
-
 		private:
 			const Zone* const zone_arr_;
 			const Zones zones_;

@@ -166,15 +166,15 @@ namespace smalltime
 				prev_roffset_ = prev_roffset;
 
 				mb_trans_utc_ = mb_trans_utc;
-				mb_trans_std_ = mb_trans_utc_ + zoffset_;
-				mb_trans_wall_ = mb_trans_std_ + prev_roffset_;
+				mb_trans_std_ = mb_trans_utc + zoffset;
+				mb_trans_wall_ = mb_trans_utc + zoffset + prev_roffset;
 
-				trans_utc_ = mb_trans_utc_ + math::MSEC();
-				trans_std_ = trans_utc_ + zoffset_;
-				trans_wall_ = trans_std_ + prev_roffset_;
+				trans_utc_ = mb_trans_utc + math::MSEC();
+				trans_std_ = mb_trans_utc + zoffset + math::MSEC();
+				trans_wall_ = mb_trans_utc + zoffset + prev_roffset + math::MSEC();
 
-				first_inst_std_ = trans_utc_ + zoffset_;
-				first_inst_wall_ = first_inst_std_ + cur_roffset_;
+				first_inst_std_ = mb_trans_utc + math::MSEC() + zoffset;
+				first_inst_wall_ = mb_trans_utc + math::MSEC() + zoffset + cur_roffset;
 			}
 
 			RD mb_trans_wall_;
