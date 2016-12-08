@@ -28,6 +28,9 @@
     <ClCompile Include="..\smalltime_core\src\rule_group.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\timezone.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\smalltime_core\include\chrono_decls.h">
@@ -79,6 +82,12 @@
       <Filter>include\util</Filter>
     </ClInclude>
     <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\timezone.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DateTime.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,6 +15,7 @@
 #include <memory>
 #include <float_util.h>
 #include <inttypes.h>
+#include "../include/DateTime.h"
 
 using namespace smalltime;
 
@@ -23,6 +24,7 @@ int main()
 	StlPerfCounter counter("Counter");
 	counter.StartCounter();
 
+	/*
 	std::shared_ptr<tz::TzdbHeaderConnector> tzdb_connector = std::make_shared<tz::TzdbHeaderConnector>();
 
 	auto rule_handle = tzdb_connector->GetRuleHandle();
@@ -80,8 +82,17 @@ int main()
 		std::cout << e.what() << std::endl;
 	}
 
+	*/
 
-	
+	try
+	{
+		DateTime<> dt(2016, 12, 8, 11, 10, 0, 0, "America/New_York");
+		std::cout << "DT   " << dt << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 
 	counter.EndCounter();
 
