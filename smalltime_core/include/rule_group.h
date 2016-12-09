@@ -20,6 +20,7 @@ namespace smalltime
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
 			const Rule* const FindActiveRuleNoCheck(BasicDateTime<> cur_dt);
 
+		private:
 			std::pair<const Rule* const, int> FindPreviousRule(BasicDateTime<> cur_rule);
 			std::pair<const Rule* const, int> FindPreviousRule(RD cur_rule);
 

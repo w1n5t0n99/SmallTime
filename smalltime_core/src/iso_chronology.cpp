@@ -18,18 +18,18 @@ namespace smalltime
 		{
 			//If month out of range (e.g. 13) we'll catch that error as bad date
 			//Want to throw a bad date exception not an array out of range exception
-			int monthIndex = (month - 1) % 12;
-			double m = iso_greg_julian::KSTD_MONTH_BIAS[monthIndex];
+			int month_index = (month - 1) % 12;
+			double m = iso_greg_julian::KSTD_MONTH_BIAS[month_index];
 			//double y = year - Floor(m / 10.0);
-			double y = static_cast<double>(year) - iso_greg_julian::KSTD_YEAR_BIAS[monthIndex];
+			double y = static_cast<double>(year) - iso_greg_julian::KSTD_YEAR_BIAS[month_index];
 
 			double leap4 = std::floor(y * KYear4);
 			double leap100 = std::floor(y * KYear100);
 			double leap400 = std::floor(y * KYear400);
 
-			double monDays = iso_greg_julian::KSTD_BASE_MONTH_DAYS[monthIndex];
+			double month_days = iso_greg_julian::KSTD_BASE_MONTH_DAYS[month_index];
 
-			RD rd = ISO_EPOCH - 307.0 + (365.0 * y) + leap4 - leap100 + leap400 + monDays + 30.0 * m + day;
+			RD rd = ISO_EPOCH - 307.0 + (365.0 * y) + leap4 - leap100 + leap400 + month_days + 30.0 * m + day;
 
 			return rd;
 		}
@@ -41,8 +41,8 @@ namespace smalltime
 		{
 			//the amount of day that can fall in previous cycle, add 1 to bias for week starting on Mon and Sun being end of week
 			//To find the earliest Mon we just move Sun back 1 day
-			int maxDaysOfPrevYear = 7 - min_days_in_first_week_ + 1;
-			return math::NthKDay(0, week, FixedFromYmd(year, 1, 1) - maxDaysOfPrevYear) + day;
+			int max_days_of_prev_year = 7 - min_days_in_first_week_ + 1;
+			return math::NthKDay(0, week, FixedFromYmd(year, 1, 1) - max_days_of_prev_year) + day;
 		}
 
 		//==================================================================
@@ -62,9 +62,9 @@ namespace smalltime
 			RD rdOnly = math::ExtractDate(rd);
 
 			int y = DetermineYearFromFixed(ISO_EPOCH - 1.0 + rdOnly + 306.0);
-			double priorDays = rdOnly - FixedFromYmd(y - 1, 3, 1);
+			double prior_days = rdOnly - FixedFromYmd(y - 1, 3, 1);
 
-			double m = std::floor((1.0 / 153.0) * (5.0 * priorDays + 2));
+			double m = std::floor((1.0 / 153.0) * (5.0 * prior_days + 2));
 			double month = math::AFlMod(m + 3.0, 12);
 
 			double year = y - std::floor((month + 9.0) / 12.0);
@@ -81,9 +81,9 @@ namespace smalltime
 			RD rdOnly = math::ExtractDate(rd);
 			int year = DetermineYearFromFixed(rdOnly);   //<== remove for optimization
 
-			RD firstOfYear = FixedFromYmd(year, 1, 1);
+			RD first_of_year = FixedFromYmd(year, 1, 1);
 
-			return{ year, static_cast<int>(std::floor(rdOnly) - std::floor(firstOfYear)) + 1 };
+			return{ year, static_cast<int>(std::floor(rdOnly) - std::floor(first_of_year)) + 1 };
 		}
 
 		//==================================================
@@ -92,34 +92,34 @@ namespace smalltime
 		YWD IsoChronology::YwdFromFixed(RD rd) const
 		{
 			int year = DetermineYearFromFixed(rd);   //<== remove for optimization
-			RD rdOnly = math::ExtractDate(rd);
+			RD rd_only = math::ExtractDate(rd);
 
 			int nextYear = year + 1;
 			int prevYear = year - 1;
 			YWD ywd;
 
 			RD firstOfYear = FixedFromYwd(nextYear, 1, 1);
-			if (rdOnly >= firstOfYear)
+			if (rd_only >= firstOfYear)
 			{
-				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rdOnly - firstOfYear));
+				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rd_only - firstOfYear));
 				ywd[1] = static_cast<int>(dWeek);
 				ywd[0] = nextYear;
 			}
-			else if (rdOnly >= (firstOfYear = FixedFromYwd( year, 1, 1)))
+			else if (rd_only >= (firstOfYear = FixedFromYwd( year, 1, 1)))
 			{
-				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rdOnly - firstOfYear));
+				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rd_only - firstOfYear));
 				ywd[1] = static_cast<int>(dWeek);
 				ywd[0] = year;
 			}
-			else if (rdOnly >= (firstOfYear = FixedFromYwd(prevYear, 1, 1)))
+			else if (rd_only >= (firstOfYear = FixedFromYwd(prevYear, 1, 1)))
 			{
-				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rdOnly - firstOfYear));
+				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rd_only - firstOfYear));
 				ywd[1] = static_cast<int>(dWeek);
 				ywd[0] = prevYear;
 			}
 
 			//double dDay = FixedDayOfWeek(rdOnly - RD0);
-			double dDay = math::AFlMod(rdOnly - KRD0, 7);
+			double dDay = math::AFlMod(rd_only - KRD0, 7);
 			ywd[2] = static_cast<int>(dDay);
 			return ywd;
 		}

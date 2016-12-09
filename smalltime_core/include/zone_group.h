@@ -19,6 +19,7 @@ namespace smalltime
 
 			const Zone* const FindActiveZone(BasicDateTime<> cur_dt, Choose choose);
 
+		private:
 			const Zone* const FindPreviousZone(int cur_zone_index);
 			const Zone* const FindNextZone(int cur_zone_index);
 
