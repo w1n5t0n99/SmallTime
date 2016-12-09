@@ -18,7 +18,7 @@ namespace smalltime
 			auto zoneHandle = tzdb_connector->GetZoneHandle();
 			auto zones = tzdb_connector->FindZones(time_zone_name);
 
-			if (zones.first == -1)
+			if (zones.size < 1)
 				throw InvalidTimeZoneException(time_zone_name);
 
 			// Convert datetime to iso to check with time zones

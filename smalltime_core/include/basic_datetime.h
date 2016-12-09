@@ -15,9 +15,9 @@ namespace smalltime
 	class BasicDateTime
 	{
 		public:
-		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType);
-		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType);
-		BasicDateTime(RD rd, tz::TimeType tmType);
+		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType) noexcept;
+		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType) noexcept;
+		BasicDateTime(RD rd, tz::TimeType tmType) noexcept;
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -61,7 +61,7 @@ namespace smalltime
 	// Ctor - create date from fields
 	//================================================
 	template <typename T = chrono::IsoChronology>
-	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType)
+	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType) noexcept
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		fixed_ += KCHRONOLOGY.FixedFromTime(hour, minute, second, millisecond);
@@ -75,7 +75,7 @@ namespace smalltime
 	// Ctor - create date from fields relative to
 	//====================================================
 	template <typename T = chrono::IsoChronology>
-	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType)
+	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType) noexcept
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
@@ -91,7 +91,7 @@ namespace smalltime
 	// Ctor - create date from fixed date
 	//====================================================
 	template <typename T = chrono::IsoChronology>
-	BasicDateTime<T>::BasicDateTime(RD rd, tz::TimeType tmType)
+	BasicDateTime<T>::BasicDateTime(RD rd, tz::TimeType tmType) noexcept
 	{
 		fixed_ = rd;
 		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);

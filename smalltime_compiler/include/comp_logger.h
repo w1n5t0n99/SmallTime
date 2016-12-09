@@ -16,8 +16,8 @@ namespace smalltime
 		class CompLogger
 		{
 		public:
-			void LogAllZones(std::ostream& stream, std::vector<tz::Zone>& vec_zone, std::vector<ZoneData>& vec_zonedata);
-
+			void LogAllZones(std::ostream& stream, const std::vector<tz::Zone>& vec_zone, const std::vector<ZoneData>& vec_zonedata);
+			void LogZoneData(std::ostream& stream, const std::vector<tz::Zone>& vec_zone, const std::vector<ZoneData>& vec_zonedata, const std::string& zone_name);
 		};
 	}
 }

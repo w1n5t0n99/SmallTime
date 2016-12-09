@@ -16,6 +16,7 @@
 #include <float_util.h>
 #include <inttypes.h>
 #include "../include/datetime.h"
+#include <murmur_hash3.h>
 
 using namespace smalltime;
 
@@ -86,7 +87,7 @@ int main()
 
 	try
 	{
-		DateTime<> dt(2016, 12, 8, 11, 10, 0, 0, "America/New_York");
+		DateTime<> dt(2016, 12, 9, 4, 12, 0, 0, "Australia/Perth");
 		std::cout << "DT   " << dt << std::endl;
 	}
 	catch (const std::exception& e)

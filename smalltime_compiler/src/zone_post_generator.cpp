@@ -98,16 +98,20 @@ namespace smalltime
 			}
 
 			RD mb_trans_utc = 0.0;
-			if (mb_until_dt.GetType() == tz::KTimeType_Wall)
+			switch (mb_until_dt.GetType())
+			{
+			case tz::KTimeType_Wall:
 				mb_trans_utc = mb_until_dt.GetFixed() - cur_roffset - cur_zoffset;
-			else if (mb_until_dt.GetType() == tz::KTimeType_Std)
+				break;
+			case tz::KTimeType_Std:
 				mb_trans_utc = mb_until_dt.GetFixed() - cur_zoffset;
-			else
+				break;
+			case tz::KTimeType_Utc:
 				mb_trans_utc = mb_until_dt.GetFixed();
-
+				break;
+			}
 
 			return tz::ZoneTransition(mb_trans_utc, cur_zoffset, next_zoffset, cur_roffset, next_roffset);
-
 		}
 
 		//=================================================

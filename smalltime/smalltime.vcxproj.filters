@@ -31,6 +31,9 @@
     <ClCompile Include="..\smalltime_core\src\timezone.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\murmur_hash3.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\smalltime_core\include\chrono_decls.h">
@@ -88,6 +91,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\datetime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\murmur_hash3.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

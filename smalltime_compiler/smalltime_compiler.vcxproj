@@ -26,6 +26,7 @@
     <ClInclude Include="..\smalltime_core\include\core_math.h" />
     <ClInclude Include="..\smalltime_core\include\float_util.h" />
     <ClInclude Include="..\smalltime_core\include\iso_chronology.h" />
+    <ClInclude Include="..\smalltime_core\include\murmur_hash3.h" />
     <ClInclude Include="..\smalltime_core\include\rule_group.h" />
     <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h" />
     <ClInclude Include="..\smalltime_core\include\time_math.h" />
@@ -45,6 +46,7 @@
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\core_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp" />
+    <ClCompile Include="..\smalltime_core\src\murmur_hash3.cpp" />
     <ClCompile Include="..\smalltime_core\src\rule_group.cpp" />
     <ClCompile Include="..\smalltime_core\src\time_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp" />

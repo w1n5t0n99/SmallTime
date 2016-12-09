@@ -59,16 +59,16 @@ namespace smalltime
 		//=====================================================
 		YMD IsoChronology::YmdFromFixed(RD rd) const
 		{
-			RD rdOnly = math::ExtractDate(rd);
+			RD rd_only = math::ExtractDate(rd);
 
-			int y = DetermineYearFromFixed(ISO_EPOCH - 1.0 + rdOnly + 306.0);
-			double prior_days = rdOnly - FixedFromYmd(y - 1, 3, 1);
+			int y = DetermineYearFromFixed(ISO_EPOCH - 1.0 + rd_only + 306.0);
+			double prior_days = rd_only - FixedFromYmd(y - 1, 3, 1);
 
 			double m = std::floor((1.0 / 153.0) * (5.0 * prior_days + 2));
 			double month = math::AFlMod(m + 3.0, 12);
 
 			double year = y - std::floor((month + 9.0) / 12.0);
-			double day = rdOnly - FixedFromYmd(year, month, 1) + 1.0;
+			double day = rd_only - FixedFromYmd(year, month, 1) + 1.0;
 
 			return{ static_cast<int>(year), static_cast<int>(month), static_cast<int>(day) };
 		}
@@ -78,12 +78,12 @@ namespace smalltime
 		//===================================================
 		YD IsoChronology::YdFromFixed(RD rd) const
 		{
-			RD rdOnly = math::ExtractDate(rd);
-			int year = DetermineYearFromFixed(rdOnly);   //<== remove for optimization
+			RD rd_only = math::ExtractDate(rd);
+			int year = DetermineYearFromFixed(rd_only);   //<== remove for optimization
 
 			RD first_of_year = FixedFromYmd(year, 1, 1);
 
-			return{ year, static_cast<int>(std::floor(rdOnly) - std::floor(first_of_year)) + 1 };
+			return{ year, static_cast<int>(std::floor(rd_only) - std::floor(first_of_year)) + 1 };
 		}
 
 		//==================================================
@@ -94,16 +94,16 @@ namespace smalltime
 			int year = DetermineYearFromFixed(rd);   //<== remove for optimization
 			RD rd_only = math::ExtractDate(rd);
 
-			int nextYear = year + 1;
-			int prevYear = year - 1;
+			int next_year = year + 1;
+			int prev_year = year - 1;
 			YWD ywd;
 
-			RD firstOfYear = FixedFromYwd(nextYear, 1, 1);
+			RD firstOfYear = FixedFromYwd(next_year, 1, 1);
 			if (rd_only >= firstOfYear)
 			{
 				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rd_only - firstOfYear));
 				ywd[1] = static_cast<int>(dWeek);
-				ywd[0] = nextYear;
+				ywd[0] = next_year;
 			}
 			else if (rd_only >= (firstOfYear = FixedFromYwd( year, 1, 1)))
 			{
@@ -111,11 +111,11 @@ namespace smalltime
 				ywd[1] = static_cast<int>(dWeek);
 				ywd[0] = year;
 			}
-			else if (rd_only >= (firstOfYear = FixedFromYwd(prevYear, 1, 1)))
+			else if (rd_only >= (firstOfYear = FixedFromYwd(prev_year, 1, 1)))
 			{
 				double dWeek = 1.0 + std::floor((1.0 / 7.0) * (rd_only - firstOfYear));
 				ywd[1] = static_cast<int>(dWeek);
-				ywd[0] = prevYear;
+				ywd[0] = prev_year;
 			}
 
 			//double dDay = FixedDayOfWeek(rdOnly - RD0);
@@ -160,33 +160,33 @@ namespace smalltime
 		//=============================================================
 		RD IsoChronology::FixedRelativeTo(RD rd, RelSpec rel) const
 		{
-			RD relativeRd = 0.0;
+			RD relative_rd = 0.0;
 			// Find the date relative to the specifier ==========================
 			int dow = static_cast<int>(rel) % 7;
 
-			int relSpecIndex = static_cast<int>(rel);
+			int rel_spec_index = static_cast<int>(rel);
 			//OnOrAfter
-			if (relSpecIndex >= 7 && relSpecIndex < 14)
+			if (rel_spec_index >= 7 && rel_spec_index < 14)
 			{
-				relativeRd = math::KDayOnOrAfter(dow, rd);
+				relative_rd = math::KDayOnOrAfter(dow, rd);
 			}
 			//After
-			else if (relSpecIndex >= 14 && relSpecIndex < 21)
+			else if (rel_spec_index >= 14 && rel_spec_index < 21)
 			{
-				relativeRd = math::KDayAfter(dow, rd);
+				relative_rd = math::KDayAfter(dow, rd);
 			}
 			//OnOrBefore
-			else if (relSpecIndex >= 21 && relSpecIndex < 28)
+			else if (rel_spec_index >= 21 && rel_spec_index < 28)
 			{
-				relativeRd = math::KDayOnOrBefore(dow, rd);
+				relative_rd = math::KDayOnOrBefore(dow, rd);
 			}
 			//Before
-			else if (relSpecIndex >= 28 && relSpecIndex < 35)
+			else if (rel_spec_index >= 28 && rel_spec_index < 35)
 			{
-				relativeRd = math::KDayBefore(dow, rd);
+				relative_rd = math::KDayBefore(dow, rd);
 			}
 			//Last
-			else if (relSpecIndex >= 35 && relSpecIndex < 42)
+			else if (rel_spec_index >= 35 && rel_spec_index < 42)
 			{
 				auto ymd = YmdFromFixed(rd);
 				// increment month
@@ -200,10 +200,10 @@ namespace smalltime
 				}
 
 				auto newRD = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				relativeRd = math::KDayBefore(dow, newRD);
+				relative_rd = math::KDayBefore(dow, newRD);
 			}
 
-			return relativeRd;
+			return relative_rd;
 		}
 
 		//=====================================================
@@ -227,15 +227,15 @@ namespace smalltime
 		//=============================================================================
 		int IsoChronology::WeekOfMonth(const YWD& ywd, RD rd) const
 		{
-			int isoWeekBias = 1;
+			int iso_week_bias = 1;
 			int week;
 			//Add 1 to bias for Monday as start of week
-			RD firstOfMonth = math::GetFirstOfCycleDate(FixedFromYmd(ywd[0], ywd[1], 1), min_days_in_first_week_- 1) + isoWeekBias;
-			if (rd < firstOfMonth)
+			RD first_of_month = math::GetFirstOfCycleDate(FixedFromYmd(ywd[0], ywd[1], 1), min_days_in_first_week_- 1) + iso_week_bias;
+			if (rd < first_of_month)
 				week = 0;
 			else
 			{
-				RD diff = rd - firstOfMonth;
+				RD diff = rd - first_of_month;
 				week = static_cast<int>(1.0 + std::floor((1.0 / 7.0) * diff));
 			}
 
@@ -248,15 +248,15 @@ namespace smalltime
 		//=====================================================
 		bool IsoChronology::IsLeapYear(int year) const
 		{
-			unsigned int absYear = abs(year);
+			unsigned int abs_year = abs(year);
 			const unsigned int leap100 = 100;
 			const unsigned int leap400 = 400;
 
-			if (math::FastMod4(absYear) == 0)
+			if (math::FastMod4(abs_year) == 0)
 			{
-				if (absYear % leap100 == 0)
+				if (abs_year % leap100 == 0)
 				{
-					if (absYear % leap400 == 0)
+					if (abs_year % leap400 == 0)
 						return true;
 					else
 						return false;

@@ -96,7 +96,8 @@ int main()
 	std::cout << "Source compiled ..." << std::endl;
 
 	comp::CompLogger comp_logger;
-	comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
+	//comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
+	comp_logger.LogZoneData(std::cout, vec_zone, vec_zonedata, "Australia/Perth");
 
 
 	std::cin.get();

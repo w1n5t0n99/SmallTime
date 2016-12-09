@@ -1,4 +1,5 @@
 #include "../include/core_math.h"
+#include "../include/murmur_hash3.h"
 
 namespace smalltime
 {
@@ -22,12 +23,12 @@ namespace smalltime
 		//========================================================================
 		uint32_t GetUniqueID(const std::string& str)
 		{
-			//uint32_t retID = 0;
-			//MurmurHash3_x86_32(str.c_str(), str.size(), 0, &retID);
+			uint32_t ret_id = 0;
+			MurmurHash3_x86_32(str.c_str(), str.size(), 0, &ret_id);
 
 			//return retID;
-			return static_cast<uint32_t>(std::hash<std::string>{}(str));
-
+			//return static_cast<uint32_t>(std::hash<std::string>{}(str));
+			return ret_id;
 		}
 
 		//=====================================================================
