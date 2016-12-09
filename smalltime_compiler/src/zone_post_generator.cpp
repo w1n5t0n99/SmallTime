@@ -48,8 +48,6 @@ namespace smalltime
 		//====================================================
 		tz::ZoneTransition ZonePostGenerator::CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
-			//ZoneDate - last_moment_utc, last_moment_wall, transition_wall, first_inst_wall
-
 			const auto& cur_zone = vec_zone[cur_zone_index];
 
 			RD next_zoffset = 0.0;

@@ -27,6 +27,7 @@ namespace smalltime
 			primary_ptr_(nullptr),
 			previous_ptr_(nullptr),
 			next_ptr_(nullptr), 
+			zone_transition_(zone_->mb_until_utc, zone_->zone_offset, zone_->next_zone_offset, zone_->mb_rule_offset, zone_->trans_rule_offset),
 			tzdb_connector_(tzdb_connector)
 		{
 
@@ -427,7 +428,6 @@ namespace smalltime
 		//==========================================================================
 		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose)
 		{
-
 			auto prev_rule = FindPreviousRule(cur_rule_transition.trans_wall_);
 			if (prev_rule.first)
 			{
@@ -479,6 +479,10 @@ namespace smalltime
 				TimeType time_type = KTimeType_Wall;
 
 				RuleTransition next_rule_transition = CalcRuleData(next_rule.first, next_rule.second);
+				// Zone and Rule transition are the same, zone will have already checked for ambig
+				// Return the current rule since were assuming its not ambiguous or the zone would have caught it
+				if (AlmostEqualUlps(zone_transition_.trans_wall_, next_rule_transition.trans_wall_, 11))
+					return cur_rule;
 
 				switch (cur_dt.GetType())
 				{
