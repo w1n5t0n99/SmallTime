@@ -6,21 +6,54 @@ namespace smalltime
 {
 	namespace tz
 	{
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto ZONE_CMP = [](const tz::Zones& lhs, const tz::Zones& rhs)
+	
+		//===============================================
+		// Binary search function for zones
+		//===============================================
+		Zones BinarySearchZones(uint32_t zone_id)
 		{
-			return lhs.zone_id < rhs.zone_id;
-		};
+			int left = 0;
+			int right = KZoneLookupArray.size() - 1;
 
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto RULE_CMP = [](const tz::Rules& lhs, const tz::Rules& rhs)
+			while (left <= right)
+			{
+				int middle = (left + right) / 2;
+				const auto& mid_zones = KZoneLookupArray[middle];
+
+				if (mid_zones.zone_id == zone_id)
+					return mid_zones;
+				else if (zone_id > mid_zones.zone_id)
+					left = middle + 1;
+				else
+					right = middle - 1;
+			}
+
+			return{ zone_id, -1, -1 };
+		}
+
+		//===============================================
+		// Binary search function for zones
+		//===============================================
+		Rules BinarySearchRules(uint32_t rule_id)
 		{
-			return lhs.rule_id < rhs.rule_id;
-		};
+			int left = 0;
+			int right = KRuleLookupArray.size() - 1;
+
+			while (left <= right)
+			{
+				int middle = (left + right) / 2;
+				const auto& mid_zones = KRuleLookupArray[middle];
+
+				if (mid_zones.rule_id == rule_id)
+					return mid_zones;
+				else if (rule_id > mid_zones.rule_id)
+					left = middle + 1;
+				else
+					right = middle - 1;
+			}
+
+			return{ rule_id, -1, -1 };
+		}
 
 		//===============================================
 		// Get pointer to first element of tzdb array
@@ -102,15 +135,9 @@ namespace smalltime
 		//================================================
 		Rules TzdbHeaderConnector::FindRules(const std::string& name)
 		{
+			
 			auto rule_id = math::GetUniqueID(name);
-			Rules searchRules = { rule_id, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(KRuleLookupArray.begin(), KRuleLookupArray.end(), searchRules, RULE_CMP);
-
-			if (foundIt != KRuleLookupArray.end())
-				return *foundIt;
-			else
-				return{ rule_id, -1, -1 };
+			return BinarySearchRules(rule_id);
 		}
 
 		//================================================
@@ -118,14 +145,8 @@ namespace smalltime
 		//================================================
 		Rules TzdbHeaderConnector::FindRules(uint32_t rule_id)
 		{
-			Rules searchRules = { rule_id, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(KRuleLookupArray.begin(), KRuleLookupArray.end(), searchRules, RULE_CMP);
-
-			if (foundIt != KRuleLookupArray.end())
-				return *foundIt;
-			else
-				return{ rule_id, -1, -1 };
+			
+			return BinarySearchRules(rule_id);
 		}
 
 		//================================================
@@ -134,14 +155,7 @@ namespace smalltime
 		Zones TzdbHeaderConnector::FindZones(const std::string& name)
 		{
 			auto zone_id = math::GetUniqueID(name);
-			Zones searchZones = { zone_id, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(KZoneLookupArray.begin(), KZoneLookupArray.end(), searchZones, ZONE_CMP);
-
-			if (foundIt != KZoneLookupArray.end())
-				return *foundIt;
-			else
-				return{ zone_id, -1, -1 };
+			return BinarySearchZones(zone_id);
 		}
 
 		//================================================
@@ -149,14 +163,8 @@ namespace smalltime
 		//================================================
 		Zones TzdbHeaderConnector::FindZones(uint32_t zone_id)
 		{
-			Zones searchZones = { zone_id, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(KZoneLookupArray.begin(), KZoneLookupArray.end(), searchZones, ZONE_CMP);
-
-			if (foundIt != KZoneLookupArray.end())
-				return *foundIt;
-			else
-				return{ zone_id, -1, -1 };
+			
+			return BinarySearchZones(zone_id);
 		}
 	}
 }

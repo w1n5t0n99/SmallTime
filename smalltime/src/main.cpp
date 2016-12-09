@@ -87,7 +87,7 @@ int main()
 
 	try
 	{
-		DateTime<> dt(2016, 12, 9, 4, 12, 0, 0, "Australia/Perth");
+		DateTime<> dt(2016, 12, 9, 13, 0, 0, 0, "Asia/Vladivostok");
 		std::cout << "DT   " << dt << std::endl;
 	}
 	catch (const std::exception& e)

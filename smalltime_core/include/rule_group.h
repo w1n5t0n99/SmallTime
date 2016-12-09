@@ -44,7 +44,6 @@ namespace smalltime
 			const Rules rules_;
 
 			const Zone* const zone_;
-			const ZoneTransition zone_transition_;
 
 			int current_year_, primary_year_, previous_year_, next_year_;
 			RD* primary_ptr_, *previous_ptr_, *next_ptr_;

@@ -5,21 +5,54 @@ namespace smalltime
 {
 	namespace comp
 	{
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto ZONE_CMP = [](const tz::Zones& lhs, const tz::Zones& rhs)
+		
+		//===============================================
+		// Binary search function for zones
+		//===============================================
+		tz::Zones BinarySearchZones(uint32_t zone_id, const std::vector<tz::Zones>& vec_zone_lookup)
 		{
-			return lhs.zone_id < rhs.zone_id;
-		};
+			int left = 0;
+			int right = vec_zone_lookup.size() - 1;
 
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto RULE_CMP = [](const tz::Rules& lhs, const tz::Rules& rhs)
+			while (left <= right)
+			{
+				int middle = (left + right) / 2;
+				const auto& mid_zones = vec_zone_lookup[middle];
+
+				if (mid_zones.zone_id == zone_id)
+					return mid_zones;
+				else if (zone_id > mid_zones.zone_id)
+					left = middle + 1;
+				else
+					right = middle - 1;
+			}
+
+			return{ zone_id, -1, -1 };
+		}
+
+		//===============================================
+		// Binary search function for zones
+		//===============================================
+		tz::Rules BinarySearchRules(uint32_t rule_id, const std::vector<tz::Rules>& vec_rule_lookup)
 		{
-			return lhs.rule_id < rhs.rule_id;
-		};
+			int left = 0;
+			int right = vec_rule_lookup.size() - 1;
+
+			while (left <= right)
+			{
+				int middle = (left + right) / 2;
+				const auto& mid_zones = vec_rule_lookup[middle];
+
+				if (mid_zones.rule_id == rule_id)
+					return mid_zones;
+				else if (rule_id > mid_zones.rule_id)
+					left = middle + 1;
+				else
+					right = middle - 1;
+			}
+
+			return{ rule_id, -1, -1 };
+		}
 
 		//========================================================
 		// Ctor
@@ -117,30 +150,16 @@ namespace smalltime
 		//================================================
 		tz::Rules TzdbRawConnector::FindRules(const std::string& name)
 		{
-			auto ruleId = math::GetUniqueID(name);
-			tz::Rules searchRules = { ruleId, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(vec_rule_lookup_.begin(), vec_rule_lookup_.end(), searchRules, RULE_CMP);
-
-			if (foundIt != vec_rule_lookup_.end())
-				return *foundIt;
-			else
-				return{ ruleId, -1, -1 };
+			auto rule_id = math::GetUniqueID(name);
+			return BinarySearchRules(rule_id, vec_rule_lookup_);
 		}
 
 		//================================================
 		// Find rules matching name id
 		//================================================
-		tz::Rules TzdbRawConnector::FindRules(uint32_t ruleId)
+		tz::Rules TzdbRawConnector::FindRules(uint32_t rule_id)
 		{
-			tz::Rules searchRules = { ruleId, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(vec_rule_lookup_.begin(), vec_rule_lookup_.end(), searchRules, RULE_CMP);
-
-			if (foundIt != vec_rule_lookup_.end())
-				return *foundIt;
-			else
-				return{ ruleId, -1, -1 };
+			return BinarySearchRules(rule_id, vec_rule_lookup_);
 		}
 
 		//================================================
@@ -148,30 +167,17 @@ namespace smalltime
 		//================================================
 		tz::Zones TzdbRawConnector::FindZones(const std::string& name)
 		{
-			auto zoneId = math::GetUniqueID(name);
-			tz::Zones searchZones = { zoneId, 0, 0 };
-
-			const auto& foundIt = std::lower_bound(vec_zone_lookup_.begin(), vec_zone_lookup_.end(), searchZones, ZONE_CMP);
-
-			if (foundIt != vec_zone_lookup_.end())
-				return *foundIt;
-			else
-				return{ zoneId, -1, -1 };
+			auto zone_id = math::GetUniqueID(name);
+			return BinarySearchZones(zone_id, vec_zone_lookup_);
 		}
 
 		//================================================
 		// Find zones matching name id
 		//================================================
-		tz::Zones TzdbRawConnector::FindZones(uint32_t zoneId)
+		tz::Zones TzdbRawConnector::FindZones(uint32_t zone_id)
 		{
-			tz::Zones searchZones = { zoneId, 0, 0 };
+			return BinarySearchZones(zone_id, vec_zone_lookup_);
 
-			const auto& foundIt = std::lower_bound(vec_zone_lookup_.begin(), vec_zone_lookup_.end(), searchZones, ZONE_CMP);
-
-			if (foundIt != vec_zone_lookup_.end())
-				return *foundIt;
-			else
-				return{ zoneId, -1, -1 };
 		}
 
 	}

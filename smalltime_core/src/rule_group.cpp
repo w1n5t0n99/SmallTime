@@ -27,7 +27,6 @@ namespace smalltime
 			primary_ptr_(nullptr),
 			previous_ptr_(nullptr),
 			next_ptr_(nullptr), 
-			zone_transition_(zone->mb_until_utc, zone->zone_offset, zone->next_zone_offset, zone->mb_rule_offset, zone->trans_rule_offset),
 			tzdb_connector_(tzdb_connector)
 		{
 
@@ -428,7 +427,7 @@ namespace smalltime
 		//==========================================================================
 		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose)
 		{
-	
+
 			auto prev_rule = FindPreviousRule(cur_rule_transition.trans_wall_);
 			if (prev_rule.first)
 			{
