@@ -48,12 +48,19 @@ namespace smalltime
 		//====================================================
 		tz::ZoneTransition ZonePostGenerator::CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
 		{
+			// Assume the tzdb is accurate and the zone transitions are not between ambigous rules
 			const auto& cur_zone = vec_zone[cur_zone_index];
 
 			RD next_zoffset = 0.0;
 			RD next_roffset = 0.0;
 			auto cur_zoffset = cur_zone.zone_offset;
 			auto cur_roffset = cur_zone.mb_rule_offset;
+
+			const tz::Zone* prev_zone = nullptr;
+			auto prev_zone_index = GetPrevZoneInGroup(cur_zone_index, vec_zone);
+
+			if (prev_zone_index > -1)
+				prev_zone = &vec_zone[prev_zone_index];
 
 			BasicDateTime<> until_dt(cur_zone.mb_until_utc, cur_zone.until_type);
 			//the cur zone hasnt been altered yet so until_wall still stores zone basic transition
@@ -62,7 +69,7 @@ namespace smalltime
 			if (cur_zone.rule_id > 0)
 			{
 				// find the rule offset if active
-				tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, tzdb_connector_);
+				tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, prev_zone, tzdb_connector_);
 				auto rule = rg.FindActiveRuleNoCheck(mb_until_dt);
 				if (rule != nullptr)
 					cur_roffset += rule->offset;
@@ -70,7 +77,7 @@ namespace smalltime
 
 			auto next_zone_index = GetNextZoneInGroup(cur_zone_index, vec_zone);
 			// the last zone is ongoing
-			if (next_zone_index != -1)
+			if (next_zone_index > -1)
 			{
 				const auto& next_zone = vec_zone[next_zone_index];
 
@@ -83,7 +90,7 @@ namespace smalltime
 				if (next_zone.rule_id > 0)
 				{
 					// find the rule offset if active
-					tz::RuleGroup rg(next_zone.rule_id, &next_zone, tzdb_connector_);
+					tz::RuleGroup rg(next_zone.rule_id, &next_zone, &cur_zone, tzdb_connector_);
 					auto rule = rg.FindActiveRuleNoCheck(until_dt);
 					if (rule != nullptr)
 						next_roffset += rule->offset;
@@ -124,6 +131,27 @@ namespace smalltime
 
 				if (cur_zone.zone_id == next_zone.zone_id)
 					return cur_zone_index + 1;
+				else
+					return -1;
+			}
+			else
+			{
+				return -1;
+			}
+		}
+
+		//=================================================
+		// Find previous zone of same group in any
+		//=================================================
+		int ZonePostGenerator::GetPrevZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone)
+		{
+			if ((cur_zone_index - 1) >= 0)
+			{
+				auto cur_zone = vec_zone[cur_zone_index];
+				auto prev_zone = vec_zone[cur_zone_index -1];
+
+				if (cur_zone.zone_id == prev_zone.zone_id)
+					return cur_zone_index - 1;
 				else
 					return -1;
 			}

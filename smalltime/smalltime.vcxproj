@@ -116,6 +116,10 @@
     <IncludePath>$(ProjectDir)..\..\..\SmalltimeShared\Include;$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir)..\..\..\SmalltimeShared\Source;$(SourcePath)</SourcePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <SourcePath>ProjectDir)..\smalltime_core\src;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\include;$(ProjectDir)..\smalltime_core\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>

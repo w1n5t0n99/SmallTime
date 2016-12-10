@@ -25,6 +25,7 @@ namespace smalltime
 			tz::ZoneTransition CalcZoneData(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
 			int GetNextZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
+			int GetPrevZoneInGroup(int cur_zone_index, std::vector<tz::Zone>& vec_zone);
 
 			std::shared_ptr<tz::TzdbConnectorInterface> tzdb_connector_;
 

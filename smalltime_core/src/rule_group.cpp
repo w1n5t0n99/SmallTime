@@ -16,8 +16,9 @@ namespace smalltime
 		//=======================================
 		// Ctor
 		//======================================
-		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) :
+		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, const Zone* const prev_zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) :
 			zone_(zone),
+			prev_zone_(prev_zone),
 			rules_(tzdb_connector->FindRules(rule_id)),
 			rule_arr_(tzdb_connector->GetRuleHandle()), 
 			current_year_(0),
@@ -28,6 +29,11 @@ namespace smalltime
 			previous_ptr_(nullptr),
 			next_ptr_(nullptr), 
 			zone_transition_(zone_->mb_until_utc, zone_->zone_offset, zone_->next_zone_offset, zone_->mb_rule_offset, zone_->trans_rule_offset),
+			prev_zone_transition_(prev_zone == nullptr ? 0.0 : prev_zone->mb_until_utc,
+				prev_zone == nullptr ? 0.0 : prev_zone->zone_offset,
+				prev_zone == nullptr ? 0.0 : prev_zone->next_zone_offset,
+				prev_zone == nullptr ? 0.0 : prev_zone->mb_rule_offset,
+				prev_zone == nullptr ? 0.0 : prev_zone->trans_rule_offset),
 			tzdb_connector_(tzdb_connector)
 		{
 
@@ -428,6 +434,12 @@ namespace smalltime
 		//==========================================================================
 		const Rule* const RuleGroup::CorrectForAmbigAny(const BasicDateTime<>& cur_dt, RuleTransition cur_rule_transition, const Rule* const cur_rule, Choose choose)
 		{
+			
+			// Zone and Rule transition are the same, zone will have already checked for ambig
+			// Return the current rule since were assuming its not ambiguous or the zone would have caught it
+			if (AlmostEqualUlps(prev_zone_transition_.trans_wall_, cur_rule_transition.trans_wall_, 11))
+				return cur_rule;
+
 			auto prev_rule = FindPreviousRule(cur_rule_transition.trans_wall_);
 			if (prev_rule.first)
 			{
@@ -470,7 +482,7 @@ namespace smalltime
 				}
 			}
 
-			// check for ambig with previous zone and current zone
+			// check for ambig with cur rule and next rule
 			auto next_rule = FindNextRule(cur_rule_transition.trans_wall_);
 			if (next_rule.first)
 			{

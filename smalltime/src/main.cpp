@@ -3,43 +3,55 @@
 #include <array>
 
 #include "../include/local_datetime.h"
-#include <basic_datetime.h>
-#include <core_math.h>
-#include <time_math.h>
 #include <util/stl_perf_counter.h>
 
-#include <rule_group.h>
-#include <zone_group.h>
-#include "../include/tzdb_header_connector.h"
-#include <tzdb_connector_interface.h>
-#include <memory>
-#include <float_util.h>
-#include <inttypes.h>
+#include "../include/local_datetime.h"
 #include "../include/datetime.h"
-#include <murmur_hash3.h>
 
 using namespace smalltime;
 
-int main()
+int main(int argc, char** argv)
 {
 	StlPerfCounter counter("Counter");
 	counter.StartCounter();
 
-	try
+	if (argc == 9)
 	{
-		DateTime<> dt(2016, 4, 3, 3, 0, 0, 0, "Australia/Hobart");
-		std::cout << "DT   " << dt << std::endl;
+		try
+		{
+			//DateTime<> dt(2016, 12, 10, 2, 0, 0, 0, "Asia/Jerusalem");
+			DateTime<> dt(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), argv[8]);
+			std::cout << "DateTime   " << dt << std::endl;
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
-	catch (const std::exception& e)
+	else if (argc == 8)
 	{
-		std::cout << e.what() << std::endl;
+		try
+		{
+			LocalDateTime<> dt(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]));
+			std::cout << "LocalDateTime   " << dt << std::endl;
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
+	else
+	{
+		std::cout << "Error: not correct number of arguments!" << std::endl;
+	}
+
+	
 
 	counter.EndCounter();
 
 	std::cout << "ms elapsed =  " << counter.GetElapsedMilliseconds() << " us elapsed = " << counter.GetElapsedMicroseconds() << std::endl;
 
-	std::cin.get();
+	//std::cin.get();
 
 
 	return 0;

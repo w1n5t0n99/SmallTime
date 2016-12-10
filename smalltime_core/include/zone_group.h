@@ -18,12 +18,15 @@ namespace smalltime
 			ZoneGroup(Zones zones, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
 
 			const Zone* const FindActiveZone(BasicDateTime<> cur_dt, Choose choose);
+			std::pair<const Zone* const, const Zone* const>  FindActiveAndPreviousZone(BasicDateTime<> cur_dt, Choose choose);
+
 
 		private:
 			const Zone* const FindPreviousZone(int cur_zone_index);
 			const Zone* const FindNextZone(int cur_zone_index);
 
 			const Zone* const CorrectForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, const ZoneTransition& cur_zone_transition, Choose choose);
+			std::pair<const Zone* const, const Zone* const> CorrectPairForAmbigAny(const BasicDateTime<>& cur_dt, int cur_zone_index, const ZoneTransition& cur_zone_transition, Choose choose);
 
 		private:
 			const Zone* const zone_arr_;

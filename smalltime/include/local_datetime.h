@@ -231,6 +231,16 @@ namespace smalltime
 		day_of_year_ = yd[1];
 	}
 
+	//=============================================
+	// Stream operator overload
+	//==============================================
+	template <typename T>
+	std::ostream& operator<< (std::ostream& stream, const LocalDateTime<T> rhs)
+	{
+		return stream << rhs.GetYear() << '/' << rhs.GetMonth() << '/' << rhs.GetDay() << 'T' << rhs.GetHour() << ':' << rhs.GetMinute()
+			<< ':' << rhs.GetSecond() << ':' << rhs.GetMillisecond();
+	}
+
 }
 
 #endif

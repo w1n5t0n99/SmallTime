@@ -15,7 +15,7 @@ namespace smalltime
 		class RuleGroup
 		{
 		public:
-			RuleGroup(uint32_t rule_id, const Zone* const zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
+			RuleGroup(uint32_t rule_id, const Zone* const zone, const Zone* const prev_zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
 			const Rule* const FindActiveRuleNoCheck(BasicDateTime<> cur_dt);
@@ -44,7 +44,9 @@ namespace smalltime
 			const Rules rules_;
 
 			const Zone* const zone_;
+			const Zone* const prev_zone_;
 			const ZoneTransition zone_transition_;
+			const ZoneTransition prev_zone_transition_;
 
 			int current_year_, primary_year_, previous_year_, next_year_;
 			RD* primary_ptr_, *previous_ptr_, *next_ptr_;
