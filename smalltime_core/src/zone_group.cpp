@@ -153,8 +153,8 @@ namespace smalltime
 			}
 
 			// check for ambig with current and next zone
-			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualUlps(fi_any, cur_dt.GetFixed(), 11)) &&
-				(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
+			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualRelative(fi_any, cur_dt.GetFixed())) &&
+				(cur_dt.GetFixed() <= mb_any || AlmostEqualRelative(mb_any, cur_dt.GetFixed())))
 			{
 				switch (choose)
 				{
@@ -198,7 +198,8 @@ namespace smalltime
 				break;
 			}
 
-			if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
+			if ((mb_any < cur_dt.GetFixed() && !AlmostEqualRelative(mb_any, cur_dt.GetFixed())) &&
+				(cur_dt.GetFixed() < fi_any) && !AlmostEqualRelative(cur_dt.GetFixed(), fi_any))
 			{
 				switch (choose)
 				{
@@ -251,8 +252,8 @@ namespace smalltime
 			}
 
 			// check for ambig with current and next zone
-			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualUlps(fi_any, cur_dt.GetFixed(), 11)) &&
-				(cur_dt.GetFixed() <= mb_any || AlmostEqualUlps(mb_any, cur_dt.GetFixed(), 11)))
+			if ((fi_any <= cur_dt.GetFixed() || AlmostEqualRelative(fi_any, cur_dt.GetFixed())) &&
+				(cur_dt.GetFixed() <= mb_any || AlmostEqualRelative(mb_any, cur_dt.GetFixed())))
 			{
 				switch (choose)
 				{
@@ -297,7 +298,8 @@ namespace smalltime
 				break;
 			}
 
-			if (mb_any < cur_dt.GetFixed() && cur_dt.GetFixed() < fi_any)
+			if ((mb_any < cur_dt.GetFixed() && !AlmostEqualRelative(mb_any, cur_dt.GetFixed()))
+				&& (cur_dt.GetFixed() < fi_any && !AlmostEqualRelative(cur_dt.GetFixed(), fi_any)))
 			{
 				switch (choose)
 				{

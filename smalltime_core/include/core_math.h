@@ -48,7 +48,6 @@ namespace smalltime
 			// n& (d-1) where d = 4
 			return n& (3);
 		}
-
 	
 		// hash string to create unique ID
 		uint32_t GetUniqueID(const std::string& str);

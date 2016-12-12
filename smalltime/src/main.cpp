@@ -85,10 +85,22 @@ int main(int argc, char** argv)
 	}
 	*/
 
+//	smalltime::DateTime<> dt(1983, 10, 30, 2, 0, 0, 0, "America/Adak");
+//	std::cout << dt << std::endl;
+
+	try
+	{
+		smalltime::DateTime<> dt(2016, 3, 13, 1, 23, 59, 59, "America/Adak");
+		std::cout << dt << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
+	/*
 	//smalltime::LocalDateTime<> dt1(1066, 12, 30, 0, 0, 0, 0);
 	smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> dt1(4111, 11, 20, 0, 0, 0, 0, smalltime::tz::KTimeType_Wall);
-
-
 
 	smalltime::BasicDateTime<> iso_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
 	smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> heb_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
@@ -97,7 +109,7 @@ int main(int argc, char** argv)
 
 
 	std::cout << "LocalDateTime   -Iso " << iso_fdt << "-Hebrew " << heb_fdt << " -Islamic " << isl_fdt << " -Julian " << jul_fdt << std::endl;
-
+	*/
 
 	counter.EndCounter();
 
