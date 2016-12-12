@@ -21,6 +21,7 @@ namespace smalltime
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
 		DateTime(RD rd, std::string time_zone);
+		DateTime(RD rd);
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -110,7 +111,7 @@ namespace smalltime
 	}
 
 	//====================================================
-	// Ctor - create date from fixed date
+	// Ctor - create date from local fixed date
 	//====================================================
 	template <typename T = chrono::IsoChronology>
 	DateTime<T>::DateTime(RD rd, std::string time_zone)
@@ -133,6 +134,27 @@ namespace smalltime
 
 	}
 
+	//====================================================
+	// Ctor - create date from fixed date
+	//====================================================
+	template <typename T = chrono::IsoChronology>
+	DateTime<T>::DateTime(RD rd)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (fixed_ != rd)
+			throw InvalidFieldException("Invalid field or fields");
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+
+	}
+
 	//==================================================================
 	// Explicit specialization for Iso calendar
 	// allows initialization by year/week/day and year/day format
@@ -144,10 +166,7 @@ namespace smalltime
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
 		DateTime(RD rd, std::string time_zone);
-
-		//LocalDateTime(int year, int week, int day, int hour, int minute, int second, int millisecond);
-		//LocalDateTime(int year, int day, int hour, int minute, int second, int millisecond);
-
+		DateTime(RD rd);
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -254,7 +273,7 @@ namespace smalltime
 	}
 
 	//====================================================
-	// Ctor - create date from fixed date
+	// Ctor - create date from local fixed date
 	//====================================================
 	DateTime<chrono::IsoChronology>::DateTime(RD rd, std::string time_zone)
 	{
@@ -279,6 +298,26 @@ namespace smalltime
 		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
 		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
 		day_of_year_ = yd[1];
+	}
+
+	//====================================================
+	// Ctor - create date from fixed date
+	//====================================================
+	DateTime<chrono::IsoChronology>::DateTime(RD rd)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (fixed_ != rd)
+			throw InvalidFieldException("Invalid field or fields");
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+
 	}
 
 	//=============================================

@@ -142,7 +142,7 @@ namespace smalltime
 		YMD ymd_;
 		YWD ywd_;
 		HMS hms_;
-		int day_of_year_, week_of_month_;
+		int day_of_year_, week_of_month_, day_of_week_;
 		bool leap_year_;
 		RD fixed_;
 

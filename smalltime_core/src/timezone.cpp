@@ -30,7 +30,13 @@ namespace smalltime
 			const Zone*  cur_zone = nullptr;
 			std::tie(prev_zone, cur_zone) = zg.FindActiveAndPreviousZone(iso_dt, choose);
 
-			RD total_offset = cur_zone->zone_offset;
+			// If iso_dt past DMAX then nullptr is returned and no offset is applied
+			// This would be past the year 10,000 so timezones wouldn't be of much use
+			RD total_offset = 0.0;
+			if (cur_zone)
+				total_offset = cur_zone->zone_offset;
+			else
+				return 0.0;
 
 			if (cur_zone->rule_id <= 0)
 				return total_offset;
@@ -62,14 +68,23 @@ namespace smalltime
 
 			// converting from utc should not produce an ambig error
 			ZoneGroup zg(zones, tzdb_connector);
-			auto active_zone = zg.FindActiveAndPreviousZone(iso_dt, Choose::KError);
+			
+			const Zone*  prev_zone = nullptr;
+			const Zone*  cur_zone = nullptr;
+			std::tie(prev_zone, cur_zone) = zg.FindActiveAndPreviousZone(iso_dt, Choose::KError);
 
-			RD total_offset = active_zone.second->zone_offset;
+			// If iso_dt past DMAX then nullptr is returned and no offset is applied
+			// This would be past the year 10,000 so timezones wouldn't be of much use
+			RD total_offset = 0.0;
+			if (cur_zone)
+				total_offset = cur_zone->zone_offset;
+			else
+				return 0.0;
 
-			if (active_zone.second->rule_id <= 0)
+			if (cur_zone->rule_id <= 0)
 				return total_offset;
 
-			RuleGroup rg(active_zone.second->rule_id, active_zone.second, active_zone.first, tzdb_connector);
+			RuleGroup rg(cur_zone->rule_id, cur_zone, prev_zone, tzdb_connector);
 			auto active_rule = rg.FindActiveRule(iso_dt, Choose::KError);
 
 			// No active rule found

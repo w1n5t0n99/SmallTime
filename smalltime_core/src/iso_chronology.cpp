@@ -65,7 +65,7 @@ namespace smalltime
 			double prior_days = rd_only - FixedFromYmd(y - 1, 3, 1);
 
 			double m = std::floor((1.0 / 153.0) * (5.0 * prior_days + 2));
-			double month = math::AFlMod(m + 3.0, 12);
+			double month = math::AFlMod(m + 3.0, 12.0);
 
 			double year = y - std::floor((month + 9.0) / 12.0);
 			double day = rd_only - FixedFromYmd(year, month, 1) + 1.0;
@@ -163,44 +163,76 @@ namespace smalltime
 			RD relative_rd = 0.0;
 			// Find the date relative to the specifier ==========================
 			int dow = static_cast<int>(rel) % 7;
-
 			int rel_spec_index = static_cast<int>(rel);
+
+			switch (rel_spec_index)
+			{
 			//OnOrAfter
-			if (rel_spec_index >= 7 && rel_spec_index < 14)
-			{
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
 				relative_rd = math::KDayOnOrAfter(dow, rd);
-			}
+				break;
 			//After
-			else if (rel_spec_index >= 14 && rel_spec_index < 21)
-			{
+			case 14:
+			case 15:
+			case 16:
+			case 17:
+			case 18:
+			case 19:
+			case 20:
 				relative_rd = math::KDayAfter(dow, rd);
-			}
 			//OnOrBefore
-			else if (rel_spec_index >= 21 && rel_spec_index < 28)
-			{
+				break;
+			case 21:
+			case 22:
+			case 23:
+			case 24:
+			case 25:
+			case 26:
+			case 27:
 				relative_rd = math::KDayOnOrBefore(dow, rd);
-			}
 			//Before
-			else if (rel_spec_index >= 28 && rel_spec_index < 35)
-			{
+				break;
+			case 28:
+			case 29:
+			case 30:
+			case 31:
+			case 32:
+			case 33:
+			case 34:
 				relative_rd = math::KDayBefore(dow, rd);
-			}
+				break;
 			//Last
-			else if (rel_spec_index >= 35 && rel_spec_index < 42)
-			{
+			case 35:
+			case 36:
+			case 37:
+			case 38:
+			case 39:
+			case 40:
+			case 41:
 				auto ymd = YmdFromFixed(rd);
 				// increment month
 				ymd[1] += 1;
 				ymd[2] = 1;
-				// increment year if past last month
-				if (ymd[1] == 13)
+
+				//check if valid date and increment year if not
+				auto incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				auto incr_ymd = YmdFromFixed(incr_rd);
+
+				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
 				{
 					ymd[0] += 1;
 					ymd[1] = 1;
 				}
 
-				auto newRD = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				relative_rd = math::KDayBefore(dow, newRD);
+				auto good_ymd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				relative_rd = math::KDayBefore(dow, good_ymd);
+				break;
 			}
 
 			return relative_rd;
