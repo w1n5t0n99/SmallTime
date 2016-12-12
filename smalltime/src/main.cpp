@@ -85,8 +85,8 @@ int main(int argc, char** argv)
 	}
 	*/
 
-	//smalltime::LocalDateTime<> dt1(20, 7, 11, 0, 0, 0, 0);
-	smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> dt1(3780, 5, 4, 0, 0, 0, 0, smalltime::tz::KTimeType_Wall);
+	//smalltime::LocalDateTime<> dt1(1066, 12, 30, 0, 0, 0, 0);
+	smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> dt1(4111, 11, 20, 0, 0, 0, 0, smalltime::tz::KTimeType_Wall);
 
 
 

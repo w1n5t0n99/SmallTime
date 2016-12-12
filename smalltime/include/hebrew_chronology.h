@@ -15,7 +15,6 @@ namespace smalltime
 			RD FixedFromYmd(int year, int month, int day) const;
 			YMD YmdFromFixed(RD rd) const;
 
-
 			RD FixedRelativeTo(RD rd, RelSpec rel) const;
 
 			RD FixedFromTime(int hour, int minute, int second, int milli) const;
@@ -28,11 +27,10 @@ namespace smalltime
 			int HebrewYearMonths(int year) const;
 			RD HebrewYearDays(int year) const;
 
-			int HebrewDelay1(int year) const;
-			int HebrewDelay2(int year) const;
+			RD HebrewDelay1(int year) const;
+			RD HebrewDelay2(int year) const;
 
-			int HebrewNewYear(int year) const;
-			int DaysInHebrewYear(int year) const;
+			RD HebrewNewYear(int year) const;
 
 			bool IsLongMarheshvan(int year) const;
 			bool IsShortKislev(int year) const;

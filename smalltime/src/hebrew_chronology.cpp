@@ -3,6 +3,8 @@
 #include "../include/cal_math.h"
 #include "../include/time_math.h"
 
+#include <float_util.h>
+
 namespace smalltime
 {
 	namespace chrono
@@ -49,22 +51,18 @@ namespace smalltime
 		//=====================================================
 		YMD HebrewChronology::YmdFromFixed(RD rd) const
 		{
-			
-			int year = 0, month = 0, day = 0, count = 0, first = 0;
-
 			RD date_only = math::ExtractDate(rd);
-			date_only = std::floor(date_only);
-			count = std::floor(((date_only - KHEBREW_EPOCH) * 98496.0) / 35975351.0) + 1;
+			int count = std::floor(((date_only - KHEBREW_EPOCH) * 98496.0) / 35975351.0) + 1;
 
-			year = count - 1;
+			int year = count - 1;
 			for (int i = count; date_only >= HebrewNewYear(i); ++i) 
 			{
 				++year;
 			}
 
-			first = (date_only < FixedFromYmd(year, 1, 1)) ? 7 : 1;
+			int first = (date_only < FixedFromYmd(year, 1, 1)) ? 7 : 1;
 
-			month = first;
+			int month = first;
 			
 			for (int i = first; date_only > FixedFromYmd(year, i, HebrewMonthDays(i, year)); ++i) 
 			{
@@ -72,7 +70,7 @@ namespace smalltime
 			}
 			
 
-			day = 1 + static_cast<int>(date_only) - static_cast<int>(FixedFromYmd(year, month, 1));
+			int day = 1 + static_cast<int>(date_only) - static_cast<int>(FixedFromYmd(year, month, 1));
 			
 			return{ year, month, day };
 
@@ -161,21 +159,12 @@ namespace smalltime
 			return relative_rd;
 		}
 
-		//==========================================
-		// How many days in the hebrew year
-		//=============================================
-		RD HebrewChronology::HebrewYearDays(int year) const
-		{
-			return FixedFromYmd(year + 1, KHebrewMonth_Tishri, 1) - FixedFromYmd(year, KHebrewMonth_Tishri, 1);
-
-		}
-
 		//============================================
 		// Find the last day of given hebrew month
 		//===========================================
 		int HebrewChronology::HebrewMonthDays(int month, int year) const
 		{
-			/*
+			
 			switch (month)
 			{
 			case KHebrewMonth_Iyyar:
@@ -196,40 +185,6 @@ namespace smalltime
 			default:
 				return 30;
 			}
-			*/
-
-			//  First of all, dispose of fixed-length 29 day months
-		
-			if (month == 2 || month == 4 || month == 6 ||
-				month == 10 || month == 13) 
-			{
-				return 29;
-			}
-
-			//  If it's not a leap year, Adar has 29 days
-
-			if (month == 12 && !IsLeapYear(year))
-			{
-				return 29;
-			}
-
-			//  If it's Heshvan, days depend on length of year
-
-			if (month == 8 && !IsLongMarheshvan(year))
-			{
-				return 29;
-			}
-
-			//  Similarly, Kislev varies with the length of year
-
-			if (month == 9 && IsShortKislev(year))
-			{
-				return 29;
-			}
-
-			//  Nope, it's a 30 day month
-
-			return 30;
 			
 		}
 
@@ -244,7 +199,7 @@ namespace smalltime
 		//=============================================
 		// Find days in year
 		//=============================================
-		int HebrewChronology::DaysInHebrewYear(int year) const
+		RD HebrewChronology::HebrewYearDays(int year) const
 		{
 			return HebrewNewYear(year + 1) - HebrewNewYear(year);
 		}
@@ -254,7 +209,7 @@ namespace smalltime
 		//============================================
 		bool HebrewChronology::IsLongMarheshvan(int year) const
 		{
-			int days = DaysInHebrewYear(year);
+			int days = static_cast<int>(HebrewYearDays(year));
 			return( days == 355 || days == 385) ? true : false;
 
 		}
@@ -264,7 +219,7 @@ namespace smalltime
 		//============================================
 		bool HebrewChronology::IsShortKislev(int year) const
 		{
-			int days = DaysInHebrewYear(year);
+			int days = static_cast<int>(HebrewYearDays(year));
 			return  (days == 353 || days == 383) ? true : false;
 
 		}
@@ -272,24 +227,24 @@ namespace smalltime
 		//===================================
 		// Find hebrew new year
 		//====================================
-		int HebrewChronology::HebrewNewYear(int year) const
+		RD HebrewChronology::HebrewNewYear(int year) const
 		{
-			return static_cast<int>(KHEBREW_EPOCH) + HebrewDelay1(year) + HebrewDelay2(year);
+			return KHEBREW_EPOCH + HebrewDelay1(year) + HebrewDelay2(year);
 		}
 
 		//==============================================================
 		//  Test for delay of start of new year and to avoid
 		//  Sunday, Wednesday, and Friday as start of the new year.
 		//===============================================================
-		int  HebrewChronology::HebrewDelay1(int year) const
+		RD  HebrewChronology::HebrewDelay1(int year) const
 		{
-			int months = 0, day = 0, parts = 0;
+			RD months = 0.0, day = 0.0, parts = 0.0;
 
 			months = std::floor(((235.0 * static_cast<RD>(year)) - 234.0) / 19.0);
-			parts = 12084 + (13753 * months);
-			day = (static_cast<RD>(months) * 29.0) + std::floor(parts / 25920.0);
+			parts = 12084.0 + (13753.0 * months);
+			day = (months * 29.0) + std::floor(parts / 25920.0);
 
-			if (math::FlMod((3.0 * (static_cast<RD>(day) + 1.0)), 7.0) < 3.0)
+			if (math::FlMod((3.0 * (day + 1.0)), 7.0) < 3.0)
 			{
 				++day;
 			}
@@ -300,16 +255,16 @@ namespace smalltime
 		//==============================================================
 		//  Check for delay in start of new year due to length of adjacent years
 		//===============================================================
-		int HebrewChronology::HebrewDelay2(int year) const
+		RD HebrewChronology::HebrewDelay2(int year) const
 		{
-			int last = 0, present = 0, next = 0;
+			RD last = 0, present = 0, next = 0;
 
 			last = HebrewDelay1(year - 1);
 			present = HebrewDelay1(year);
 			next = HebrewDelay1(year + 1);
 
-			return ((next - present) == 356) ? 2 :
-				(((present - last) == 382) ? 1 : 0);
+			return AlmostEqualRelative((next - present), 356) ? 2.0 :
+				(AlmostEqualRelative((present - last), 382) ? 1.0 : 0.0);
 		}
 		
 		//=====================================================
@@ -317,7 +272,7 @@ namespace smalltime
 		//=====================================================
 		bool HebrewChronology::IsLeapYear(int year) const
 		{
-			return math::FlMod(7.0 * (static_cast<RD>(year) + 1.0), 19.0) < 7.0;
+			return math::FlMod((7.0 * static_cast<RD>(year)) + 1.0, 19.0) < 7.0;
 
 		}
 
