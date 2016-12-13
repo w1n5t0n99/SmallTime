@@ -96,9 +96,11 @@ namespace smalltime
 		//============================================================
 		// Calculate the date relative to another date
 		//=============================================================
-		RD HebrewChronology::FixedRelativeTo(RD rd, RelSpec rel) const
+		RD HebrewChronology::FixedRelativeTo(RD rd, RS rel) const
 		{
-			RD relative_rd = 0.0;
+			RD relative_rd = 0.0, incr_rd = 0.0, good_rd = 0.0;
+			YMD ymd = { 0,0,0 }, incr_ymd = { 0, 0, 0 };
+
 			// Find the date relative to the specifier ==========================
 			int dow = static_cast<int>(rel) % 7;
 			int rel_spec_index = static_cast<int>(rel);
@@ -153,14 +155,14 @@ namespace smalltime
 			case 39:
 			case 40:
 			case 41:
-				auto ymd = YmdFromFixed(rd);
+				ymd = YmdFromFixed(rd);
 				// increment month
 				ymd[1] += 1;
 				ymd[2] = 1;
 
 				//check if valid date and increment year if not
-				auto incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				auto incr_ymd = YmdFromFixed(incr_rd);
+				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				incr_ymd = YmdFromFixed(incr_rd);
 
 				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
 				{
@@ -168,8 +170,27 @@ namespace smalltime
 					ymd[1] = 1;
 				}
 
-				auto good_ymd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				relative_rd = math::KDayBefore(dow, good_ymd);
+				good_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				relative_rd = math::KDayBefore(dow, good_rd);
+				break;
+			case 42:
+				ymd = YmdFromFixed(rd);
+				// increment month
+				ymd[1] += 1;
+				ymd[2] = 1;
+
+				//check if valid date and increment year if not
+				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				incr_ymd = YmdFromFixed(incr_rd);
+
+				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
+				{
+					ymd[0] += 1;
+					ymd[1] = 1;
+				}
+
+				good_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
+				relative_rd = good_rd - 1.0;
 				break;
 			}
 

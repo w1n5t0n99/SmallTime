@@ -19,7 +19,7 @@ namespace smalltime
 	static const RD KRD_EPOCH = 1.0;
 
 	// Used for specifying a date-time relative to another
-	enum class RelSpec
+	enum class RS
 	{
 		KSunOnOrAfter = 7,
 		KMonOnOrAfter = 8,
@@ -60,6 +60,8 @@ namespace smalltime
 		KLastThurs = 39,
 		KLastFri = 40,
 		KLastSat = 41,
+
+		KLastDay = 42,
 	};
 
 	enum class Choose

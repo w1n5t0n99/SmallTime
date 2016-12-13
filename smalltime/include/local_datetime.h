@@ -22,7 +22,7 @@ namespace smalltime
 	{
 	public:
 		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
-		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel);
+		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel);
 
 		LocalDateTime(RD local_rd);
 		LocalDateTime(RD utc_rd, const std::string& time_zone);
@@ -90,7 +90,7 @@ namespace smalltime
 	// Ctor - create date from fields relative to
 	//====================================================
 	template <typename T = chrono::IsoChronology>
-	LocalDateTime<T>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel)
+	LocalDateTime<T>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel)
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -200,7 +200,7 @@ namespace smalltime
 	{
 	public:
 		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
-		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel);
+		LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel);
 
 		LocalDateTime(RD local_rd);
 		LocalDateTime(RD utc_rd, const std::string& time_zone);
@@ -280,7 +280,7 @@ namespace smalltime
 	//====================================================
 	// Ctor - create date from fields relative to
 	//====================================================
-	LocalDateTime<chrono::IsoChronology>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel)
+	LocalDateTime<chrono::IsoChronology>::LocalDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel)
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);

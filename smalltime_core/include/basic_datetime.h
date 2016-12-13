@@ -16,7 +16,7 @@ namespace smalltime
 	{
 		public:
 		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, tz::TimeType tmType) noexcept;
-		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType) noexcept;
+		BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, tz::TimeType tmType) noexcept;
 		BasicDateTime(RD rd, tz::TimeType tmType) noexcept;
 
 		int GetYear() const { return ymd_[0]; }
@@ -75,7 +75,7 @@ namespace smalltime
 	// Ctor - create date from fields relative to
 	//====================================================
 	template <typename T = chrono::IsoChronology>
-	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, tz::TimeType tmType) noexcept
+	BasicDateTime<T>::BasicDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, tz::TimeType tmType) noexcept
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);

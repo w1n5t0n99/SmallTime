@@ -24,7 +24,7 @@ namespace smalltime
 	{
 	public:
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
-		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
+		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, std::string time_zone);
 		DateTime(RD rd, std::string time_zone);
 
 		DateTime(RD utc_rd);
@@ -51,7 +51,6 @@ namespace smalltime
 		YMD ymd_;
 		HMS hms_;
 		RD fixed_;
-		std::string format_;
 
 		static T KCHRONOLOGY;
 		static tz::TimeZone KTIMEZONE;
@@ -100,7 +99,7 @@ namespace smalltime
 	// Ctor - create date from fields relative to
 	//====================================================
 	template <typename T = chrono::IsoChronology>
-	DateTime<T>::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone)
+	DateTime<T>::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, std::string time_zone)
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -244,7 +243,7 @@ namespace smalltime
 	{
 	public:
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
-		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
+		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, std::string time_zone);
 
 		DateTime(RD utc_rd);
 		DateTime(RD local_rd, const std::string& time_zone);
@@ -279,7 +278,6 @@ namespace smalltime
 		YMD ymd_;
 		YWD ywd_;
 		HMS hms_;
-		std::string format_;
 		int day_of_year_, week_of_month_;
 		bool leap_year_;
 		RD fixed_;
@@ -330,7 +328,7 @@ namespace smalltime
 	//====================================================
 	// Ctor - create date from fields relative to
 	//====================================================
-	DateTime<chrono::IsoChronology>::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone)
+	DateTime<chrono::IsoChronology>::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RS rel, std::string time_zone)
 	{
 		fixed_ = KCHRONOLOGY.FixedFromYmd(year, month, day);
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);

@@ -402,7 +402,7 @@ namespace smalltime
 					cp[0] += 1;
 				}
 
-				return BasicDateTime<>(cp[0], cp[1], 1, tp[0], tp[1], tp[2], tp[3], smalltime::RelSpec::KSunBefore, tz::KTimeType_Wall);
+				return BasicDateTime<>(cp[0], cp[1], 1, tp[0], tp[1], tp[2], tp[3], smalltime::RS::KSunBefore, tz::KTimeType_Wall);
 			}
 
 		}

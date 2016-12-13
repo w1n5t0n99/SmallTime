@@ -15,7 +15,7 @@ namespace smalltime
 			RD FixedFromYmd(int year, int month, int day) const;
 			YMD YmdFromFixed(RD rd) const;
 
-			RD FixedRelativeTo(RD rd, RelSpec rel) const;
+			RD FixedRelativeTo(RD rd, RS rel) const;
 
 			RD FixedFromTime(int hour, int minute, int second, int milli) const;
 			HMS TimeFromFixed(RD rd) const;
