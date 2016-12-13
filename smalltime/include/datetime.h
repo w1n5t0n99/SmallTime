@@ -38,6 +38,7 @@ namespace smalltime
 		YMD ymd_;
 		HMS hms_;
 		RD fixed_;
+		std::string format_;
 
 		static T KCHRONOLOGY;
 		static tz::TimeZone KTIMEZONE;
@@ -74,7 +75,7 @@ namespace smalltime
 		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 		
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -102,7 +103,7 @@ namespace smalltime
 		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -126,7 +127,7 @@ namespace smalltime
 		if (fixed_ != rd)
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
@@ -150,8 +151,8 @@ namespace smalltime
 		if (fixed_ != rd)
 			throw InvalidFieldException("Invalid field or fields");
 
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
 
 	}
 
@@ -192,6 +193,7 @@ namespace smalltime
 		YMD ymd_;
 		YWD ywd_;
 		HMS hms_;
+		std::string format_;
 		int day_of_year_, week_of_month_;
 		bool leap_year_;
 		RD fixed_;
@@ -225,7 +227,7 @@ namespace smalltime
 		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -259,7 +261,7 @@ namespace smalltime
 		if (hour != hms_[0] || minute != hms_[1] || second != hms_[2] || millisecond != hms_[3])
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -287,7 +289,7 @@ namespace smalltime
 		if (fixed_ != rd)
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);

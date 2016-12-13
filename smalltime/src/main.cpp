@@ -100,24 +100,38 @@ int main(int argc, char** argv)
 	*/
 
 	/*
-	smalltime::LocalDateTime<> dt1(0, 1, 2, 0, 0, 0, 0);
+	smalltime::LocalDateTime<> dt1(2016, 12, 13, 11, 0, 0, 0);
 	//smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> dt1(4111, 11, 20, 0, 0, 0, 0, smalltime::tz::KTimeType_Wall);
 
-	smalltime::BasicDateTime<> iso_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
-	smalltime::BasicDateTime<smalltime::chrono::HebrewChronology> heb_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
-	smalltime::BasicDateTime<smalltime::chrono::IslamicChronology> isl_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
-	smalltime::BasicDateTime<smalltime::chrono::JulianChronology> jul_fdt(dt1.GetFixed(), smalltime::tz::KTimeType_Wall);
+	smalltime::LocalDateTime<> iso_fdt(dt1);
+	smalltime::LocalDateTime<smalltime::chrono::HebrewChronology> heb_fdt(dt1);
+	smalltime::LocalDateTime<smalltime::chrono::IslamicChronology> isl_fdt(dt1);
+	smalltime::LocalDateTime<smalltime::chrono::JulianChronology> jul_fdt(dt1);
 
 
 	std::cout << "LocalDateTime   -Iso " << iso_fdt << "-Hebrew " << heb_fdt << " -Islamic " << isl_fdt << " -Julian " << jul_fdt << std::endl;
 	*/
 
+	try
+	{
+		smalltime::DateTime<> utc_dt(2016, 3, 13, 3, 0, 0, 0, "America/New_York");
+		smalltime::LocalDateTime<> local_dt(utc_dt, "America/New_York");
+
+		std::cout << "LocalDateTime " << local_dt << "  DateTime " << utc_dt << std::endl; 
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
+	/*
 	smalltime::BasicDateTime<smalltime::chrono::JulianChronology> jul_fdt(622, 3, 19, 0, 0, 0, 0, smalltime::tz::KTimeType_Wall);
 	std::cout << "Persian epoch: " << jul_fdt.GetFixed() << std::endl;
 
 	counter.EndCounter();
 
 	std::cout << "ms elapsed =  " << counter.GetElapsedMilliseconds() << " us elapsed = " << counter.GetElapsedMicroseconds() << std::endl;
+	*/
 
 	std::cin.get();
 

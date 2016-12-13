@@ -13,7 +13,7 @@ namespace smalltime
 		//=======================================================
 		// Produce UTC offset from a local datetime
 		//=======================================================
-		RD TimeZone::FixedFromLocal(RD rd, std::string time_zone_name, Choose choose, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
+		RD TimeZone::FixedOffsetFromLocal(RD rd, std::string time_zone_name, Choose choose, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
 		{
 			auto zoneHandle = tzdb_connector->GetZoneHandle();
 			auto zones = tzdb_connector->FindZones(time_zone_name);
@@ -55,7 +55,7 @@ namespace smalltime
 		//=======================================================
 		// Produce UTC offset from a local datetime
 		//=======================================================
-		RD FixedFromUtc(RD rd, std::string time_zone_name, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
+		RD TimeZone::FixedOffsetFromUtc(RD rd, std::string time_zone_name, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
 		{
 			auto zoneHandle = tzdb_connector->GetZoneHandle();
 			auto zones = tzdb_connector->FindZones(time_zone_name);
@@ -94,5 +94,7 @@ namespace smalltime
 			total_offset += active_rule->offset;
 			return total_offset;
 		}
+
+
 	}
 }

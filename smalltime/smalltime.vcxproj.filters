@@ -46,6 +46,9 @@
     <ClCompile Include="src\persian_chronology.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\smalltime_core\src\astro_math.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\smalltime_core\include\chrono_decls.h">
@@ -118,6 +121,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\persian_chronology.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smalltime_core\include\astro_math.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
