@@ -12,8 +12,13 @@
 #include <smalltime_exceptions.h>
 #include "tzdb_header_connector.h"
 
+
 namespace smalltime
 {
+	// Forward decl
+	template <typename T>
+	class LocalDateTime;
+
 	template <typename T = chrono::IsoChronology>
 	class DateTime
 	{
@@ -21,7 +26,15 @@ namespace smalltime
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
 		DateTime(RD rd, std::string time_zone);
-		DateTime(RD rd);
+
+		DateTime(RD utc_rd);
+		DateTime(RD local_rd, const std::string& time_zone);
+
+		template <typename U>
+		DateTime(const DateTime<U>& other);
+
+		template <typename U>
+		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -135,25 +148,91 @@ namespace smalltime
 
 	}
 
-	//====================================================
-	// Ctor - create date from fixed date
-	//====================================================
+	//=============================================================
+	// create from DateTime of diffrent chronology
+	//============================================================
 	template <typename T = chrono::IsoChronology>
-	DateTime<T>::DateTime(RD rd)
+	template <typename U>
+	DateTime<T>::DateTime(const DateTime<U>& other)
 	{
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
 		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
 
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
 		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
 		// check if valid date
-		if (fixed_ != rd)
+		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
+			throw InvalidFieldException("Invalid field or fields");
+	}
+
+	//=============================================================
+	// create from a LocalDateTime
+	//============================================================
+	template <typename T = chrono::IsoChronology>
+	template <typename U>
+	DateTime<T>::DateTime(const LocalDateTime<U>& other, const std::string& time_zone)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
+			throw InvalidFieldException("Invalid field or fields");
+
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		fixed_ -= offset;
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+
+	}
+
+	//=============================================================
+	// Ctor - create date from fixed date interpreted as  utc
+	//=============================================================
+	template <typename T = chrono::IsoChronology>
+	DateTime<T>::DateTime(RD utc_rd)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(utc_rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(utc_rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (fixed_ != utc_rd)
 			throw InvalidFieldException("Invalid field or fields");
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
 
+	}
+
+	//===============================================================
+	// Ctor - create date from fixed date interpreted as local
+	//==============================================================
+	template <typename T = chrono::IsoChronology>
+	DateTime<T>::DateTime(RD local_rd, const std::string& time_zone)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(local_rd);
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(local_rd);
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (!AlmostEqualRelative(fixed_, local_rd))
+			throw InvalidFieldException("Invalid field or fields");
+
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		fixed_ -= offset;
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
 	}
 
 	//==================================================================
@@ -166,8 +245,15 @@ namespace smalltime
 	public:
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, std::string time_zone);
 		DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, RelSpec rel, std::string time_zone);
-		DateTime(RD rd, std::string time_zone);
-		DateTime(RD rd);
+
+		DateTime(RD utc_rd);
+		DateTime(RD local_rd, const std::string& time_zone);
+
+		template <typename U>
+		DateTime(const DateTime<U>& other);
+
+		template <typename U>
+		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -277,23 +363,23 @@ namespace smalltime
 	//====================================================
 	// Ctor - create date from local fixed date
 	//====================================================
-	DateTime<chrono::IsoChronology>::DateTime(RD rd, std::string time_zone)
+	DateTime<chrono::IsoChronology>::DateTime(RD local_rd, const std::string& time_zone)
 	{
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(local_rd);
 		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
 
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(local_rd);
 		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
 		// check if valid date
-		if (fixed_ != rd)
+		if (fixed_ != local_rd)
 			throw InvalidFieldException("Invalid field or fields");
 
 		auto offset = KTIMEZONE.FixedOffsetFromLocal(fixed_, time_zone, Choose::KError, KTZDB_CONNECTOR);
 		fixed_ -= offset;
 
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(local_rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(local_rd);
 		// since this should be a valid date we can obtain the other data
 		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
 		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
@@ -305,20 +391,61 @@ namespace smalltime
 	//====================================================
 	// Ctor - create date from fixed date
 	//====================================================
-	DateTime<chrono::IsoChronology>::DateTime(RD rd)
+	DateTime<chrono::IsoChronology>::DateTime(RD utc_rd)
 	{
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(utc_rd);
 		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
 
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(utc_rd);
 		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
 		// check if valid date
-		if (fixed_ != rd)
+		if (fixed_ != utc_rd)
 			throw InvalidFieldException("Invalid field or fields");
 
-		ymd_ = KCHRONOLOGY.YmdFromFixed(rd);
-		hms_ = KCHRONOLOGY.TimeFromFixed(rd);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(utc_rd);
+		hms_ = KCHRONOLOGY.TimeFromFixed(utc_rd);
+
+	}
+
+	//=============================================================
+	// create from DateTime of diffrent chronology
+	//============================================================
+	template <typename U>
+	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
+			throw InvalidFieldException("Invalid field or fields");
+	}
+
+	//=============================================================
+	// create from a LocalDateTime
+	//============================================================
+	template <typename U>
+	DateTime<chrono::IsoChronology>::DateTime(const LocalDateTime<U>& other, const std::string& time_zone)
+	{
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
+		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
+
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
+
+		// check if valid date
+		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
+			throw InvalidFieldException("Invalid field or fields");
+
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		fixed_ -= offset;
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
 
 	}
 

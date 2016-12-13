@@ -114,8 +114,8 @@ int main(int argc, char** argv)
 
 	try
 	{
-		smalltime::DateTime<> utc_dt(2016, 3, 13, 6, 59, 59, 999, "UTC");
-		smalltime::LocalDateTime<> local_dt(utc_dt, "America/New_York");
+		smalltime::LocalDateTime<> local_dt(2016, 12, 13, 22, 0, 0, 0);
+		smalltime::DateTime<> utc_dt(local_dt, "America/New_York");
 
 		std::cout << "LocalDateTime " << local_dt << "  DateTime " << utc_dt << std::endl; 
 	}
