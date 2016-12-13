@@ -34,7 +34,7 @@ namespace smalltime
 		bool Generator::ProccessUtc(std::vector<tz::Zone>& vec_zone)
 		{
 			// Set a UTC entry
-			tz::Zone utc_zone = { math::GetUniqueID("UTC") , 0, tz::DMAX, tz::KTimeType_Wall, tz::DMAX, tz::DMAX, tz::DMAX, tz::DMAX, math::Pack8Chars("UTC") };
+			tz::Zone utc_zone = { math::GetUniqueID("UTC") , 0, tz::DMAX, tz::KTimeType_Wall, 0.0, 0.0, 0.0, 0.0, math::Pack8Chars("UTC") };
 			vec_zone.push_back(utc_zone);
 
 			return true;
