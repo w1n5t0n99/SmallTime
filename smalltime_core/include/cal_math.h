@@ -4,11 +4,13 @@
 
 #include "core_decls.h"
 #include "core_math.h"
+#include "chrono_decls.h"
 
 namespace smalltime
 {
 	namespace math
 	{
+
 		//========================================================================
 		// Extract whole number portion of FixedDateTime double
 		//========================================================================

@@ -69,6 +69,15 @@ namespace smalltime
 		KError
 	};
 
+	// Complete location description used for some calendar calculations
+	struct Locale
+	{
+		RD lattitude;
+		RD longitude;
+		RD elevation;
+		RD zone;
+	};
+
 }
 
 #endif // !_CORECONSTANTS_

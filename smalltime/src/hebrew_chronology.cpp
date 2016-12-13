@@ -11,6 +11,23 @@ namespace smalltime
 	{
 		static const RD KHEBREW_EPOCH = -1373427.0;
 
+		enum HebrewMonthDays
+		{
+			KHebrewMonth_Nisan = 1,
+			KHebrewMonth_Iyyar = 2,
+			KHebrewMonth_Sivan = 3,
+			KHebrewMonth_Tammuz = 4,
+			KHebrewMonth_Av = 5,
+			KHebrewMonth_Elul = 6,
+			KHebrewMonth_Tishri = 7,
+			KHebrewMonth_Marheshvan = 8,
+			KHebrewMonth_Kislev = 9,
+			KHebrewMonth_Tevet = 10,
+			KHebrewMonth_shevat = 11,
+			KHebrewMonth_Adar = 12,
+			KHebrewMonth_Adarii = 13
+		};
+
 		//============================================================
 		// Calculate the RD format from the year, month, day format
 		//============================================================
@@ -23,20 +40,20 @@ namespace smalltime
 			months = HebrewYearMonths(year);
 			rd = HebrewNewYear(year) + static_cast<RD>(day) - 1.0;
 
-			if (month < 7) 
+			if (month < KHebrewMonth_Tishri)
 			{
-				for (mon = 7; mon <= months; ++mon)
+				for (mon = KHebrewMonth_Tishri; mon <= months; ++mon)
 				{
 					rd += static_cast<RD>(HebrewMonthDays(mon, year));
 				}
-				for (mon = 1; mon < month; ++mon)
+				for (mon = KHebrewMonth_Nisan; mon < month; ++mon)
 				{
 					rd += static_cast<RD>(HebrewMonthDays(mon, year));
 				}
 			}
 			else 
 			{
-				for (mon = 7; mon < month; ++mon)
+				for (mon = KHebrewMonth_Tishri; mon < month; ++mon)
 				{
 					rd += static_cast<RD>(HebrewMonthDays(mon, year));
 				}
@@ -60,7 +77,7 @@ namespace smalltime
 				++year;
 			}
 
-			int first = (date_only < FixedFromYmd(year, 1, 1)) ? 7 : 1;
+			int first = (date_only < FixedFromYmd(year, 1, 1)) ? KHebrewMonth_Tishri : KHebrewMonth_Nisan;
 
 			int month = first;
 			
