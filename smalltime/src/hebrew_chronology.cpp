@@ -69,7 +69,7 @@ namespace smalltime
 		YMD HebrewChronology::YmdFromFixed(RD rd) const
 		{
 			RD date_only = math::ExtractDate(rd);
-			int count = std::floor(((date_only - KHEBREW_EPOCH) * 98496.0) / 35975351.0) + 1;
+			int count = std::floor(((date_only - KHEBREW_EPOCH) * 98496.0) / 35975351.0) + 1.0;
 
 			int year = count - 1;
 			for (int i = count; date_only >= HebrewNewYear(i); ++i) 

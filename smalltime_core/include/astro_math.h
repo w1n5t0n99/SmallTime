@@ -59,6 +59,9 @@ namespace smalltime
 			return std_time - locale.zone;
 		}
 
+		RD ObliqEq(RD rd);
+		std::pair<RD, RD> Nutation(RD rd);
+		RD EquationOfTime(RD rd);
 
 	}
 }
