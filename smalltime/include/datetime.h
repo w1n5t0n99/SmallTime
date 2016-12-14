@@ -34,6 +34,9 @@ namespace smalltime
 		DateTime(const DateTime<U>& other);
 
 		template <typename U>
+		DateTime(const DateTime<U>& other, RS rel);
+
+		template <typename U>
 		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
 
 		int GetYear() const { return ymd_[0]; }
@@ -154,15 +157,29 @@ namespace smalltime
 	template <typename U>
 	DateTime<T>::DateTime(const DateTime<U>& other)
 	{
+		// We know the other DateTime must be valid if it didn't throw an exception,
+		// no reason to check if fields are valid
+		fixed_ = other.GetFixed();
 		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
-		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
-
 		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+
+	}
+
+	//=============================================================
+	// create relative to another DateTime
+	//============================================================
+	template <typename T = chrono::IsoChronology>
+	template <typename U>
+	DateTime<T>::DateTime(const DateTime<U>& other, RS rel)
+	{
+		fixed_ = other.GetFixed();
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
 		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
-		// check if valid date
-		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
-			throw InvalidFieldException("Invalid field or fields");
 	}
 
 	//=============================================================
@@ -172,15 +189,9 @@ namespace smalltime
 	template <typename U>
 	DateTime<T>::DateTime(const LocalDateTime<U>& other, const std::string& time_zone)
 	{
-		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
-		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
-
-		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
-		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
-
-		// check if valid date
-		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
-			throw InvalidFieldException("Invalid field or fields");
+		// We know the other DateTime must be valid if it didn't throw an exception,
+		// no reason to check if fields are valid
+		fixed_ = other.GetFixed();
 
 		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
 		fixed_ -= offset;
@@ -250,6 +261,9 @@ namespace smalltime
 
 		template <typename U>
 		DateTime(const DateTime<U>& other);
+
+		template <typename U>
+		DateTime(const DateTime<U>& other, RS rel);
 
 		template <typename U>
 		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
@@ -404,6 +418,13 @@ namespace smalltime
 		ymd_ = KCHRONOLOGY.YmdFromFixed(utc_rd);
 		hms_ = KCHRONOLOGY.TimeFromFixed(utc_rd);
 
+		// since this should be a valid date we can obtain the other data
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
+
 	}
 
 	//=============================================================
@@ -412,15 +433,41 @@ namespace smalltime
 	template <typename U>
 	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other)
 	{
+		// We know the other DateTime must be valid if it didn't throw an exception,
+		// no reason to check if fields are valid
+		fixed_ = other.GetFixed();
 		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
-		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
-
 		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+	
+		// since this should be a valid date we can obtain the other data
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
+	}
+
+	//=============================================================
+	// create relative to another DateTime
+	//============================================================
+	template <typename U>
+	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other, RS rel)
+	{
+		fixed_ = other.GetFixed();
+		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
+
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+
+		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
 		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
 
-		// check if valid date
-		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
-			throw InvalidFieldException("Invalid field or fields");
+		// since this should be a valid date we can obtain the other data
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
+
 	}
 
 	//=============================================================
@@ -429,15 +476,9 @@ namespace smalltime
 	template <typename U>
 	DateTime<chrono::IsoChronology>::DateTime(const LocalDateTime<U>& other, const std::string& time_zone)
 	{
-		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
-		fixed_ = KCHRONOLOGY.FixedFromYmd(ymd_[0], ymd_[1], ymd_[2]);
-
-		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
-		fixed_ += KCHRONOLOGY.FixedFromTime(hms_[0], hms_[1], hms_[2], hms_[3]);
-
-		// check if valid date
-		if (!AlmostEqualRelative(fixed_, other.GetFixed()))
-			throw InvalidFieldException("Invalid field or fields");
+		// We know the other DateTime must be valid if it didn't throw an exception,
+		// no reason to check if fields are valid
+		fixed_ = other.GetFixed();
 
 		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
 		fixed_ -= offset;
@@ -445,6 +486,12 @@ namespace smalltime
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
 
+		// since this should be a valid date we can obtain the other data
+		ywd_ = KCHRONOLOGY.YwdFromFixed(fixed_);
+		leap_year_ = KCHRONOLOGY.IsLeapYear(ymd_[0]);
+		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
+		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
+		day_of_year_ = yd[1];
 	}
 
 	//=============================================
