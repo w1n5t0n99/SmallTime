@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 	try
 	{
 		//smalltime::LocalDateTime<> cbt1(2019, 4, 5, 0, 0, 0, 0);
-		smalltime::LocalDateTime<smalltime::chrono::IslamicChronology> dt1(1438, 12, 20, 0, 0, 0, 0, smalltime::RS::KLastDay);
+		smalltime::LocalDateTime<smalltime::chrono::HebrewChronology> dt1(5779, 13, 20, 0, 0, 0, 0, smalltime::RS::KLastDay);
 
 		smalltime::LocalDateTime<> iso_fdt(dt1);
 		smalltime::LocalDateTime<smalltime::chrono::HebrewChronology> heb_fdt(dt1);

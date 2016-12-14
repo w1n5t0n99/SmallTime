@@ -61,6 +61,10 @@ namespace smalltime
 
 		RD ObliqEq(RD rd);
 		std::pair<RD, RD> Nutation(RD rd);
+		std::pair<RD, RD> EcliptoEq(RD rd, RD lambda, RD beta);
+		RD DeltaT(int year);
+		RD Equinox(int year, int which);
+		std::array<RD, 12> SunPos(RD rd);
 		RD EquationOfTime(RD rd);
 
 	}

@@ -98,8 +98,9 @@ namespace smalltime
 		//=============================================================
 		RD HebrewChronology::FixedRelativeTo(RD rd, RS rel) const
 		{
-			RD relative_rd = 0.0, incr_rd = 0.0, good_rd = 0.0;
-			YMD ymd = { 0,0,0 }, incr_ymd = { 0, 0, 0 };
+			RD relative_rd = 0.0, good_rd = 0.0;
+			YMD ymd = { 0,0,0 };
+			int last_month = 0;
 
 			// Find the date relative to the specifier ==========================
 			int dow = static_cast<int>(rel) % 7;
@@ -160,13 +161,13 @@ namespace smalltime
 				ymd[1] += 1;
 				ymd[2] = 1;
 
-				//check if valid date and increment year if not
-				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				incr_ymd = YmdFromFixed(incr_rd);
+				last_month = KHebrewMonth_Adar;
+				if (IsLeapYear(ymd[0]))
+					last_month = KHebrewMonth_Adarii;
 
-				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
+				if (ymd[1] > last_month)
 				{
-					ymd[0] += 1;
+					//++ymd[0];
 					ymd[1] = 1;
 				}
 
@@ -179,13 +180,13 @@ namespace smalltime
 				ymd[1] += 1;
 				ymd[2] = 1;
 
-				//check if valid date and increment year if not
-				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				incr_ymd = YmdFromFixed(incr_rd);
-
-				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
+				last_month = KHebrewMonth_Adar;
+				if (IsLeapYear(ymd[0]))
+					last_month = KHebrewMonth_Adarii;
+			
+				if (ymd[1] > last_month)
 				{
-					ymd[0] += 1;
+					//++ymd[0];
 					ymd[1] = 1;
 				}
 

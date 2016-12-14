@@ -221,13 +221,9 @@ namespace smalltime
 				ymd[1] += 1;
 				ymd[2] = 1;
 
-				//check if valid date and increment year if not
-				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				incr_ymd = YmdFromFixed(incr_rd);
-
-				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
+				if (ymd[1] > 12)
 				{
-					ymd[0] += 1;
+					++ymd[0];
 					ymd[1] = 1;
 				}
 
@@ -240,13 +236,9 @@ namespace smalltime
 				ymd[1] += 1;
 				ymd[2] = 1;
 
-				//check if valid date and increment year if not
-				incr_rd = FixedFromYmd(ymd[0], ymd[1], ymd[2]);
-				incr_ymd = YmdFromFixed(incr_rd);
-
-				if (ymd[0] != incr_ymd[0] || ymd[1] != incr_ymd[1] || ymd[2] != incr_ymd[2])
+				if (ymd[1] > 12)
 				{
-					ymd[0] += 1;
+					++ymd[0];
 					ymd[1] = 1;
 				}
 
