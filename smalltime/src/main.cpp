@@ -85,20 +85,23 @@ int main(int argc, char** argv)
 	}
 	*/
 
-	/*
+	
 	
 	try
 	{
-		smalltime::DateTime<> dt(2016, 3, 13, 1, 23, 59, 59, "America/Adak");
-		std::cout << dt << std::endl;
+		//smalltime::DateTime<> dt(2016, 3, 13, 1, 23, 59, 59, "America/Adak");
+		smalltime::LocalDateTime<> dt(2016, 12, 14, 1, 23, 59, 59);
+		smalltime::LocalDateTime<> dt1(dt, smalltime::RS::KMonOnOrBefore);
+		std::cout << dt << "  " << dt1 << std::endl;
 	}
 	catch (const std::exception& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
 
-	*/
+	
 
+	/*
 	try
 	{
 		//smalltime::LocalDateTime<> cbt1(2019, 4, 5, 0, 0, 0, 0);
@@ -116,6 +119,7 @@ int main(int argc, char** argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
+	*/
 
 	/*
 	try

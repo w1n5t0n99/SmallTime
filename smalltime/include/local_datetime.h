@@ -33,6 +33,9 @@ namespace smalltime
 		template <typename U>
 		LocalDateTime(const DateTime<U>& other, const std::string& time_zone);
 
+		template <typename U>
+		LocalDateTime(const LocalDateTime<U>& other, RS rel);
+
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
 		int GetDay() const { return ymd_[2]; }
@@ -191,6 +194,20 @@ namespace smalltime
 
 	}
 
+	//=================================================
+	// Create relative to another LocalDateTime
+	//=================================================
+	template <typename T = chrono::IsoChronology>
+	template <typename U>
+	LocalDateTime<T>::LocalDateTime(const LocalDateTime<U>& other, RS rel)
+	{
+		fixed_ = other.GetFixed();
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
+
+	}
+
 	//==================================================================
 	// Explicit specialization for Iso calendar
 	// allows initialization by year/week/day and year/day format
@@ -210,6 +227,9 @@ namespace smalltime
 
 		template <typename U>
 		LocalDateTime(const DateTime<U>& other, const std::string& time_zone);
+
+		template <typename U>
+		LocalDateTime(const LocalDateTime<U>& other, RS rel);
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -407,6 +427,19 @@ namespace smalltime
 		week_of_month_ = KCHRONOLOGY.WeekOfMonth(ymd_, fixed_);
 		auto yd = KCHRONOLOGY.YdFromFixed(fixed_);
 		day_of_year_ = yd[1];
+
+	}
+
+	//=================================================
+	// Create relative to another LocalDateTime
+	//=================================================
+	template <typename U>
+	LocalDateTime<chrono::IsoChronology>::LocalDateTime(const LocalDateTime<U>& other, RS rel)
+	{
+		fixed_ = other.GetFixed();
+		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
+		fixed_ = KCHRONOLOGY.FixedRelativeTo(fixed_, rel);
+		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
 
 	}
 

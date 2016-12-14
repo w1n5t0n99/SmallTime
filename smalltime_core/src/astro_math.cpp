@@ -209,31 +209,30 @@ namespace smalltime
 			8, 15.45, 16859.074
 		};
 
-		std::array<std::array<RD, 5>, 4> KJDE0_TAB1000 = { {
-			{1721139.29189, 365242.13740, 0.06134, 0.00111, -0.00071},
-			{1721233.25401, 365241.72562, -0.05323, 0.00907, 0.00025},
-			{1721325.70455, 365242.49558, -0.11677, -0.00297, 0.00074},
-			{1721414.39987, 365242.88257, -0.00769, -0.00933, -0.00006}
-		} };
+		std::array<RD, 20> KJDE0_TAB1000 = { 
+			1721139.29189, 365242.13740, 0.06134, 0.00111, -0.00071,
+			1721233.25401, 365241.72562, -0.05323, 0.00907, 0.00025,
+			1721325.70455, 365242.49558, -0.11677, -0.00297, 0.00074,
+			1721414.39987, 365242.88257, -0.00769, -0.00933, -0.00006,
+		 };
 
-		std::array<std::array<RD, 5>, 4> KJDE0_TAB2000 = { {
-			{2451623.80984, 365242.37404, 0.05169, -0.00411, -0.00057},
-			{2451716.56767, 365241.62603, 0.00325, 0.00888, -0.00030},
-			{2451810.21715, 365242.01767, -0.11575, 0.00337, 0.00078},
-			{2451900.05952, 365242.74049, -0.06223, -0.00823, 0.00032}
-		} };
+		std::array<RD, 20> KJDE0_TAB2000 =  {
+			2451623.80984, 365242.37404, 0.05169, -0.00411, -0.00057,
+			2451716.56767, 365241.62603, 0.00325, 0.00888, -0.00030,
+			2451810.21715, 365242.01767, -0.11575, 0.00337, 0.00078,
+			2451900.05952, 365242.74049, -0.06223, -0.00823, 0.00032,
+		 };
 
 		//====================================================
 		// Oblique equation
 		//====================================================
 		RD ObliqEq(RD rd)
 		{
-			RD eps = 0.0, u = 0.0, v = 0.0;
 			int i = 0;
-
+			RD u = 0.0, v = 0.0;
 			v = u = (rd - KJ2000) / (KJULIAN_CENTURY * 100.0);
 
-			eps = 23.0 + (26.0 / 60.0) + (21.448 / 3600.0);
+			RD eps = 23.0 + (26.0 / 60.0) + (21.448 / 3600.0);
 
 			if (abs(u) < 1.0)
 			{
@@ -324,13 +323,11 @@ namespace smalltime
 		//============================================================
 		std::pair<RD, RD> EcliptoEq(RD rd, RD lambda, RD beta)
 		{
-			RD eps = 0.0, ra = 0.0, dec = 0.0;
-
 			/* Obliquity of the ecliptic. */
 
-			eps = DegToRad(ObliqEq(rd));
+			RD eps = DegToRad(ObliqEq(rd));
 
-			ra = RadToDeg(atan2((cos(eps) * sin(DegToRad(lambda)) -
+			RD ra = RadToDeg(atan2((cos(eps) * sin(DegToRad(lambda)) -
 				(tan(DegToRad(beta)) * sin(eps))),
 				cos(DegToRad(lambda))));
 
@@ -338,7 +335,7 @@ namespace smalltime
 				(tan(DegToRad(beta)) * sin(eps))),
 				cos(DegToRad(lambda)))));
 
-			dec = RadToDeg(asin((sin(eps) * sin(DegToRad(lambda)) * cos(DegToRad(beta))) +
+			RD dec = RadToDeg(asin((sin(eps) * sin(DegToRad(lambda)) * cos(DegToRad(beta))) +
 				(sin(DegToRad(beta)) * cos(eps))));
 
 			return std::make_pair(ra, dec);
@@ -394,24 +391,25 @@ namespace smalltime
 			/*  Initialise terms for mean equinox and solstices.  We
 			have two sets: one for years prior to 1000 and a second
 			for subsequent years.  */
-			std::array<std::array<RD, 5>, 4>* jde0_tab = nullptr;
+			RD* jde0_tab = nullptr;
 
 			if (year < 1000)
 			{
-				jde0_tab = &KJDE0_TAB1000;
+				jde0_tab = KJDE0_TAB1000.data();
 				y = year / 1000;
 			}
 			else 
 			{
-				jde0_tab = &KJDE0_TAB2000;
+				jde0_tab = KJDE0_TAB2000.data();
 				y = (year - 2000) / 1000;
 			}
 
-			jde0 = jde0_tab[0][which][0] +
-				(jde0_tab[0][which][1] * y) +
-				(jde0_tab[0][which][2] * y * y) +
-				(jde0_tab[0][which][3] * y * y * y) +
-				(jde0_tab[0][which][4] * y * y * y * y);
+			which *= 5;
+			jde0 = jde0_tab[which + 0] +
+				(jde0_tab[which + 1] * y) +
+				(jde0_tab[which + 2] * y * y) +
+				(jde0_tab[which +3] * y * y * y) +
+				(jde0_tab[which +4] * y * y * y * y);
 
 			t = (jde0 - 2451545.0) / 36525;
 			w = (35999.373 * t) - 2.47;
@@ -498,24 +496,18 @@ namespace smalltime
 			RD tau = (rd - KJ2000) / KJULIAN_MILLENNIUM;
 			RD l0 = 280.4664567 + (360007.6982779 * tau) +
 				(0.03032028 * tau * tau) +
-				((tau * tau * tau) / 49931) +
-				(-((tau * tau * tau * tau) / 15300)) +
-				(-((tau * tau * tau * tau * tau) / 2000000));
+				((tau * tau * tau) / 49931.0) +
+				(-((tau * tau * tau * tau) / 15300.0)) +
+				(-((tau * tau * tau * tau * tau) / 2000000.0));
 
 			l0 = FixAngle(l0);
 			
 			RD alpha = SunPos(rd)[10];
-			//document.debug.log.value += "alpha = " + alpha + "\n";
 			RD delta_psi = Nutation(rd).first;
-			//document.debug.log.value += "deltaPsi = " + deltaPsi + "\n";
 			RD epsilon = ObliqEq(rd) + Nutation(rd).second;
-			//document.debug.log.value += "epsilon = " + epsilon + "\n";
 			RD e = l0 + (-0.0057183) + (-alpha) + (delta_psi * DegCos(epsilon));
-			//document.debug.log.value += "E = " + E + "\n";
 			e = e - 20.0 * (std::floor(e / 20.0));
-			//document.debug.log.value += "Efixed = " + E + "\n";
 			e = e / (24 * 60);
-			//document.debug.log.value += "Eday = " + E + "\n";
 
 			return e;
 		}
