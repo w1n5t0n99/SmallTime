@@ -7,6 +7,7 @@ namespace smalltime
 {
 	namespace chrono
 	{
+		static const RD KISO_EPOCH = 1.0;
 		static constexpr double KYear4 = 1.0 / 4.0;
 		static constexpr double KYear100 = 1.0 / 100.0;
 		static constexpr double KYear400 = 1.0 / 400.0;
@@ -29,7 +30,7 @@ namespace smalltime
 
 			double month_days = iso_greg_julian::KSTD_BASE_MONTH_DAYS[month_index];
 
-			RD rd = ISO_EPOCH - 307.0 + (365.0 * y) + leap4 - leap100 + leap400 + month_days + 30.0 * m + day;
+			RD rd = KISO_EPOCH - 307.0 + (365.0 * y) + leap4 - leap100 + leap400 + month_days + 30.0 * m + day;
 
 			return rd;
 		}
@@ -61,7 +62,7 @@ namespace smalltime
 		{
 			RD rd_only = math::ExtractDate(rd);
 
-			int y = DetermineYearFromFixed(ISO_EPOCH - 1.0 + rd_only + 306.0);
+			int y = DetermineYearFromFixed(KISO_EPOCH - 1.0 + rd_only + 306.0);
 			double prior_days = rd_only - FixedFromYmd(y - 1, 3, 1);
 
 			double m = std::floor((1.0 / 153.0) * (5.0 * prior_days + 2));
@@ -129,7 +130,7 @@ namespace smalltime
 		//==========================================================
 		int IsoChronology::DetermineYearFromFixed(RD rd) const
 		{
-			double d0 = math::ExtractDate(rd) - ISO_EPOCH;
+			double d0 = math::ExtractDate(rd) - KISO_EPOCH;
 
 			double d0Frac = d0 / 146097;
 			double n400 = std::floor(d0Frac);
@@ -160,8 +161,8 @@ namespace smalltime
 		//=============================================================
 		RD IsoChronology::FixedRelativeTo(RD rd, RS rel) const
 		{
-			RD relative_rd = 0.0, incr_rd = 0.0, good_rd = 0.0;
-			YMD ymd = { 0,0,0 }, incr_ymd = { 0, 0, 0 };
+			RD relative_rd = 0.0, good_rd = 0.0;
+			YMD ymd = { 0,0,0 };
 			// Find the date relative to the specifier ==========================
 			int dow = static_cast<int>(rel) % 7;
 			int rel_spec_index = static_cast<int>(rel);

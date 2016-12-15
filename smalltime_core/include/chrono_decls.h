@@ -9,7 +9,6 @@ namespace smalltime
 {
 	namespace chrono
 	{
-		static const RD ISO_EPOCH = 1.0;
 
 		namespace iso_greg_julian
 		{
