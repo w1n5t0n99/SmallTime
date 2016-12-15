@@ -9,14 +9,6 @@ namespace smalltime
 	// The fixed date-time representation 
 	// R.D = Rata Die from "Calendrical Calculations"
 	using RD = double;
-	// Diffrent calendar field representations
-	using YMD = std::array<int, 3>;
-	using YWD = std::array<int, 3>;
-	using YD = std::array<int, 2>;
-	using HMS = std::array<int, 4>;
-
-	static const int KRD0 = 0;
-	static const RD KRD_EPOCH = 1.0;
 
 	// Used for specifying a date-time relative to another
 	enum class RS

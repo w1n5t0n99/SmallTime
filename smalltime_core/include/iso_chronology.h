@@ -16,16 +16,16 @@ namespace smalltime
 			RD FixedFromYwd(int year, int month, int day) const;
 			RD FixedFromYd(int year, int day) const;
 
-			YMD YmdFromFixed(RD rd) const;
-			YWD YwdFromFixed(RD rd) const;
-			YD YdFromFixed(RD rd) const;
+			std::array<int, 3> YmdFromFixed(RD rd) const;
+			std::array<int, 3> YwdFromFixed(RD rd) const;
+			std::array<int, 2> YdFromFixed(RD rd) const;
 			
 			RD FixedRelativeTo(RD rd, RS rel) const;
 
 			RD FixedFromTime(int hour, int minute, int second, int milli) const;
-			HMS TimeFromFixed(RD rd) const;
+			std::array<int, 4> TimeFromFixed(RD rd) const;
 
-			int WeekOfMonth(const YWD& ywd, RD rd) const;
+			int WeekOfMonth(const std::array<int, 3>& ywd, RD rd) const;
 			bool IsLeapYear(int year) const;
 
 		private:

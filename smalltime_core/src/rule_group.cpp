@@ -679,7 +679,7 @@ namespace smalltime
 				return BasicDateTime<>(0.0, rule->at_type);
 
 			//HMS hms = { 0, 0, 0, 0 };
-			HMS hms = math::HmsFromFixed(rule->at_time);
+			std::array<int, 4> hms = math::HmsFromFixed(rule->at_time);
 			TimeType time_type = rule->at_type;
 
 			switch (rule->day_type)

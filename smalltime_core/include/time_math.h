@@ -64,7 +64,7 @@ namespace smalltime
 			return FixedFromTime(1, 0, 0, 0);
 		}
 
-		HMS HmsFromFixed(RD rd);
+		std::array<int, 4> HmsFromFixed(RD rd);
 	}
 }
 

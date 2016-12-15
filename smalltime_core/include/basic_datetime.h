@@ -32,8 +32,8 @@ namespace smalltime
 		tz::TimeType GetType() const { return time_type_; }
 
 	private:
-		YMD ymd_;
-		HMS hms_;
+		std::array<int, 3> ymd_;
+		std::array<int, 4> hms_;
 		RD fixed_;
 		tz::TimeType time_type_;
 

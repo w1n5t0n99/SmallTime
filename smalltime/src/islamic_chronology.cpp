@@ -7,6 +7,12 @@ namespace smalltime
 {
 	namespace chrono
 	{
+		// Diffrent calendar field representations
+		using YMD = std::array<int, 3>;
+		using YWD = std::array<int, 3>;
+		using YD = std::array<int, 2>;
+		using HMS = std::array<int, 4>;
+
 		static const RD KISLAMIC_EPOCH = 227015.0;
 
 		//============================================================

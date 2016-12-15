@@ -7,6 +7,12 @@ namespace smalltime
 {
 	namespace chrono
 	{
+		// Diffrent calendar field representations
+		using YMD = std::array<int, 3>;
+		using YWD = std::array<int, 3>;
+		using YD = std::array<int, 2>;
+		using HMS = std::array<int, 4>;
+
 		static const RD KISO_EPOCH = 1.0;
 		static constexpr double KYear4 = 1.0 / 4.0;
 		static constexpr double KYear100 = 1.0 / 100.0;
@@ -20,15 +26,15 @@ namespace smalltime
 			//If month out of range (e.g. 13) we'll catch that error as bad date
 			//Want to throw a bad date exception not an array out of range exception
 			int month_index = (month - 1) % 12;
-			double m = iso_greg_julian::KSTD_MONTH_BIAS[month_index];
+			double m = iso_julian::KSTD_MONTH_BIAS[month_index];
 			//double y = year - Floor(m / 10.0);
-			double y = static_cast<double>(year) - iso_greg_julian::KSTD_YEAR_BIAS[month_index];
+			double y = static_cast<double>(year) - iso_julian::KSTD_YEAR_BIAS[month_index];
 
 			double leap4 = std::floor(y * KYear4);
 			double leap100 = std::floor(y * KYear100);
 			double leap400 = std::floor(y * KYear400);
 
-			double month_days = iso_greg_julian::KSTD_BASE_MONTH_DAYS[month_index];
+			double month_days = iso_julian::KSTD_BASE_MONTH_DAYS[month_index];
 
 			RD rd = KISO_EPOCH - 307.0 + (365.0 * y) + leap4 - leap100 + leap400 + month_days + 30.0 * m + day;
 

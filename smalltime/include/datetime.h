@@ -51,8 +51,8 @@ namespace smalltime
 		RD GetFixed() const { return fixed_; }
 
 	private:
-		YMD ymd_;
-		HMS hms_;
+		std::array<int, 3> ymd_;
+		std::array<int, 4> hms_;
 		RD fixed_;
 
 		static T KCHRONOLOGY;
@@ -289,9 +289,9 @@ namespace smalltime
 		RD GetFixed() const { return fixed_; }
 
 	private:
-		YMD ymd_;
-		YWD ywd_;
-		HMS hms_;
+		std::array<int, 3> ymd_;
+		std::array<int, 3> ywd_;
+		std::array<int, 4> hms_;
 		int day_of_year_, week_of_month_;
 		bool leap_year_;
 		RD fixed_;

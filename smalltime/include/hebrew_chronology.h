@@ -13,12 +13,12 @@ namespace smalltime
 		{
 		public:
 			RD FixedFromYmd(int year, int month, int day) const;
-			YMD YmdFromFixed(RD rd) const;
+			std::array<int, 3> YmdFromFixed(RD rd) const;
 
 			RD FixedRelativeTo(RD rd, RS rel) const;
 
 			RD FixedFromTime(int hour, int minute, int second, int milli) const;
-			HMS TimeFromFixed(RD rd) const;
+			std::array<int, 4> TimeFromFixed(RD rd) const;
 
 			bool IsLeapYear(int year) const;
 

@@ -7,10 +7,12 @@
 
 namespace smalltime
 {
+	static const int KRD0 = 0;
+	static const RD KRD_EPOCH = 1.0;
+
 	namespace chrono
 	{
-
-		namespace iso_greg_julian
+		namespace iso_julian
 		{
 			// Initiliaze static members
 			static constexpr std::array<int, 12> KSTANDARD_MONTHS{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };

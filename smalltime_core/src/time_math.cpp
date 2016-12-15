@@ -8,7 +8,7 @@ namespace smalltime
 		//=====================================================
 		// convert RD time format to time fields
 		//======================================================
-		HMS HmsFromFixed(RD rd)
+		std::array<int, 4> HmsFromFixed(RD rd)
 		{
 
 			RD tmOnly = ExtractTime(rd);
