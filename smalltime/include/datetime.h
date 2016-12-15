@@ -31,10 +31,10 @@ namespace smalltime
 		DateTime(RD local_rd, const std::string& time_zone);
 
 		template <typename U>
-		DateTime(const DateTime<U>& other);
+		DateTime(const DateTime<U>& other) noexcept;
 
 		template <typename U>
-		DateTime(const DateTime<U>& other, RS rel);
+		DateTime(const DateTime<U>& other, RS rel) noexcept;
 
 		template <typename U>
 		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
@@ -155,7 +155,7 @@ namespace smalltime
 	//============================================================
 	template <typename T = chrono::IsoChronology>
 	template <typename U>
-	DateTime<T>::DateTime(const DateTime<U>& other)
+	DateTime<T>::DateTime(const DateTime<U>& other) noexcept
 	{
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
@@ -170,7 +170,7 @@ namespace smalltime
 	//============================================================
 	template <typename T = chrono::IsoChronology>
 	template <typename U>
-	DateTime<T>::DateTime(const DateTime<U>& other, RS rel)
+	DateTime<T>::DateTime(const DateTime<U>& other, RS rel) noexcept
 	{
 		fixed_ = other.GetFixed();
 		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());
@@ -260,10 +260,10 @@ namespace smalltime
 		DateTime(RD local_rd, const std::string& time_zone);
 
 		template <typename U>
-		DateTime(const DateTime<U>& other);
+		DateTime(const DateTime<U>& other) noexcept;
 
 		template <typename U>
-		DateTime(const DateTime<U>& other, RS rel);
+		DateTime(const DateTime<U>& other, RS rel) noexcept;
 
 		template <typename U>
 		DateTime(const LocalDateTime<U>& other, const std::string& time_zone);
@@ -431,7 +431,7 @@ namespace smalltime
 	// create from DateTime of diffrent chronology
 	//============================================================
 	template <typename U>
-	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other)
+	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other) noexcept
 	{
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
@@ -451,7 +451,7 @@ namespace smalltime
 	// create relative to another DateTime
 	//============================================================
 	template <typename U>
-	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other, RS rel)
+	DateTime<chrono::IsoChronology>::DateTime(const DateTime<U>& other, RS rel) noexcept
 	{
 		fixed_ = other.GetFixed();
 		hms_ = KCHRONOLOGY.TimeFromFixed(other.GetFixed());

@@ -84,16 +84,15 @@ int main(int argc, char** argv)
 		break;
 	}
 	*/
-
-	
 	
 	try
 	{
 		//smalltime::DateTime<> dt(2016, 3, 13, 1, 23, 59, 59, "America/Adak");
 		smalltime::LocalDateTime<> dt(2016, 12, 14, 3, 12, 0, 0);
+		smalltime::LocalDateTime<> dt1(dt);
 
-		smalltime::DateTime<> dt1(dt, "America/New_York");
-		smalltime::DateTime<smalltime::chrono::JulianChronology>dt2(dt1);
+		//smalltime::DateTime<> dt1(dt, "America/New_York");
+		smalltime::DateTime<smalltime::chrono::JulianChronology>dt2(dt1, "America/New_York");
 		std::cout << dt << "  " << dt1 << "  " << dt2 << std::endl;
 
 	}

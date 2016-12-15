@@ -28,13 +28,13 @@ namespace smalltime
 		LocalDateTime(RD utc_rd, const std::string& time_zone);
 
 		template <typename U>
-		LocalDateTime(const LocalDateTime<U>& other);
+		LocalDateTime(const LocalDateTime<U>& other) noexcept;
 
 		template <typename U>
 		LocalDateTime(const DateTime<U>& other, const std::string& time_zone);
 
 		template <typename U>
-		LocalDateTime(const LocalDateTime<U>& other, RS rel);
+		LocalDateTime(const LocalDateTime<U>& other, RS rel) noexcept;
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -156,7 +156,7 @@ namespace smalltime
 	//============================================================
 	template <typename T = chrono::IsoChronology>
 	template <typename U>
-	LocalDateTime<T>::LocalDateTime(const LocalDateTime<U>& other)
+	LocalDateTime<T>::LocalDateTime(const LocalDateTime<U>& other) noexcept
 	{
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
@@ -188,7 +188,7 @@ namespace smalltime
 	//=================================================
 	template <typename T = chrono::IsoChronology>
 	template <typename U>
-	LocalDateTime<T>::LocalDateTime(const LocalDateTime<U>& other, RS rel)
+	LocalDateTime<T>::LocalDateTime(const LocalDateTime<U>& other, RS rel) noexcept
 	{
 		fixed_ = other.GetFixed();
 		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
@@ -213,13 +213,13 @@ namespace smalltime
 		LocalDateTime(RD utc_rd, const std::string& time_zone);
 
 		template <typename U>
-		LocalDateTime(const LocalDateTime<U>& other);
+		LocalDateTime(const LocalDateTime<U>& other) noexcept;
 
 		template <typename U>
 		LocalDateTime(const DateTime<U>& other, const std::string& time_zone);
 
 		template <typename U>
-		LocalDateTime(const LocalDateTime<U>& other, RS rel);
+		LocalDateTime(const LocalDateTime<U>& other, RS rel) noexcept;
 
 		int GetYear() const { return ymd_[0]; }
 		int GetMonth() const { return ymd_[1]; }
@@ -370,7 +370,7 @@ namespace smalltime
 	// Ctor - create date from LocalDateTime of diffren chronology
 	//==================================================================
 	template <typename U>
-	LocalDateTime<chrono::IsoChronology>::LocalDateTime(const LocalDateTime<U>& other)
+	LocalDateTime<chrono::IsoChronology>::LocalDateTime(const LocalDateTime<U>& other) noexcept
 	{
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
@@ -414,7 +414,7 @@ namespace smalltime
 	// Create relative to another LocalDateTime
 	//=================================================
 	template <typename U>
-	LocalDateTime<chrono::IsoChronology>::LocalDateTime(const LocalDateTime<U>& other, RS rel)
+	LocalDateTime<chrono::IsoChronology>::LocalDateTime(const LocalDateTime<U>& other, RS rel) noexcept
 	{
 		fixed_ = other.GetFixed();
 		hms_ = KCHRONOLOGY.TimeFromFixed(fixed_);
