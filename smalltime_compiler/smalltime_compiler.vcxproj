@@ -36,6 +36,7 @@
     <ClInclude Include="..\smalltime_core\include\zone_group.h" />
     <ClInclude Include="include\comp_decls.h" />
     <ClInclude Include="include\comp_logger.h" />
+    <ClInclude Include="include\file_builder.h" />
     <ClInclude Include="include\generator.h" />
     <ClInclude Include="include\parser.h" />
     <ClInclude Include="include\src_builder.h" />
@@ -52,6 +53,7 @@
     <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp" />
     <ClCompile Include="..\smalltime_core\src\zone_group.cpp" />
     <ClCompile Include="src\comp_logger.cpp" />
+    <ClCompile Include="src\file_builder.cpp" />
     <ClCompile Include="src\generator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\parser.cpp" />

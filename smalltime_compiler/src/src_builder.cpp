@@ -38,22 +38,6 @@ namespace smalltime
 			return out_stream;
 		}
 
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto ZONE_CMP = [](const tz::Zones& lhs, const tz::Zones& rhs)
-		{
-			return lhs.zone_id < rhs.zone_id;
-		};
-
-		//=========================================================
-		// Lookup comparer
-		//=========================================================
-		static auto RULE_CMP = [](const tz::Rules& lhs, const tz::Rules& rhs)
-		{
-			return lhs.rule_id < rhs.rule_id;
-		};
-
 		//===================================================
 		// Add head data to file
 		//====================================================

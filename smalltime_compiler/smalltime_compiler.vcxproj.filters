@@ -83,6 +83,9 @@
     <ClInclude Include="..\smalltime_core\include\murmur_hash3.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\file_builder.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp">
@@ -128,6 +131,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\smalltime_core\src\murmur_hash3.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_builder.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
