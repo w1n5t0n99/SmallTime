@@ -3,6 +3,7 @@
 #define _MATHUTILS_
 
 #include "core_decls.h"
+#include "float_util.h"
 #include <cctype>
 #include <cmath>
 
@@ -53,7 +54,7 @@ namespace smalltime
 		//==============================================
 		//  ASTOR - Arc-seconds to radians
 		//==============================================
-		inline RD Astor(RD rd)
+		inline double Astor(double rd)
 		{
 			return rd * (KPI/ (180.0 * 3600.0));
 		}
@@ -61,7 +62,7 @@ namespace smalltime
 		//============================================
 		//  DTR  --  Degrees to radians. 
 		//============================================
-		inline RD DegToRad(RD d)
+		inline double DegToRad(double d)
 		{
 			return (d * KPI) / 180.0;
 		}
@@ -69,7 +70,7 @@ namespace smalltime
 		//========================================
 		//  RTD  --  Radians to degrees.
 		//======================================
-		inline RD RadToDeg(RD r)
+		inline double RadToDeg(double r)
 		{
 			return (r * 180.0) / KPI;
 		}
@@ -77,7 +78,7 @@ namespace smalltime
 		//======================================================
 		//  FIXANGLE  --  Range reduce angle in degrees.
 		//=====================================================
-		inline RD FixAngle(RD a)
+		inline double FixAngle(double a)
 		{
 			return a - 360.0 * (std::floor(a / 360.0));
 		}
@@ -85,7 +86,7 @@ namespace smalltime
 		//=====================================================
 		//  FIXANGR  --  Range reduce angle in radians.  
 		//======================================================
-		inline RD FixAngr(RD a)
+		inline double FixAngr(double a)
 		{
 			return a - (2.0 * KPI) * (std::floor(a / (2.0 * KPI)));
 		}
@@ -93,7 +94,7 @@ namespace smalltime
 		//==============================================
 		//  DSIN  --  Sine of an angle in degrees
 		//=============================================
-		inline RD DegSin(RD d)
+		inline double DegSin(double d)
 		{
 			return std::sin(DegToRad(d));
 		}
@@ -101,7 +102,7 @@ namespace smalltime
 		//=============================================
 		//  DCOS  --  Cosine of an angle in degrees
 		//===============================================
-		inline RD DegCos(RD d)
+		inline double DegCos(double d)
 		{
 			return std::cos(DegToRad(d));
 		}

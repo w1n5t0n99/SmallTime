@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\smalltime_core\src\astro_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\core_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp" />
@@ -33,11 +32,9 @@
     <ClCompile Include="src\islamic_chronology.cpp" />
     <ClCompile Include="src\julian_chronology.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\persian_chronology.cpp" />
     <ClCompile Include="src\tzdb_header_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\smalltime_core\include\astro_math.h" />
     <ClInclude Include="..\smalltime_core\include\basic_datetime.h" />
     <ClInclude Include="..\smalltime_core\include\cal_math.h" />
     <ClInclude Include="..\smalltime_core\include\chrono_decls.h" />
@@ -59,7 +56,6 @@
     <ClInclude Include="include\islamic_chronology.h" />
     <ClInclude Include="include\julian_chronology.h" />
     <ClInclude Include="include\local_datetime.h" />
-    <ClInclude Include="include\persian_chronology.h" />
     <ClInclude Include="include\Tzdb.h" />
     <ClInclude Include="include\tzdb_header_connector.h" />
   </ItemGroup>
