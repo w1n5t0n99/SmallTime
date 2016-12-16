@@ -8,6 +8,7 @@
 #include "..\include\Parser.h"
 #include "..\include\generator.h"
 #include "..\include\src_builder.h"
+#include "..\include\file_builder.h"
 #include "..\include\zone_post_generator.h"
 #include "..\include\comp_logger.h"
 
@@ -21,7 +22,7 @@ static bool log_transition_data = false;
 
 int main()
 {
-	/*
+	
 	std::vector<std::string> vSrc = { "iana\\northamerica", "iana\\southamerica", "iana\\asia", "iana\\africa", "iana\\australasia", "iana\\antarctica", "iana\\europe" };
 	std::vector<comp::ZoneData> vec_zonedata = {};
 	std::vector<comp::RuleData> vec_ruledata = {};
@@ -38,6 +39,7 @@ int main()
 	comp::Parser parser;
 	comp::Generator generator;
 	comp::SrcBuilder src_builder;
+	comp::FileBuilder file_builder;
 
 	std::ifstream inf;
 	for (const auto& src : vSrc)
@@ -87,10 +89,13 @@ int main()
 	zone_post_generator.ProcessZones(vec_zone);
 	std::cout << "Zone post-processed ..." << std::endl;
 
-	std::ofstream outf("Tzdb.h", std::ofstream::trunc);
-	src_builder.BuildHead(outf);
-	src_builder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
-	src_builder.BuildTail(outf);
+	//std::ofstream outf("Tzdb.h", std::ofstream::trunc);
+	//src_builder.BuildHead(outf);
+	//src_builder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
+	//src_builder.BuildTail(outf);
+
+	std::ofstream outf("tzdb.bin", std::ios::out | std::ios::binary);
+	file_builder.Build(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, outf);
 
 	outf.close();
 	std::cout << "Source compiled ..." << std::endl;
@@ -99,13 +104,7 @@ int main()
 	//comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
 	//comp_logger.LogZoneData(std::cout, vec_zone, vec_zonedata, "Australia/Perth");
 
-	*/
-
-	tz::Zone z;
-	size_t total = sizeof(z.abbrev) + sizeof(z.mb_rule_offset) + sizeof(z.mb_until_utc) + sizeof(z.next_zone_offset) +
-		sizeof(z.rule_id) + sizeof(z.trans_rule_offset) + sizeof(z.until_type) + sizeof(z.zone_id) + sizeof(z.zone_offset);
-
-	std::cout << "Total struct element size: " << total << "sizeof of padded struct: " << sizeof(z) << std::endl;
+	
 
 	std::cin.get();
 	return 0;

@@ -32,6 +32,7 @@
     <ClCompile Include="src\islamic_chronology.cpp" />
     <ClCompile Include="src\julian_chronology.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\timezone_db.cpp" />
     <ClCompile Include="src\tzdb_header_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +57,7 @@
     <ClInclude Include="include\islamic_chronology.h" />
     <ClInclude Include="include\julian_chronology.h" />
     <ClInclude Include="include\local_datetime.h" />
+    <ClInclude Include="include\timezone_db.h" />
     <ClInclude Include="include\Tzdb.h" />
     <ClInclude Include="include\tzdb_header_connector.h" />
   </ItemGroup>
