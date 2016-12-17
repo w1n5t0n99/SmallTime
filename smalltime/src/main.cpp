@@ -13,6 +13,7 @@
 #include "../include/islamic_chronology.h"
 #include "../include/hebrew_chronology.h"
 
+#include "../include/timezone_db.h"
 #include <core_math.h>
 #include <fstream>
 
@@ -38,40 +39,9 @@ int main(int argc, char** argv)
 		std::cout << e.what() << std::endl;
 	}
 
-	
-	std::ifstream in_file ("tzdb.bin", std::ios::in | std::ios::binary);
-	if (!in_file.good())
-	{
-		std::cout << "Cannot open\n";
-	}
+	smalltime::tz::TimezoneDB db;
+	db.Init();
 
-
-	// check if file length is correct
-	in_file.seekg(0, in_file.end);
-	int file_size = in_file.tellg();
-	in_file.seekg(0, in_file.beg);
-
-	auto tzdb_id = smalltime::math::GetUniqueID("TZDB_FILE");
-
-	uint32_t in_tzdb_id;
-	in_file.read(reinterpret_cast<char*>(&in_tzdb_id), sizeof(in_tzdb_id));
-
-	// check if file id is correct
-	if (tzdb_id != in_tzdb_id)
-		throw std::runtime_error("tzdb file posibly corrupt, unable to read");
-
-	std::cout << tzdb_id << "   " << in_tzdb_id << std::endl;
-
-	int in_file_size;
-
-	in_file.read(reinterpret_cast<char*>(&in_file_size), sizeof(in_file_size));
-
-	if (in_file_size != file_size)
-		throw std::runtime_error("tzdb file posibly corrupt, unable to read");
-
-	std::cout << file_size << "   " << in_file_size << std::endl;
-
-	in_file.close();
 
 
 	counter.EndCounter();

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\smalltime_core\src\cal_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\core_math.cpp" />
+    <ClCompile Include="..\smalltime_core\src\file_util.cpp" />
     <ClCompile Include="..\smalltime_core\src\iso_chronology.cpp" />
     <ClCompile Include="..\smalltime_core\src\murmur_hash3.cpp" />
     <ClCompile Include="..\smalltime_core\src\rule_group.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\smalltime_core\include\chrono_decls.h" />
     <ClInclude Include="..\smalltime_core\include\core_decls.h" />
     <ClInclude Include="..\smalltime_core\include\core_math.h" />
+    <ClInclude Include="..\smalltime_core\include\file_util.h" />
     <ClInclude Include="..\smalltime_core\include\float_util.h" />
     <ClInclude Include="..\smalltime_core\include\iso_chronology.h" />
     <ClInclude Include="..\smalltime_core\include\murmur_hash3.h" />

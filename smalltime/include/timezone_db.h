@@ -13,13 +13,13 @@ namespace smalltime
 {
 	namespace tz
 	{
-		class TimezoneDB : public TzdbConnectorInterface
+		class TimezoneDB
 		{
 		public:
 			
-			void SetPath(const std::string& path);
+			void SetPath(std::string path);
 			void Init();
-
+			/*
 			virtual const Rule* GetRuleHandle() override;
 			virtual const Zone* GetZoneHandle() override;
 
@@ -35,15 +35,17 @@ namespace smalltime
 
 			virtual Zones FindZones(const std::string& zoneName) override;
 			virtual Zones FindZones(uint32_t zone_id) override;
-
+			*/
 		private:
 			std::unique_ptr<RD[]> zone_buffer_;
 			std::unique_ptr<RD[]> rule_buffer_;
 
-			std::unique_ptr<tz::Zone[]> zone_arr_;
-			std::unique_ptr<tz::Rule[]> rule_arr_;
-			std::unique_ptr<tz::Zones[]> zone_lookup_arr_;
-			std::unique_ptr<tz::Rules[]> rule_lookup_arr_;
+			static std::unique_ptr<Zone[]> zone_arr_;
+			static std::unique_ptr<Rule[]> rule_arr_;
+			static std::unique_ptr<Zones[]> zone_lookup_arr_;
+			static std::unique_ptr<Rules[]> rule_lookup_arr_;
+
+			static bool initialized;
 
 			std::string path_ = "tzdb.bin";
 		};
