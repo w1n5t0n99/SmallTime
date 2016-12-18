@@ -16,9 +16,6 @@
     <ClCompile Include="..\smalltime_core\src\time_math.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\tzdb_header_connector.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\smalltime_core\src\zone_group.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -43,10 +40,13 @@
     <ClCompile Include="src\hebrew_chronology.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\timezone_db.cpp">
+    <ClCompile Include="..\smalltime_core\src\file_util.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\smalltime_core\src\file_util.cpp">
+    <ClCompile Include="..\smalltime_core\src\timezone_db.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\datetime_util.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -81,13 +81,7 @@
     <ClInclude Include="..\smalltime_core\include\time_math.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Tzdb.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\smalltime_core\include\rule_group.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\tzdb_header_connector.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\smalltime_core\include\zone_group.h">
@@ -98,9 +92,6 @@
     </ClInclude>
     <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h">
       <Filter>include\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h">
-      <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\smalltime_core\include\timezone.h">
       <Filter>include</Filter>
@@ -120,10 +111,13 @@
     <ClInclude Include="include\hebrew_chronology.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\timezone_db.h">
+    <ClInclude Include="..\smalltime_core\include\file_util.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\smalltime_core\include\file_util.h">
+    <ClInclude Include="..\smalltime_core\include\timezone_db.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\datetime_util.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

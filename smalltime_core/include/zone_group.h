@@ -15,7 +15,7 @@ namespace smalltime
 		class ZoneGroup
 		{
 		public:
-			ZoneGroup(Zones zones, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
+			ZoneGroup(Zones zones, const Zone* const zone_arr);
 
 			const Zone* const FindActiveZone(BasicDateTime<> cur_dt, Choose choose);
 			std::pair<const Zone* const, const Zone* const>  FindActiveAndPreviousZone(BasicDateTime<> cur_dt, Choose choose);
@@ -31,7 +31,6 @@ namespace smalltime
 		private:
 			const Zone* const zone_arr_;
 			const Zones zones_;
-			std::shared_ptr<TzdbConnectorInterface> tzdb_connector_;
 		};
 	}
 }

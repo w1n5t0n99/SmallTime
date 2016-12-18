@@ -10,13 +10,18 @@ namespace smalltime
 {
 	namespace tz
 	{
+		//==================================
+		// Init static member
+		//==================================
+		TimeZoneDB TimeZone::timezone_db_;
+
 		//=======================================================
 		// Produce UTC offset from a local datetime
 		//=======================================================
-		RD TimeZone::FixedOffsetFromLocal(RD rd, std::string time_zone_name, Choose choose, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
+		RD TimeZone::FixedOffsetFromLocal(RD rd, std::string time_zone_name, Choose choose)
 		{
-			auto zoneHandle = tzdb_connector->GetZoneHandle();
-			auto zones = tzdb_connector->FindZones(time_zone_name);
+			auto zone_handle = timezone_db_.GetZoneHandle();
+			auto zones = timezone_db_.FindZones(time_zone_name);
 
 			if (zones.size < 1)
 				throw InvalidTimeZoneException(time_zone_name);
@@ -24,7 +29,7 @@ namespace smalltime
 			// Convert datetime to iso to check with time zones
 			BasicDateTime<> iso_dt(rd, KTimeType_Wall);
 
-			ZoneGroup zg(zones, tzdb_connector);
+			ZoneGroup zg(zones, zone_handle);
 
 			const Zone*  prev_zone = nullptr;
 			const Zone*  cur_zone = nullptr;
@@ -41,7 +46,11 @@ namespace smalltime
 			if (cur_zone->rule_id <= 0)
 				return total_offset;
 
-			RuleGroup rg(cur_zone->rule_id, cur_zone, prev_zone, tzdb_connector);
+			// get rule data
+			auto rule_arr_ = timezone_db_.GetRuleHandle();
+			auto rules = timezone_db_.FindRules(cur_zone->rule_id);
+			RuleGroup rg(rules, rule_arr_, cur_zone, prev_zone);
+
 			auto active_rule = rg.FindActiveRule(iso_dt, choose);
 
 			// No active rule found
@@ -55,10 +64,10 @@ namespace smalltime
 		//=======================================================
 		// Produce UTC offset from a local datetime
 		//=======================================================
-		RD TimeZone::FixedOffsetFromUtc(RD rd, std::string time_zone_name, std::shared_ptr<TzdbConnectorInterface> tzdb_connector)
+		RD TimeZone::FixedOffsetFromUtc(RD rd, std::string time_zone_name)
 		{
-			auto zoneHandle = tzdb_connector->GetZoneHandle();
-			auto zones = tzdb_connector->FindZones(time_zone_name);
+			auto zone_handle = timezone_db_.GetZoneHandle();
+			auto zones = timezone_db_.FindZones(time_zone_name);
 
 			if (zones.first == -1)
 				throw InvalidTimeZoneException(time_zone_name);
@@ -67,7 +76,7 @@ namespace smalltime
 			BasicDateTime<> iso_dt(rd, KTimeType_Utc);
 
 			// converting from utc should not produce an ambig error
-			ZoneGroup zg(zones, tzdb_connector);
+			ZoneGroup zg(zones, zone_handle);
 			
 			const Zone*  prev_zone = nullptr;
 			const Zone*  cur_zone = nullptr;
@@ -84,7 +93,11 @@ namespace smalltime
 			if (cur_zone->rule_id <= 0)
 				return total_offset;
 
-			RuleGroup rg(cur_zone->rule_id, cur_zone, prev_zone, tzdb_connector);
+			// get rule data
+			auto rule_arr_ = timezone_db_.GetRuleHandle();
+			auto rules = timezone_db_.FindRules(cur_zone->rule_id);
+			RuleGroup rg(rules, rule_arr_, cur_zone, prev_zone);
+
 			auto active_rule = rg.FindActiveRule(iso_dt, Choose::KError);
 
 			// No active rule found

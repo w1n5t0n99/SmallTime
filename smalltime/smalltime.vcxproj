@@ -26,15 +26,15 @@
     <ClCompile Include="..\smalltime_core\src\murmur_hash3.cpp" />
     <ClCompile Include="..\smalltime_core\src\rule_group.cpp" />
     <ClCompile Include="..\smalltime_core\src\timezone.cpp" />
+    <ClCompile Include="..\smalltime_core\src\timezone_db.cpp" />
     <ClCompile Include="..\smalltime_core\src\time_math.cpp" />
     <ClCompile Include="..\smalltime_core\src\util\stl_perf_counter.cpp" />
     <ClCompile Include="..\smalltime_core\src\zone_group.cpp" />
+    <ClCompile Include="src\datetime_util.cpp" />
     <ClCompile Include="src\hebrew_chronology.cpp" />
     <ClCompile Include="src\islamic_chronology.cpp" />
     <ClCompile Include="src\julian_chronology.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\timezone_db.cpp" />
-    <ClCompile Include="src\tzdb_header_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\smalltime_core\include\basic_datetime.h" />
@@ -47,7 +47,7 @@
     <ClInclude Include="..\smalltime_core\include\iso_chronology.h" />
     <ClInclude Include="..\smalltime_core\include\murmur_hash3.h" />
     <ClInclude Include="..\smalltime_core\include\timezone.h" />
-    <ClInclude Include="..\smalltime_core\include\tzdb_connector_interface.h" />
+    <ClInclude Include="..\smalltime_core\include\timezone_db.h" />
     <ClInclude Include="..\smalltime_core\include\rule_group.h" />
     <ClInclude Include="..\smalltime_core\include\smalltime_exceptions.h" />
     <ClInclude Include="..\smalltime_core\include\time_math.h" />
@@ -55,13 +55,11 @@
     <ClInclude Include="..\smalltime_core\include\util\stl_perf_counter.h" />
     <ClInclude Include="..\smalltime_core\include\zone_group.h" />
     <ClInclude Include="include\datetime.h" />
+    <ClInclude Include="include\datetime_util.h" />
     <ClInclude Include="include\hebrew_chronology.h" />
     <ClInclude Include="include\islamic_chronology.h" />
     <ClInclude Include="include\julian_chronology.h" />
     <ClInclude Include="include\local_datetime.h" />
-    <ClInclude Include="include\timezone_db.h" />
-    <ClInclude Include="include\Tzdb.h" />
-    <ClInclude Include="include\tzdb_header_connector.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{17FADA86-730A-4A65-9EFB-EA7E3005D4CA}</ProjectGuid>
@@ -151,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

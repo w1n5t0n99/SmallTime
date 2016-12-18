@@ -6,8 +6,9 @@
 #include <iso_chronology.h>
 #include <smalltime_exceptions.h>
 #include <timezone.h>
-#include "tzdb_header_connector.h"
 #include <float_util.h>
+
+#include "datetime_util.h"
 
 #include <array>
 
@@ -54,7 +55,6 @@ namespace smalltime
 
 		static T KCHRONOLOGY;
 		static tz::TimeZone KTIMEZONE;
-		static std::shared_ptr<tz::TzdbHeaderConnector> KTZDB_CONNECTOR;
 	};
 
 	//==================================
@@ -65,9 +65,6 @@ namespace smalltime
 
 	template <typename T = chrono::IsoChronology>
 	tz::TimeZone LocalDateTime<T>::KTIMEZONE;
-
-	template <typename T = chrono::IsoChronology>
-	std::shared_ptr<tz::TzdbHeaderConnector> LocalDateTime<T>::KTZDB_CONNECTOR = std::make_shared<tz::TzdbHeaderConnector>();
 
 	//================================================
 	// Ctor - create date from fields
@@ -144,7 +141,7 @@ namespace smalltime
 		if (!AlmostEqualRelative(fixed_, utc_rd))
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone);
 		fixed_ += offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -175,7 +172,7 @@ namespace smalltime
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
 		fixed_ = other.GetFixed();
-		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone);
 		fixed_ += offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(other.GetFixed());
@@ -251,7 +248,6 @@ namespace smalltime
 
 		static chrono::IsoChronology KCHRONOLOGY;
 		static tz::TimeZone KTIMEZONE;
-		static std::shared_ptr<tz::TzdbHeaderConnector> KTZDB_CONNECTOR;
 	};
 
 	//==================================
@@ -259,7 +255,6 @@ namespace smalltime
 	//==================================
 	chrono::IsoChronology LocalDateTime<chrono::IsoChronology>::KCHRONOLOGY;
 	tz::TimeZone LocalDateTime<chrono::IsoChronology>::KTIMEZONE;
-	std::shared_ptr<tz::TzdbHeaderConnector> LocalDateTime<chrono::IsoChronology>::KTZDB_CONNECTOR = std::make_shared<tz::TzdbHeaderConnector>();
 
 	//================================================
 	// Ctor - create date from fields
@@ -353,7 +348,7 @@ namespace smalltime
 		if (!AlmostEqualRelative(fixed_, utc_rd))
 			throw InvalidFieldException("Invalid field or fields");
 
-		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone);
 		fixed_ += offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);
@@ -395,7 +390,7 @@ namespace smalltime
 		// We know the other DateTime must be valid if it didn't throw an exception,
 		// no reason to check if fields are valid
 		fixed_ = other.GetFixed();
-		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone, KTZDB_CONNECTOR);
+		auto offset = KTIMEZONE.FixedOffsetFromUtc(fixed_, time_zone);
 		fixed_ += offset;
 
 		ymd_ = KCHRONOLOGY.YmdFromFixed(fixed_);

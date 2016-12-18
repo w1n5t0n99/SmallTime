@@ -2,10 +2,8 @@
 #include <vector>
 #include <array>
 
-#include "../include/local_datetime.h"
 #include <util/stl_perf_counter.h>
 
-#include <basic_datetime.h>
 #include "../include/local_datetime.h"
 #include "../include/datetime.h"
 
@@ -13,43 +11,64 @@
 #include "../include/islamic_chronology.h"
 #include "../include/hebrew_chronology.h"
 
-#include "../include/timezone_db.h"
-#include <core_math.h>
-#include <fstream>
+
+
 
 int main(int argc, char** argv)
 {
 	StlPerfCounter counter("Counter");
 	counter.StartCounter();
 	
+	//smalltime::SetTimeZoneFilePath("C:\\Users\\reede\\Documents\\");
 	
-	try
+	if (argc <= 1)
+		return 0;
+
+ 
+	if (strcmp(argv[1], "-datetime") == 0)
 	{
-		smalltime::DateTime<> dt(2016, 12, 15, 1, 51, 0, 0, "America/New_York");
-		//smalltime::LocalDateTime<> dt(2016, 12, 14, 3, 12, 0, 0);
-		smalltime::LocalDateTime<> dt1(dt, "Pacific/Honolulu");
 
-		//smalltime::DateTime<> dt1(dt, "America/New_York");
-		smalltime::DateTime<smalltime::chrono::JulianChronology>dt2(dt);
-		std::cout << dt << "  " << dt1 << "  " << dt2 << std::endl;
+		try
+		{
+			smalltime::DateTime<> dt(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]), argv[9]);
+			std::cout << dt << " utc " << std::endl;
 
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
-	catch (const std::exception& e)
+	else if (strcmp(argv[1], "-localdatetime") == 0)
 	{
-		std::cout << e.what() << std::endl;
+		try
+		{
+			smalltime::LocalDateTime<> dt(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]));
+			std::cout << dt << " local " << std::endl;
+
+
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
+	else if (strcmp(argv[1], "-convert") == 0 && strcmp(argv[9], "-from") == 0 && strcmp(argv[11], "-to") == 0)
+	{
+		smalltime::LocalDateTime<> dt(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]));
+		// must be a conversion -from(9) "timezone"(10) -to(11) "timezone"(12)
+		smalltime::DateTime<> utc_dt(dt, argv[10]);
+		smalltime::LocalDateTime<> local_dt(utc_dt, argv[12]);
 
-	smalltime::tz::TimezoneDB db;
-	db.Init();
-
-
+		std::cout << dt << " " << argv[10] << " " << local_dt << " " << argv[12] << std::endl;
+	}
 
 	counter.EndCounter();
 
 	std::cout << "ms elapsed =  " << counter.GetElapsedMilliseconds() << " us elapsed = " << counter.GetElapsedMicroseconds() << std::endl;
 	
 
-	std::cin.get();
+	//std::cin.get();
 
 
 	return 0;

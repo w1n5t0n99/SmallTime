@@ -68,8 +68,10 @@ namespace smalltime
 			// get current rule offset at moment before transition if any
 			if (cur_zone.rule_id > 0)
 			{
+				auto rule_handle = tzdb_connector_->GetRuleHandle();
+				auto rules = tzdb_connector_->FindRules(cur_zone.rule_id);
 				// find the rule offset if active
-				tz::RuleGroup rg(cur_zone.rule_id, &cur_zone, prev_zone, tzdb_connector_);
+				tz::RuleGroup rg(rules, rule_handle, &cur_zone, prev_zone);
 				auto rule = rg.FindActiveRuleNoCheck(mb_until_dt);
 				if (rule != nullptr)
 					cur_roffset += rule->offset;
@@ -89,8 +91,10 @@ namespace smalltime
 				// get next rule offset if any
 				if (next_zone.rule_id > 0)
 				{
+					auto rule_handle = tzdb_connector_->GetRuleHandle();
+					auto rules = tzdb_connector_->FindRules(next_zone.rule_id);
 					// find the rule offset if active
-					tz::RuleGroup rg(next_zone.rule_id, &next_zone, &cur_zone, tzdb_connector_);
+					tz::RuleGroup rg(rules, rule_handle, &next_zone, &cur_zone);
 					auto rule = rg.FindActiveRuleNoCheck(until_dt);
 					if (rule != nullptr)
 						next_roffset += rule->offset;

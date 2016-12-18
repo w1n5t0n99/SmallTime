@@ -7,6 +7,7 @@
 #include "basic_datetime.h"
 #include "tzdb_connector_interface.h"
 #include <memory>
+#include <vector>
 
 namespace smalltime
 {
@@ -15,7 +16,7 @@ namespace smalltime
 		class RuleGroup
 		{
 		public:
-			RuleGroup(uint32_t rule_id, const Zone* const zone, const Zone* const prev_zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
+			RuleGroup(Rules rules, const Rule* const rule_arr, const Zone* const zone, const Zone* const prev_zone);
 
 			const Rule* const FindActiveRule(BasicDateTime<> cur_dt, Choose choose);
 			const Rule* const FindActiveRuleNoCheck(BasicDateTime<> cur_dt);
@@ -34,13 +35,14 @@ namespace smalltime
 			int FindNextActiveYear(int year);
 
 			void InitTransitionData(int year);
-			void BuildTransitionData(RD* buffer, int year);
+			void BuildTransitionData(std::vector<std::pair<RD, int> >& transition_vec, int year);
+
 
 			BasicDateTime<> CalcTransitionFast(const Rule* const rule, int year);
 			RuleTransition CalcRuleData(const Rule* const rule, int year);
 		
 		private:
-			const Rule* rule_arr_;
+			const Rule* const rule_arr_;
 			const Rules rules_;
 
 			const Zone* const zone_;
@@ -49,8 +51,13 @@ namespace smalltime
 			const ZoneTransition prev_zone_transition_;
 
 			int current_year_, primary_year_, previous_year_, next_year_;
-			RD* primary_ptr_, *previous_ptr_, *next_ptr_;
-			std::shared_ptr<TzdbConnectorInterface> tzdb_connector_;
+
+			std::vector<std::pair<RD, int> > primary_year_transitions_;
+			std::vector<std::pair<RD, int> > prev_year_transitions_;
+			std::vector<std::pair<RD, int> > next_year_transitions_;
+
+			// There's usually, at most two active rules per year
+			static const int KSTART_SIZE = 3;
 		};
 
 	}

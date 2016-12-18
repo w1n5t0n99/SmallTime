@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "core_decls.h"
-#include "tzdb_connector_interface.h"
+#include "timezone_db.h"
 
 namespace smalltime
 {
@@ -16,9 +16,11 @@ namespace smalltime
 		{
 		public:
 
-			RD FixedOffsetFromLocal(RD rd, std::string time_zone_name, Choose choose, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
-			RD FixedOffsetFromUtc(RD rd, std::string time_zone_name, std::shared_ptr<TzdbConnectorInterface> tzdb_connector);
+			RD FixedOffsetFromLocal(RD rd, std::string time_zone_name, Choose choose);
+			RD FixedOffsetFromUtc(RD rd, std::string time_zone_name);
 
+		private:
+			static TimeZoneDB timezone_db_;
 		};
 	}
 }

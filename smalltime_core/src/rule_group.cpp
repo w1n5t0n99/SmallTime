@@ -16,25 +16,24 @@ namespace smalltime
 		//=======================================
 		// Ctor
 		//======================================
-		RuleGroup::RuleGroup(uint32_t rule_id, const Zone* const zone, const Zone* const prev_zone, std::shared_ptr<TzdbConnectorInterface> tzdb_connector) :
+		RuleGroup::RuleGroup(Rules rules, const Rule* const rule_arr, const Zone* const zone, const Zone* const prev_zone) :
 			zone_(zone),
 			prev_zone_(prev_zone),
-			rules_(tzdb_connector->FindRules(rule_id)),
-			rule_arr_(tzdb_connector->GetRuleHandle()), 
+			rules_(rules),
+			rule_arr_(rule_arr),
 			current_year_(0),
 			primary_year_(0),
 			previous_year_(0),
 			next_year_(0),
-			primary_ptr_(nullptr),
-			previous_ptr_(nullptr),
-			next_ptr_(nullptr), 
+			primary_year_transitions_(KSTART_SIZE),
+			prev_year_transitions_(KSTART_SIZE),
+			next_year_transitions_(KSTART_SIZE),
 			zone_transition_(zone_->mb_until_utc, zone_->zone_offset, zone_->next_zone_offset, zone_->mb_rule_offset, zone_->trans_rule_offset),
 			prev_zone_transition_(prev_zone == nullptr ? 0.0 : prev_zone->mb_until_utc,
 				prev_zone == nullptr ? 0.0 : prev_zone->zone_offset,
 				prev_zone == nullptr ? 0.0 : prev_zone->next_zone_offset,
 				prev_zone == nullptr ? 0.0 : prev_zone->mb_rule_offset,
-				prev_zone == nullptr ? 0.0 : prev_zone->trans_rule_offset),
-			tzdb_connector_(tzdb_connector)
+				prev_zone == nullptr ? 0.0 : prev_zone->trans_rule_offset)
 		{
 
 		}
@@ -49,21 +48,16 @@ namespace smalltime
 
 			current_year_ = year;
 
-			// set the pointers for the data pool
-			tzdb_connector_->ClearTransitionPool(TransitionPool::KRule, rules_.size * 3);
-			primary_ptr_ = tzdb_connector_->GetTransitionPool(TransitionPool::KRule);
-			previous_ptr_ = primary_ptr_ + rules_.size;
-			next_ptr_ = previous_ptr_ + rules_.size;
 			// set the active years
 			primary_year_ = FindClosestActiveYear(year);
 			previous_year_ = FindPreviousActiveYear(primary_year_);
 			next_year_ = FindNextActiveYear(primary_year_);
 			// build transition data for primary year
-			BuildTransitionData(primary_ptr_, primary_year_);
+			BuildTransitionData(primary_year_transitions_, primary_year_);
 			// build transition data for previous closest year
-			BuildTransitionData(previous_ptr_, previous_year_);
+			BuildTransitionData(prev_year_transitions_, previous_year_);
 			// build transition data for next closest year
-			BuildTransitionData(next_ptr_, next_year_);
+			BuildTransitionData(next_year_transitions_, next_year_);
 		}
 
 		//====================================================
@@ -83,36 +77,33 @@ namespace smalltime
 			RD trans_any = 0.0;
 
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				// rule transition is not null 
-				if (*(primary_ptr_ + i) > 0.0)
+				
+				auto r = &rule_arr_[rule_transition.second];
+				auto  cur_rule_transition = CalcRuleData(r, primary_year_);
+
+				switch (cur_dt.GetType())
 				{
-					auto r = &rule_arr_[rules_.first + i];
-					auto  cur_rule_transition = CalcRuleData(r, primary_year_);
-
-					switch (cur_dt.GetType())
-					{
-					case KTimeType_Wall:
-						trans_any = cur_rule_transition.trans_wall_;
-						break;
-					case KTimeType_Std:
-						trans_any = cur_rule_transition.trans_std_;
-						break;
-					case KTimeType_Utc:
-						trans_any = cur_rule_transition.trans_utc_;
-						break;
-					}
-
-					diff = cur_dt.GetFixed() - trans_any;
-					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
-					{
-						closest_rule_transition = cur_rule_transition;
-						closest_diff = diff;
-						closest_rule = r;
-					}
-
+				case KTimeType_Wall:
+					trans_any = cur_rule_transition.trans_wall_;
+					break;
+				case KTimeType_Std:
+					trans_any = cur_rule_transition.trans_std_;
+					break;
+				case KTimeType_Utc:
+					trans_any = cur_rule_transition.trans_utc_;
+					break;
 				}
+
+				diff = cur_dt.GetFixed() - trans_any;
+				if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+				{
+					closest_rule_transition = cur_rule_transition;
+					closest_diff = diff;
+					closest_rule = r;
+				}
+
 			}
 
 			if (closest_rule)
@@ -121,36 +112,33 @@ namespace smalltime
 			// Closest rule not found, check previous
 			diff = 0.0;
 			// check the previous pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : prev_year_transitions_)
 			{
-				// rule transition is not null 
-				if (*(previous_ptr_ + i) > 0.0)
+		
+				auto r = &rule_arr_[rule_transition.second];
+				auto  cur_rule_transition = CalcRuleData(r, previous_year_);
+
+				switch (cur_dt.GetType())
 				{
-					auto r = &rule_arr_[rules_.first + i];
-					auto  cur_rule_transition = CalcRuleData(r, previous_year_);
-
-					switch (cur_dt.GetType())
-					{
-					case KTimeType_Wall:
-						trans_any = cur_rule_transition.trans_wall_;
-						break;
-					case KTimeType_Std:
-						trans_any = cur_rule_transition.trans_std_;
-						break;
-					case KTimeType_Utc:
-						trans_any = cur_rule_transition.trans_utc_;
-						break;
-					}
-
-					diff = cur_dt.GetFixed() - trans_any;
-					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
-					{
-						closest_rule_transition = cur_rule_transition;
-						closest_diff = diff;
-						closest_rule = r;
-					}
-
+				case KTimeType_Wall:
+					trans_any = cur_rule_transition.trans_wall_;
+					break;
+				case KTimeType_Std:
+					trans_any = cur_rule_transition.trans_std_;
+					break;
+				case KTimeType_Utc:
+					trans_any = cur_rule_transition.trans_utc_;
+					break;
 				}
+
+				diff = cur_dt.GetFixed() - trans_any;
+				if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+				{
+					closest_rule_transition = cur_rule_transition;
+					closest_diff = diff;
+					closest_rule = r;
+				}
+				
 			}
 
 			if (closest_rule)
@@ -176,36 +164,33 @@ namespace smalltime
 			RD trans_any = 0.0;
 
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				// rule transition is not null 
-				if (*(primary_ptr_ + i) > 0.0)
+
+				auto r = &rule_arr_[rule_transition.second];
+				auto  cur_rule_transition = CalcRuleData(r, primary_year_);
+
+				switch (cur_dt.GetType())
 				{
-					auto r = &rule_arr_[rules_.first + i];
-					auto  cur_rule_transition = CalcRuleData(r, primary_year_);
-
-					switch (cur_dt.GetType())
-					{
-					case KTimeType_Wall:
-						trans_any = cur_rule_transition.trans_wall_;
-						break;
-					case KTimeType_Std:
-						trans_any = cur_rule_transition.trans_std_;
-						break;
-					case KTimeType_Utc:
-						trans_any = cur_rule_transition.trans_utc_;
-						break;
-					}
-
-					diff = cur_dt.GetFixed() - trans_any;
-					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
-					{
-						closest_rule_transition = cur_rule_transition;
-						closest_diff = diff;
-						closest_rule = r;
-					}
-
+				case KTimeType_Wall:
+					trans_any = cur_rule_transition.trans_wall_;
+					break;
+				case KTimeType_Std:
+					trans_any = cur_rule_transition.trans_std_;
+					break;
+				case KTimeType_Utc:
+					trans_any = cur_rule_transition.trans_utc_;
+					break;
 				}
+
+				diff = cur_dt.GetFixed() - trans_any;
+				if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+				{
+					closest_rule_transition = cur_rule_transition;
+					closest_diff = diff;
+					closest_rule = r;
+				}
+
 			}
 
 			if (closest_rule)
@@ -214,38 +199,34 @@ namespace smalltime
 			// Closest rule not found, check previous
 			diff = 0.0;
 			// check the previous pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : prev_year_transitions_)
 			{
-				// rule transition is not null 
-				if (*(previous_ptr_ + i) > 0.0)
+				auto r = &rule_arr_[rule_transition.second];
+				auto  cur_rule_transition = CalcRuleData(r, previous_year_);
+
+				switch (cur_dt.GetType())
 				{
-					auto r = &rule_arr_[rules_.first + i];
-					auto  cur_rule_transition = CalcRuleData(r, previous_year_);
-
-					switch (cur_dt.GetType())
-					{
-					case KTimeType_Wall:
-						trans_any = cur_rule_transition.trans_wall_;
-						break;
-					case KTimeType_Std:
-						trans_any = cur_rule_transition.trans_std_;
-						break;
-					case KTimeType_Utc:
-						trans_any = cur_rule_transition.trans_utc_;
-						break;
-					}
-
-					diff = cur_dt.GetFixed() - trans_any;
-					if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
-					{
-						closest_rule_transition = cur_rule_transition;
-						closest_diff = diff;
-						closest_rule = r;
-					}
-
+				case KTimeType_Wall:
+					trans_any = cur_rule_transition.trans_wall_;
+					break;
+				case KTimeType_Std:
+					trans_any = cur_rule_transition.trans_std_;
+					break;
+				case KTimeType_Utc:
+					trans_any = cur_rule_transition.trans_utc_;
+					break;
 				}
-			}
 
+				diff = cur_dt.GetFixed() - trans_any;
+				if ((diff > 0.0 || AlmostEqualUlps(cur_dt.GetFixed(), trans_any, 11)) && diff < closest_diff)
+				{
+					closest_rule_transition = cur_rule_transition;
+					closest_diff = diff;
+					closest_rule = r;
+				}
+
+			}
+	
 			return closest_rule;
 		}
 
@@ -259,15 +240,15 @@ namespace smalltime
 			RD closest_diff = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				auto rule_rd = *(primary_ptr_ + i);
+				auto rule_rd = rule_transition.first;
 				diff = cur_rule.GetFixed() - rule_rd;
 				// rule transition is not null and before rd
-				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
+				if (diff > 0.0 && rule_rd > closest_diff)
 				{
 					closest_diff = rule_rd;
-					prev_rule = &rule_arr_[rules_.first + i];
+					prev_rule = &rule_arr_[rule_transition.second];
 					prev_rule_year = primary_year_;
 				}
 			}
@@ -276,16 +257,16 @@ namespace smalltime
 			{
 				diff = 0.0;
 				closest_diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
+				for (const auto& rule_transition : prev_year_transitions_)
 				{
-					auto rule_rd = *(previous_ptr_ + i);
+					auto rule_rd = rule_transition.first;
 					diff = cur_rule.GetFixed() - rule_rd;
 					// rule transition is not null and before rd
 					// rule transition will not be no way close enough to be within ulp margin of error
-					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
+					if (diff > 0.0 && rule_rd > closest_diff)
 					{
 						closest_diff = rule_rd;
-						prev_rule = &rule_arr_[rules_.first + i];
+						prev_rule = &rule_arr_[rule_transition.second];
 						prev_rule_year = previous_year_;
 					}
 				}
@@ -304,15 +285,15 @@ namespace smalltime
 			RD closest_diff = 0.0;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				auto rule_rd = *(primary_ptr_ + i);
+				auto rule_rd = rule_transition.first;
 				diff = cur_rule - rule_rd;
 				// rule transition is not null and before rd
-				if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
+				if (diff > 0.0 && rule_rd > closest_diff)
 				{
 					closest_diff = rule_rd;
-					prev_rule = &rule_arr_[rules_.first + i];
+					prev_rule = &rule_arr_[rule_transition.second];
 					prev_rule_year = primary_year_;
 				}
 			}
@@ -321,16 +302,16 @@ namespace smalltime
 			{
 				diff = 0.0;
 				closest_diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
+				for (const auto& rule_transition : prev_year_transitions_)
 				{
-					auto rule_rd = *(previous_ptr_ + i);
+					auto rule_rd = rule_transition.first;
 					diff = cur_rule - rule_rd;
 					// rule transition is not null and before rd
 					// rule transition will not be no way close enough to be within ulp margin of error
-					if (rule_rd > 0.0 && diff > 0.0 && rule_rd > closest_diff)
+					if (diff > 0.0 && rule_rd > closest_diff)
 					{
 						closest_diff = rule_rd;
-						prev_rule = &rule_arr_[rules_.first + i];
+						prev_rule = &rule_arr_[rule_transition.second];
 						prev_rule_year = previous_year_;
 					}
 				}
@@ -349,16 +330,16 @@ namespace smalltime
 			RD closest_diff = DMAX;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				auto rule_rd = *(primary_ptr_ + i);
+				auto rule_rd = rule_transition.first;
 				diff = cur_rule.GetFixed() - rule_rd;
 				// rule transition is not null and after the cur rule
 				// rule transition will not be no way close enough to be within ulp margin of error
-				if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff)
+				if (diff < 0.0 && rule_rd < closest_diff)
 				{
 					closest_diff = rule_rd;
-					next_rule = &rule_arr_[rules_.first + i];
+					next_rule = &rule_arr_[rule_transition.second];
 					next_rule_year = primary_year_;
 				}
 			}
@@ -367,15 +348,15 @@ namespace smalltime
 			{
 				diff = 0.0;
 				closest_diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
+				for (const auto& rule_transition : next_year_transitions_)
 				{
-					auto rule_rd = *(next_ptr_ + i);
+					auto rule_rd = rule_transition.first;
 					diff = cur_rule.GetFixed() - rule_rd;
 					// rule transition is not null and after cur rule
-					if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff )
+					if (diff < 0.0 && rule_rd < closest_diff )
 					{
 						closest_diff = rule_rd;
-						next_rule = &rule_arr_[rules_.first + i];
+						next_rule = &rule_arr_[rule_transition.second];
 						next_rule_year = next_year_;
 					}
 				}
@@ -394,16 +375,16 @@ namespace smalltime
 			RD closest_diff = DMAX;
 			RD diff = 0.0;
 			// check the primary pool for an active rule 
-			for (int i = 0; i < rules_.size; ++i)
+			for (const auto& rule_transition : primary_year_transitions_)
 			{
-				auto rule_rd = *(primary_ptr_ + i);
+				auto rule_rd = rule_transition.first;
 				diff = cur_rule - rule_rd;
 				// rule transition is not null and after the cur rule
 				// rule transition will not be no way close enough to be within ulp margin of error
-				if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff)
+				if (diff < 0.0 && rule_rd < closest_diff)
 				{
 					closest_diff = rule_rd;
-					next_rule = &rule_arr_[rules_.first + i];
+					next_rule = &rule_arr_[rule_transition.second];
 					next_rule_year = primary_year_;
 				}
 			}
@@ -412,15 +393,15 @@ namespace smalltime
 			{
 				diff = 0.0;
 				closest_diff = 0.0;
-				for (int i = 0; i < rules_.size; ++i)
+				for (const auto& rule_transition : next_year_transitions_)
 				{
-					auto rule_rd = *(next_ptr_ + i);
+					auto rule_rd = rule_transition.first;
 					diff = cur_rule - rule_rd;
 					// rule transition is not null and after cur rule
-					if (rule_rd > 0.0 && diff < 0.0 && rule_rd < closest_diff)
+					if (diff < 0.0 && rule_rd < closest_diff)
 					{
 						closest_diff = rule_rd;
-						next_rule = &rule_arr_[rules_.first + i];
+						next_rule = &rule_arr_[rule_transition.second];
 						next_rule_year = next_year_;
 					}
 				}
@@ -623,15 +604,16 @@ namespace smalltime
 		//================================================
 		// Fill buffer with rule transition data
 		//================================================
-		void RuleGroup::BuildTransitionData(RD* buffer, int year)
+		void RuleGroup::BuildTransitionData(std::vector<std::pair<RD, int> >& transition_vec, int year)
 		{
-			int index = 0;
+			transition_vec.clear();
+
 			for (int i = rules_.first; i < rules_.first + rules_.size; ++i)
 			{
-				buffer[index] = CalcTransitionFast(&rule_arr_[i], year).GetFixed();
-				++index;
+				auto rule_transition = CalcTransitionFast(&rule_arr_[i], year).GetFixed();
+				if (rule_transition > 0.0)
+					transition_vec.emplace_back(std::make_pair(rule_transition, i));
 			}
-
 		}
 
 		//============================================

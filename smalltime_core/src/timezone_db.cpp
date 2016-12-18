@@ -1,6 +1,6 @@
 #include "../include/timezone_db.h"
-#include <core_math.h>
-#include <file_util.h>
+#include "../include/core_math.h"
+#include "../include/file_util.h"
 
 #include <fstream>
 
@@ -12,10 +12,17 @@ namespace smalltime
 		//==================================
 		// Init static member
 		//==================================
-		std::unique_ptr<Zone[]> TimezoneDB::zone_arr_(nullptr);
-		std::unique_ptr<Rule[]> TimezoneDB::rule_arr_(nullptr);
-		std::unique_ptr<Zones[]> TimezoneDB::zone_lookup_arr_(nullptr);
-		std::unique_ptr<Rules[]> TimezoneDB::rule_lookup_arr_(nullptr);
+		std::unique_ptr<Zone[]> TimeZoneDB::zone_arr_(nullptr);
+		std::unique_ptr<Rule[]> TimeZoneDB::rule_arr_(nullptr);
+		std::unique_ptr<Zones[]> TimeZoneDB::zone_lookup_arr_(nullptr);
+		std::unique_ptr<Rules[]> TimeZoneDB::rule_lookup_arr_(nullptr);
+	
+		std::string TimeZoneDB::path_ = "tzdb.bin";
+		int TimeZoneDB::zone_size_ = 0;
+		int TimeZoneDB::rule_size_ = 0;
+		int TimeZoneDB::zone_lookup_size_ = 0;
+		int TimeZoneDB::rule_lookup_size_ = 0;
+		bool TimeZoneDB::initialized_ = false;
 
 		static constexpr tz::Zone KZONE;
 		static constexpr int KZONE_SIZE = sizeof(KZONE.abbrev) + sizeof(KZONE.mb_rule_offset) + sizeof(KZONE.mb_until_utc) + sizeof(KZONE.next_zone_offset) +
@@ -32,11 +39,11 @@ namespace smalltime
 		static constexpr tz::Zones KRULES;
 		static constexpr int KRULES_SIZE = sizeof(KRULES.first) + sizeof(KRULES.size) + sizeof(KRULES.zone_id);
 
-		/*
+		
 		//===============================================
 		// Binary search function for zones
 		//===============================================
-		Zones BinarySearchZones(uint32_t zone_id, int size)
+		Zones TimeZoneDB::BinarySearchZones(uint32_t zone_id, int size)
 		{
 			int left = 0;
 			int right = size - 1;
@@ -44,7 +51,7 @@ namespace smalltime
 			while (left <= right)
 			{
 				int middle = (left + right) / 2;
-				const auto& mid_zones = KZoneLookupArray[middle];
+				const auto& mid_zones = zone_lookup_arr_[middle];
 
 				if (mid_zones.zone_id == zone_id)
 					return mid_zones;
@@ -60,7 +67,7 @@ namespace smalltime
 		//===============================================
 		// Binary search function for zones
 		//===============================================
-		Rules BinarySearchRules(uint32_t rule_id, int size)
+		Rules TimeZoneDB::BinarySearchRules(uint32_t rule_id, int size)
 		{
 			int left = 0;
 			int right = size - 1;
@@ -68,7 +75,7 @@ namespace smalltime
 			while (left <= right)
 			{
 				int middle = (left + right) / 2;
-				const auto& mid_zones = KRuleLookupArray[middle];
+				const auto& mid_zones = rule_lookup_arr_[middle];
 
 				if (mid_zones.rule_id == rule_id)
 					return mid_zones;
@@ -80,13 +87,83 @@ namespace smalltime
 
 			return{ rule_id, -1, -1 };
 		}
-		*/
+
+		//===============================================
+		// Get pointer to first element of tzdb array
+		//================================================
+		const Rule* const TimeZoneDB::GetRuleHandle()
+		{
+			if (!initialized_)
+				Init();
+
+			return rule_arr_.get();
+		}
+
+		//===============================================
+		// Get pointer to first element of tzdb array
+		//================================================
+		const Zone* const TimeZoneDB::GetZoneHandle()
+		{
+			if (!initialized_)
+				Init();
+
+			return zone_arr_.get();
+		}
+		
+		//================================================
+		// Find rules matching name id
+		//================================================
+		Rules TimeZoneDB::FindRules(const std::string& name)
+		{
+			if (!initialized_)
+				Init();
+
+			auto rule_id = math::GetUniqueID(name);
+			return BinarySearchRules(rule_id, rule_lookup_size_);
+		}
+
+		//================================================
+		// Find rules matching name id
+		//================================================
+		Rules TimeZoneDB::FindRules(uint32_t rule_id)
+		{
+			if (!initialized_)
+				Init();
+
+			return BinarySearchRules(rule_id, rule_lookup_size_);
+		}
+
+		//================================================
+		// Find zones matching name id
+		//================================================
+		Zones TimeZoneDB::FindZones(const std::string& name)
+		{
+			if (!initialized_)
+				Init();
+
+			auto zone_id = math::GetUniqueID(name);
+			return BinarySearchZones(zone_id, zone_lookup_size_);
+		}
+
+		//================================================
+		// Find zones matching name id
+		//================================================
+		Zones TimeZoneDB::FindZones(uint32_t zone_id)
+		{
+			if (!initialized_)
+				Init();
+
+			return BinarySearchZones(zone_id, zone_lookup_size_);
+		}
 
 		//=============================================
 		// Init tzdb from binary file
 		//=============================================
-		void TimezoneDB::Init()
+		void TimeZoneDB::Init()
 		{
+			if (initialized_)
+				return;
+
 			std::ifstream in_file (path_.c_str(), std::ios::in | std::ios::binary);
 			auto tzdb_id = math::GetUniqueID("TZDB_FILE");
 
@@ -102,21 +179,19 @@ namespace smalltime
 			if (tzdb_id != in_tzdb_id)
 				throw std::runtime_error("tzdb file posibly corrupt, unable to read");
 
-			std::cout << tzdb_id << "   " << in_tzdb_id << std::endl;
-
 			int in_file_size = 0;
 			in_file.read(reinterpret_cast<char*>(&in_file_size), sizeof(in_file_size));
 
 			if (in_file_size != file_size)
 				throw std::runtime_error("tzdb file posibly corrupt, unable to read");
 
-			int zone_arr_size = 0;
-			in_file.read(reinterpret_cast<char*>(&zone_arr_size), sizeof(zone_arr_size));
-			zone_arr_size /= KZONE_SIZE;
+			zone_size_ = 0;
+			in_file.read(reinterpret_cast<char*>(&zone_size_), sizeof(zone_size_));
+			zone_size_ /= KZONE_SIZE;
 
 			// init and populate zone array
-			zone_arr_ = std::unique_ptr<Zone[]>{ new Zone[zone_arr_size] };
-			for (int i = 0; i < zone_arr_size; ++i)
+			zone_arr_ = std::unique_ptr<Zone[]>{ new Zone[zone_size_] };
+			for (int i = 0; i < zone_size_; ++i)
 			{
 				in_file.read(reinterpret_cast<char*>(&zone_arr_[i].zone_id), sizeof(zone_arr_[i].zone_id));
 				in_file.read(reinterpret_cast<char*>(&zone_arr_[i].rule_id), sizeof(zone_arr_[i].rule_id));
@@ -129,13 +204,13 @@ namespace smalltime
 				in_file.read(reinterpret_cast<char*>(&zone_arr_[i].abbrev), sizeof(zone_arr_[i].abbrev));
 			}
 
-			int rule_arr_size = 0;
-			in_file.read(reinterpret_cast<char*>(&rule_arr_size), sizeof(rule_arr_size));
-			rule_arr_size /= KRULE_SIZE;
+			int rule_size_ = 0;
+			in_file.read(reinterpret_cast<char*>(&rule_size_), sizeof(rule_size_));
+			rule_size_ /= KRULE_SIZE;
 
 			// init and populate rule array
-			rule_arr_ = std::unique_ptr<Rule[]>{ new Rule[rule_arr_size] };
-			for (int i = 0; i < rule_arr_size; ++i)
+			rule_arr_ = std::unique_ptr<Rule[]>{ new Rule[rule_size_] };
+			for (int i = 0; i < rule_size_; ++i)
 			{
 				in_file.read(reinterpret_cast<char*>(&rule_arr_[i].rule_id), sizeof(rule_arr_[i].rule_id));
 				in_file.read(reinterpret_cast<char*>(&rule_arr_[i].from_year), sizeof(rule_arr_[i].from_year));
@@ -150,13 +225,13 @@ namespace smalltime
 
 			}
 
-			int zone_lookup_size = 0;
-			in_file.read(reinterpret_cast<char*>(&zone_lookup_size), sizeof(zone_lookup_size));
-			zone_lookup_size /= KZONES_SIZE;
+			zone_lookup_size_ = 0;
+			in_file.read(reinterpret_cast<char*>(&zone_lookup_size_), sizeof(zone_lookup_size_));
+			zone_lookup_size_ /= KZONES_SIZE;
 
 			// init and populate zone lookup array
-			zone_lookup_arr_ = std::unique_ptr<Zones[]>{ new Zones[zone_lookup_size] };
-			for (int i = 0; i < zone_lookup_size; ++i)
+			zone_lookup_arr_ = std::unique_ptr<Zones[]>{ new Zones[zone_lookup_size_] };
+			for (int i = 0; i < zone_lookup_size_; ++i)
 			{
 				in_file.read(reinterpret_cast<char*>(&zone_lookup_arr_[i].zone_id), sizeof(zone_lookup_arr_[i].zone_id));
 				in_file.read(reinterpret_cast<char*>(&zone_lookup_arr_[i].first), sizeof(zone_lookup_arr_[i].first));
@@ -164,30 +239,34 @@ namespace smalltime
 			}
 
 
-			int rule_lookup_size = 0;
-			in_file.read(reinterpret_cast<char*>(&rule_lookup_size), sizeof(rule_lookup_size));
-			rule_lookup_size /= KRULES_SIZE;
+			rule_lookup_size_ = 0;
+			in_file.read(reinterpret_cast<char*>(&rule_lookup_size_), sizeof(rule_lookup_size_));
+			rule_lookup_size_ /= KRULES_SIZE;
 
 			// init and populate rule lookup array
-			rule_lookup_arr_ = std::unique_ptr<Rules[]>{ new Rules[rule_lookup_size] };
-			for (int i = 0; i < zone_lookup_size; ++i)
+			rule_lookup_arr_ = std::unique_ptr<Rules[]>{ new Rules[rule_lookup_size_] };
+			for (int i = 0; i < rule_lookup_size_; ++i)
 			{
 				in_file.read(reinterpret_cast<char*>(&rule_lookup_arr_[i].rule_id), sizeof(rule_lookup_arr_[i].rule_id));
 				in_file.read(reinterpret_cast<char*>(&rule_lookup_arr_[i].first), sizeof(rule_lookup_arr_[i].first));
 				in_file.read(reinterpret_cast<char*>(&rule_lookup_arr_[i].size), sizeof(rule_lookup_arr_[i].size));
 			}
 
-
+			initialized_ = true;
 		}
 
 		//========================================
 		// Set path to look for tzdb file
 		//========================================
-		void TimezoneDB::SetPath(std::string path)
+		void TimeZoneDB::SetPath(std::string path)
 		{
-			path_ = fileutil::StripSeparator(fileutil::StripExt(path));
-			path_ = fileutil::AddSeparator(path_);
+			path_ = std::move(path);
+		//	path_ = fileutil::ExtractParent(path);
+		//	path_ = fileutil::AddSeparator(path_);
 			path_ += "tzdb.bin";
+
+			initialized_ = false;
+
 		}
 
 	}

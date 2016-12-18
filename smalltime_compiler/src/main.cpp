@@ -89,19 +89,19 @@ int main()
 	zone_post_generator.ProcessZones(vec_zone);
 	std::cout << "Zone post-processed ..." << std::endl;
 
-	//std::ofstream outf("Tzdb.h", std::ofstream::trunc);
-	//src_builder.BuildHead(outf);
-	//src_builder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
-	//src_builder.BuildTail(outf);
+	std::ofstream outf("Tzdb.h", std::ofstream::trunc);
+	src_builder.BuildHead(outf);
+	src_builder.BuildBody(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, tzdb_meta, outf);
+	src_builder.BuildTail(outf);
 
-	std::ofstream outf("tzdb.bin", std::ios::out | std::ios::binary);
-	file_builder.Build(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, outf);
+	//std::ofstream outf("tzdb.bin", std::ios::out | std::ios::binary);
+	//file_builder.Build(vec_rule, vec_zone, vec_zone_lookup, vec_rule_lookup, outf);
 
 	outf.close();
 	std::cout << "Source compiled ..." << std::endl;
 
-	//comp::CompLogger comp_logger;
-	//comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
+	comp::CompLogger comp_logger;
+	comp_logger.LogAllZones(std::cout, vec_zone, vec_zonedata);
 	//comp_logger.LogZoneData(std::cout, vec_zone, vec_zonedata, "Australia/Perth");
 
 	
